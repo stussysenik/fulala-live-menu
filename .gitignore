@@ -35,3 +35,4 @@ npm-debug.log*
 # Claude/MCP local files
 .claude/
 .playwright-mcp/
+.vercel
