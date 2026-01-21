@@ -7,6 +7,70 @@ test.describe('Currency Lens', () => {
     await page.evaluate(() => localStorage.clear());
   });
 
+  test('toggle highlights button on click', async ({ page }) => {
+    await page.goto('/');
+
+    // Wait for menu to fully load (not just "Loading menu...")
+    await page.waitForSelector('[data-testid="price"]', { timeout: 15000 });
+
+    // Wait for currency lens with an active button
+    await page.waitForSelector('.currency-lens .lens-button.active', { timeout: 5000 });
+
+    // Get all currency buttons
+    const buttons = page.locator('.currency-lens .lens-button');
+    const buttonCount = await buttons.count();
+
+    if (buttonCount < 2) {
+      test.skip();
+      return;
+    }
+
+    // Test clicking each button and verify it becomes active
+    for (let i = 0; i < buttonCount; i++) {
+      const button = buttons.nth(i);
+
+      // Click the button
+      await button.click();
+
+      // Wait for the button to become active (Svelte reactivity)
+      await expect(button).toHaveClass(/active/, { timeout: 2000 });
+
+      // Verify aria-pressed is true
+      await expect(button).toHaveAttribute('aria-pressed', 'true');
+
+      // Verify only one button is active
+      const activeButtons = page.locator('.currency-lens .lens-button.active');
+      await expect(activeButtons).toHaveCount(1);
+    }
+  });
+
+  test('rapid toggle switching maintains single active state', async ({ page }) => {
+    await page.goto('/');
+
+    // Wait for component to be fully initialized with an active button
+    await page.waitForSelector('.currency-lens .lens-button.active', { timeout: 10000 });
+
+    const buttons = page.locator('.currency-lens .lens-button');
+    const buttonCount = await buttons.count();
+
+    if (buttonCount < 2) {
+      test.skip();
+      return;
+    }
+
+    // Rapidly click between buttons
+    for (let round = 0; round < 3; round++) {
+      for (let i = 0; i < buttonCount; i++) {
+        await buttons.nth(i).click();
+
+        // Immediately verify only ONE button is active
+        const activeButtons = page.locator('.currency-lens .lens-button.active');
+        const activeCount = await activeButtons.count();
+        expect(activeCount).toBe(1);
+      }
+    }
+  });
+
   test('displays prices on the menu page', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="price"]');
@@ -142,8 +206,8 @@ test.describe('Currency Lens on TV View', () => {
       const priceElement = page.locator('[data-testid="price"]').first();
       const priceText = await priceElement.textContent();
 
-      // Should show CZK (Kc symbol)
-      expect(priceText).toContain('Kc');
+      // Should show CZK (Kč symbol)
+      expect(priceText).toContain('Kč');
     }
   });
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext } from "svelte";
+  import { getContext, tick } from "svelte";
   import type { Writable } from "svelte/store";
   import type { ThemeConfig } from "$lib/theme/defaults";
   import { defaultTheme } from "$lib/theme/defaults";
@@ -12,19 +12,15 @@
 
   // Currency configuration from theme
   $: currencyConfig = theme.currency ?? defaultTheme.currency;
-  $: displayCurrencies = currencyConfig.displayCurrencies;
+  $: displayCurrencies = currencyConfig.displayCurrencies ?? defaultTheme.currency.displayCurrencies;
 
-  // Effective selected currency (from store or default to first display currency)
-  $: effectiveCurrency = $selectedCurrency ?? displayCurrencies[0];
+  // Derive active currency directly from store with fallback
+  $: activeCurrency = $selectedCurrency ?? displayCurrencies?.[0] ?? "CZK";
 
-  // Check if a currency is currently selected
-  function isSelected(currency: CurrencyCode): boolean {
-    return currency === effectiveCurrency;
-  }
-
-  // Set the selected currency
-  function selectCurrency(currency: CurrencyCode) {
+  // Set the selected currency with immediate DOM update
+  async function selectCurrency(currency: CurrencyCode) {
     selectedCurrency.set(currency);
+    await tick(); // Force immediate DOM update
   }
 </script>
 
@@ -33,9 +29,9 @@
     {#each displayCurrencies as currency}
       <button
         class="lens-button"
-        class:active={isSelected(currency)}
+        class:active={currency === activeCurrency}
         on:click={() => selectCurrency(currency)}
-        aria-pressed={isSelected(currency)}
+        aria-pressed={currency === activeCurrency}
         data-testid="currency-{currency}"
       >
         {getCurrencyShortDisplay(currency)}
