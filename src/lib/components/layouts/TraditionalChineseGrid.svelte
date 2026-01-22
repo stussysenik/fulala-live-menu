@@ -348,6 +348,9 @@
 		font-weight: 600;
 		color: var(--accent);
 		font-size: 0.875rem;
+		flex-shrink: 0;
+		min-width: fit-content;
+		white-space: nowrap;
 	}
 
 	/* Quantity input box */

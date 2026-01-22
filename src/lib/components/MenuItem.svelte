@@ -103,6 +103,12 @@
 		align-items: baseline;
 	}
 
+	/* Protect price from being compressed on narrow screens */
+	.item-header :global(.price) {
+		flex-shrink: 0;
+		min-width: fit-content;
+	}
+
 	.item-name {
 		font-family: var(--font-body, var(--font));
 		font-size: var(--text-body, var(--text-base));
@@ -111,7 +117,8 @@
 		display: flex;
 		align-items: center;
 		gap: var(--space-2);
-		flex-shrink: 0;
+		flex-shrink: 1;
+		min-width: 0;
 	}
 
 	.item-header.with-dots .item-name {

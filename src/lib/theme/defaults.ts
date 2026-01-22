@@ -106,7 +106,7 @@ export const defaultTheme: ThemeConfig = {
   currency: {
     baseCurrency: "USD",  // Prices stored in USD cents in DB
     displayCurrencies: ["CZK", "EUR", "USD"],  // CZK first for Czech customers
-    displayMode: "multi",
+    displayMode: "single",
     rates: { CZK: 23.5, EUR: 0.92, USD: 1, CNY: 7.25 },
     showSymbols: true,
     compactMode: true,

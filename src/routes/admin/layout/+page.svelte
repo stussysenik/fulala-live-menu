@@ -82,6 +82,10 @@
 	let activatingId: string | null = null;
 	let isSaving = false;
 
+	// Auto-initialization state
+	let autoInitializing = false;
+	let autoInitDone = false;
+
 	async function handleInitDefaults() {
 		if (!initDefaultLayouts) return;
 		isInitializing = true;
@@ -170,6 +174,23 @@
 
 	// Check if any layouts need migration
 	$: needsMigration = allLayouts.some((l) => !l.pageType);
+
+	// Auto-initialize layouts when none exist
+	$: if (browser && !autoInitializing && !autoInitDone &&
+	    $allLayoutsQuery !== undefined && $allLayoutsQuery !== null && $allLayoutsQuery.length === 0 &&
+	    initDefaultLayouts) {
+		autoInitializing = true;
+		initDefaultLayouts({})
+			.then(() => {
+				showToast('Default layouts initialized!');
+				autoInitDone = true;
+				autoInitializing = false;
+			})
+			.catch(() => {
+				showToast('Failed to initialize layouts', 'error');
+				autoInitializing = false;
+			});
+	}
 </script>
 
 <svelte:head>
@@ -233,14 +254,19 @@
 		</div>
 	{/if}
 
-	{#if layouts.length === 0 && allLayouts.length === 0}
+	{#if autoInitializing}
 		<div class="empty-state">
-			<p>No layouts configured yet.</p>
+			<span class="spinner"></span>
+			<p>Setting up default layouts...</p>
+		</div>
+	{:else if layouts.length === 0 && allLayouts.length === 0}
+		<div class="empty-state">
+			<p>Failed to initialize layouts.</p>
 			<button class="btn primary" on:click={handleInitDefaults} disabled={isInitializing}>
 				{#if isInitializing}
-					<span class="spinner"></span> Initializing...
+					<span class="spinner"></span> Retrying...
 				{:else}
-					Initialize Default Layouts
+					Retry
 				{/if}
 			</button>
 		</div>

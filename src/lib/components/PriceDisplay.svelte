@@ -144,6 +144,8 @@
 
   .price-value {
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    min-width: fit-content;
   }
 
   /* Multi-currency display */
@@ -152,6 +154,20 @@
     align-items: baseline;
     gap: 0.25rem;
     flex-wrap: wrap;
+  }
+
+  /* Mobile optimization for multi-currency mode */
+  @media (max-width: 480px) {
+    .price-multi {
+      flex-wrap: nowrap;
+      overflow: hidden;
+      gap: 0.125rem;
+      max-width: 100%;
+    }
+
+    .price-separator {
+      margin: 0 0.0625rem;
+    }
   }
 
   .price-separator {

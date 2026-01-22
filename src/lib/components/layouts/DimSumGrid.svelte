@@ -268,6 +268,8 @@
 	.item-price {
 		flex-shrink: 0;
 		font-weight: 600;
+		min-width: fit-content;
+		white-space: nowrap;
 	}
 
 	.quantity-controls {

@@ -302,11 +302,14 @@
 		margin-top: var(--space-2, 0.5rem);
 		padding-top: var(--space-2, 0.5rem);
 		border-top: 1px solid var(--color-border, #e5e5e5);
+		gap: var(--space-2, 0.5rem);
 	}
 
 	.card-price {
 		font-weight: 700;
 		font-size: var(--text-lg, 1.125rem);
+		flex-shrink: 0;
+		min-width: fit-content;
 	}
 
 	.add-button {
