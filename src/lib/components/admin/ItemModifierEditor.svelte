@@ -108,6 +108,17 @@
 
 	const defaultSugarLevels = ['0%', '30%', '50%', '70%', '100%'];
 
+	function isModifierSelected(key: string, value: string): boolean {
+		const modKey = key as keyof Modifiers;
+		const values = localModifiers[modKey];
+		if (!values || !Array.isArray(values)) return false;
+		return (values as string[]).includes(value);
+	}
+
+	function handleModifierToggle(key: string, value: any) {
+		toggleModifier(key as keyof Modifiers, value);
+	}
+
 	function toggleModifier<T>(
 		key: keyof Modifiers,
 		value: T
@@ -253,10 +264,8 @@
 						<button
 							type="button"
 							class="option-btn"
-							class:selected={(localModifiers[key as keyof Modifiers] as string[] | undefined)?.includes(
-								option.value
-							)}
-							on:click={() => toggleModifier(key as keyof Modifiers, option.value)}
+							class:selected={isModifierSelected(key, option.value)}
+							on:click={() => handleModifierToggle(key, option.value)}
 						>
 							{option.label}
 						</button>

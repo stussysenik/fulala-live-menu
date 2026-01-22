@@ -7,6 +7,12 @@ A real-time restaurant menu display system with mobile-first responsive design.
 - **Real-time updates**: Menu changes sync instantly to all displays
 - **Mobile-first design**: Works on phones, tablets, and vertical TV screens
 - **TV display mode**: Optimized view for restaurant displays (`/tv`)
+- **Display layouts**: 3 layout types (standard-list, dim-sum-grid, card-grid) with real-time switching
+- **Customer ordering**: Session-based cart system with order lifecycle tracking
+- **Item modifiers**: 7 modifier types (temperature, noodle, frying, broth, spice, drinks, add-ons)
+- **Dietary tags**: Visual icons for vegetarian, vegan, allergens, halal, kosher, and more
+- **Event management**: Event packages, catering menus, and school meal schedules
+- **Multi-currency**: Currency toggle with CZK, EUR, USD, CNY support
 - **Archive & versioning**: Full history of menu changes
 - **Google Sheets sync**: Edit your menu from any device
 
@@ -60,10 +66,25 @@ Open [http://localhost:5173](http://localhost:5173) to see the menu.
 
 ## Routes
 
+### Customer Routes
 | Route | Description |
 |-------|-------------|
-| `/` | Main menu (mobile/web) |
+| `/` | Main menu (mobile/web) with active display layout |
 | `/tv` | TV display mode (larger fonts, multi-column) |
+| `/order` | Customer ordering page with cart and checkout |
+
+### Admin Routes
+| Route | Description |
+|-------|-------------|
+| `/admin` | Admin dashboard - menu item and category management |
+| `/admin/theme` | Theme editor with live preview |
+| `/admin/layout` | Display layout configuration and preview |
+| `/admin/events` | Event packages, catering, and school meals management |
+| `/admin/analytics` | Display session analytics |
+
+### API Routes
+| Route | Description |
+|-------|-------------|
 | `/api/sync` | Webhook endpoint for Google Sheets |
 
 ## Environment Variables
@@ -112,24 +133,66 @@ bun run test -- --ui
 fulala-live-menu/
 ├── src/
 │   ├── lib/
-│   │   ├── components/      # Svelte components
-│   │   ├── convex/          # Convex client utilities
-│   │   └── styles/          # CSS tokens and styles
+│   │   ├── components/
+│   │   │   ├── admin/           # Admin UI components
+│   │   │   │   ├── ItemModifierEditor.svelte
+│   │   │   │   ├── ColorPicker.svelte
+│   │   │   │   ├── ThemeEditor.svelte
+│   │   │   │   └── TypographyPanel.svelte
+│   │   │   ├── layouts/         # Display layout components
+│   │   │   │   ├── CardGrid.svelte
+│   │   │   │   ├── DimSumGrid.svelte
+│   │   │   │   └── LayoutRenderer.svelte
+│   │   │   ├── modifiers/       # Modifier components
+│   │   │   │   ├── ModifierBadges.svelte
+│   │   │   │   └── ModifierSelector.svelte
+│   │   │   ├── order/           # Order components
+│   │   │   │   ├── OrderCart.svelte
+│   │   │   │   └── OrderReceipt.svelte
+│   │   │   ├── DietaryTags.svelte
+│   │   │   ├── MenuItem.svelte
+│   │   │   └── PriceDisplay.svelte
+│   │   ├── stores/
+│   │   │   ├── index.ts         # Theme store
+│   │   │   └── order.ts         # Order cart store
+│   │   └── theme/               # Theme configuration
 │   └── routes/
-│       ├── +page.svelte     # Main menu page
-│       ├── tv/+page.svelte  # TV display mode
-│       └── api/sync/        # Webhook endpoint
+│       ├── +page.svelte         # Main menu page
+│       ├── tv/+page.svelte      # TV display mode
+│       ├── order/+page.svelte   # Customer ordering
+│       ├── admin/
+│       │   ├── +page.svelte     # Admin dashboard
+│       │   ├── theme/+page.svelte
+│       │   ├── layout/+page.svelte
+│       │   ├── events/+page.svelte
+│       │   └── analytics/+page.svelte
+│       └── api/sync/            # Webhook endpoint
 ├── convex/
-│   ├── schema.ts            # Database schema
-│   ├── menu.ts              # Menu queries/mutations
-│   ├── archive.ts           # Archive & analytics
-│   ├── sync.ts              # Google Sheets sync
-│   ├── seed.ts              # Example data
-│   └── crons.ts             # Scheduled jobs
-└── tests/
-    ├── menu.spec.ts         # Menu display tests
-    ├── realtime.spec.ts     # Real-time sync tests
-    └── accessibility.spec.ts # Accessibility tests
+│   ├── schema.ts                # Database schema (14 tables)
+│   ├── menuItems.ts             # Menu item queries/mutations
+│   ├── categories.ts            # Category queries/mutations
+│   ├── layouts.ts               # Layout queries/mutations
+│   ├── orders.ts                # Order queries/mutations
+│   ├── events.ts                # Event management queries/mutations
+│   ├── archive.ts               # Archive & analytics
+│   ├── sync.ts                  # Google Sheets sync
+│   ├── seed.ts                  # Example data
+│   └── crons.ts                 # Scheduled jobs
+├── tests/
+│   ├── menu.spec.ts             # Menu display tests
+│   ├── currency-toggle.spec.ts  # Currency toggle tests
+│   ├── realtime.spec.ts         # Real-time sync tests
+│   └── accessibility.spec.ts    # Accessibility tests
+├── openspec/                    # OpenSpec proposals and specs
+│   ├── changes/
+│   │   └── add-advanced-menu-features/
+│   └── specs/
+│       ├── menu-display/
+│       ├── customer-ordering/
+│       └── event-management/
+├── PROGRESS.md                  # Development progress and roadmap
+├── DOCS.md                      # Technical documentation
+└── README.md                    # This file
 ```
 
 ## Example Menu Categories

@@ -73,6 +73,10 @@
 		},
 	};
 
+	function getOptionConfig(configOptions: any, value: string) {
+		return configOptions[value];
+	}
+
 	// Get active modifiers
 	$: activeModifiers = modifiers
 		? Object.entries(modifiers)
@@ -94,7 +98,7 @@
 				</span>
 				<div class="modifier-options">
 					{#each modifier.values as value}
-						{@const optionConfig = modifier.config.options[value as keyof typeof modifier.config.options]}
+						{@const optionConfig = getOptionConfig(modifier.config.options, value)}
 						{#if optionConfig}
 							<span class="option-badge" title={optionConfig.label}>
 								{#if compact}

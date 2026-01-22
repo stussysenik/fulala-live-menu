@@ -30,7 +30,7 @@
 		showCheckboxes: false,
 		showItemNumbers: false,
 		showImages: true,
-		categoryStyle: 'header',
+		categoryStyle: 'header' as 'header' | 'tabs' | 'colored',
 	};
 
 	function handleItemSelect(event: CustomEvent<{ item: Doc<'menuItems'>; quantity?: number }>) {
