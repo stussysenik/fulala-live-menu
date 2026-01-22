@@ -9,6 +9,7 @@
 - ✅ **Traditional Chinese Layout** - Classic dim sum order sheet style with ornamental characters
 - ✅ **Currency Configuration** - Admin UI for currency ordering, visibility, and display modes
 - ✅ **Layout Migration** - Backwards-compatible migration for existing layouts
+- ✅ **Mobile Price Fix** - Fixed price truncation on narrow screens (320px-480px) and changed default to single-currency display
 
 **Schema Changes:**
 - Added `pageType` field to `displayLayouts` table ("display" | "order")
@@ -46,14 +47,20 @@
 - `tests/layouts.spec.ts` - Per-page layout E2E tests
 - `tests/currency-admin.spec.ts` - Currency configuration E2E tests
 
-**Files Modified (8):**
+**Files Modified (14):**
 - `convex/schema.ts` - Added pageType, traditional-chinese, new index
 - `convex/layouts.ts` - Complete rewrite for per-page support
 - `src/lib/components/layouts/LayoutRenderer.svelte` - Added pageType prop
+- `src/lib/components/MenuItem.svelte` - Fixed price truncation with flex-shrink: 0
+- `src/lib/components/PriceDisplay.svelte` - Added mobile CSS optimizations
+- `src/lib/components/layouts/CardGrid.svelte` - Added price protection
+- `src/lib/components/layouts/DimSumGrid.svelte` - Added price protection
+- `src/lib/components/layouts/TraditionalChineseGrid.svelte` - Added price protection
+- `src/lib/theme/defaults.ts` - Changed default displayMode to "single"
 - `src/routes/+page.svelte` - Uses LayoutRenderer with pageType="display"
 - `src/routes/tv/+page.svelte` - Uses LayoutRenderer with pageType="display"
 - `src/routes/order/+page.svelte` - Added pageType="order"
-- `src/routes/admin/layout/+page.svelte` - Added tabs for page types
+- `src/routes/admin/layout/+page.svelte` - Added tabs for page types, fixed TypeScript null check
 - Documentation files (README.md, DOCS.md, PROGRESS.md)
 
 ---
@@ -66,7 +73,7 @@
 - ✅ **Customer Ordering** - Session-based cart system with order lifecycle (active → submitted → completed)
 - ✅ **Item Modifiers** - 7 modifier types (temperature, noodle, frying, broth, spice, drinks, add-ons)
 - ✅ **Dietary Tags** - 11 visual tags (vegetarian, vegan, allergens, halal, kosher, etc.)
-- ✅ **Multi-Currency** - Currency toggle with real-time reactivity (CZK, EUR, USD, CNY)
+- ✅ **Multi-Currency** - Single-currency display by default with global currency selector (CZK, EUR, USD, CNY)
 
 **Database Schema:**
 - Added 5 new tables: `displayLayouts`, `customerOrders`, `eventPackages`, `cateringMenus`, `schoolMeals`
@@ -123,7 +130,7 @@
 - ✅ **Theme System** - Customizable colors, typography, and branding
 - ✅ **Google Sheets Sync** - Bulk import/export menu data
 - ✅ **Analytics** - Display session tracking
-- ✅ **Multi-Currency Display** - CZK, EUR, USD, CNY support (basic)
+- ✅ **Multi-Currency Display** - CZK, EUR, USD, CNY support with global currency selector
 
 **Initial Database:**
 - Tables: `categories`, `menuItems`, `menuArchive`, `syncState`, `dailySnapshots`, `siteSettings`, `themePresets`, `displayAnalytics`, `analyticsAggregates`

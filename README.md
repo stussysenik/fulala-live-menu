@@ -13,7 +13,7 @@ A real-time restaurant menu display system with mobile-first responsive design.
 - **Item modifiers**: 7 modifier types (temperature, noodle, frying, broth, spice, drinks, add-ons)
 - **Dietary tags**: Visual icons for vegetarian, vegan, allergens, halal, kosher, and more
 - **Event management**: Event packages, catering menus, and school meal schedules
-- **Multi-currency**: Currency toggle with CZK, EUR, USD, CNY support
+- **Multi-currency**: Single-currency display by default with global currency selector (CZK, EUR, USD, CNY support)
 - **Archive & versioning**: Full history of menu changes
 - **Google Sheets sync**: Edit your menu from any device
 
