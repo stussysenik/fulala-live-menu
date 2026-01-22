@@ -238,7 +238,7 @@
 	{/if}
 
 	<main class="order-content">
-		<LayoutRenderer on:select={handleItemSelect} />
+		<LayoutRenderer pageType="order" on:select={handleItemSelect} />
 	</main>
 
 	<!-- Floating cart summary -->

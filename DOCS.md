@@ -190,30 +190,35 @@ Indices:
 
 #### 3. displayLayouts
 
-Layout configurations for menu display (Phase 1).
+Layout configurations for menu display with per-page support (Phase 1 + v0.3.0).
 
 ```typescript
 {
-  layoutType: "standard-list" | "dim-sum-grid" | "card-grid",
+  layoutType: "standard-list" | "dim-sum-grid" | "card-grid" | "traditional-chinese",
+  pageType: "display" | "order",         // NEW: Separate layouts per page type
   config: {
     columnsPerRow?: number,              // 2 for dim sum
-    showCheckboxes?: boolean,           // Dim sum style
-    showItemNumbers?: boolean,          // Show item codes (S1, F2)
-    showImages?: boolean,               // Display images
-    categoryStyle?: "header" | "tabs" | "colored"
+    showCheckboxes?: boolean,            // Dim sum style
+    showItemNumbers?: boolean,           // Show item codes (S1, F2)
+    showImages?: boolean,                // Display images
+    categoryStyle?: "header" | "tabs" | "colored",
+    showQuantityInput?: boolean,         // Traditional Chinese quantity boxes
+    colorScheme?: "classic-red" | "jade-green" | "gold"  // Traditional Chinese color scheme
   },
-  isActive: boolean                      // Only one active at a time
+  isActive: boolean                      // Only one active per pageType
 }
 
 Indices:
 - by_active: [isActive]
+- by_page_type: [pageType, isActive]
 ```
 
-**Example:**
+**Example (Display page layout):**
 ```json
 {
   "_id": "lz9ghi789...",
   "layoutType": "dim-sum-grid",
+  "pageType": "display",
   "config": {
     "columnsPerRow": 2,
     "showCheckboxes": true,
@@ -222,6 +227,22 @@ Indices:
     "categoryStyle": "header"
   },
   "isActive": true
+}
+```
+
+**Example (Traditional Chinese layout):**
+```json
+{
+  "_id": "ab1xyz789...",
+  "layoutType": "traditional-chinese",
+  "pageType": "display",
+  "config": {
+    "columnsPerRow": 2,
+    "showItemNumbers": true,
+    "showQuantityInput": true,
+    "colorScheme": "classic-red"
+  },
+  "isActive": false
 }
 ```
 
@@ -523,18 +544,25 @@ Returns only active categories.
 
 #### Display Layouts
 
-**`api.layouts.getActive`**
+**`api.layouts.getActiveLayout`**
 ```typescript
-async () => DisplayLayout | null
+async (args: { pageType: "display" | "order" }) => DisplayLayout | null
 ```
-Returns the currently active layout configuration.
+Returns the currently active layout for the specified page type.
 
-**`api.layouts.getAll`**
+**`api.layouts.getAllLayouts`**
 ```typescript
-async () => DisplayLayout[]
+async (args: { pageType: "display" | "order" }) => DisplayLayout[]
 ```
+Returns all layouts for a specific page type.
 
-**`api.layouts.getById`**
+**`api.layouts.getLayoutsByPageType`**
+```typescript
+async () => { display: DisplayLayout[], order: DisplayLayout[] }
+```
+Returns all layouts grouped by page type.
+
+**`api.layouts.getLayoutById`**
 ```typescript
 async (args: { id: Id<"displayLayouts"> }) => DisplayLayout | null
 ```
@@ -632,30 +660,44 @@ async (args: { id: Id<"menuItems"> }) => void
 
 #### Display Layouts
 
-**`api.layouts.create`**
+**`api.layouts.createLayout`**
 ```typescript
 async (args: {
-  layoutType: "standard-list" | "dim-sum-grid" | "card-grid"
+  layoutType: "standard-list" | "dim-sum-grid" | "card-grid" | "traditional-chinese"
+  pageType: "display" | "order"
   config: {...}
   isActive: boolean
 }) => Id<"displayLayouts">
 ```
+Creates a new layout for the specified page type.
 
-**`api.layouts.setActive`**
+**`api.layouts.setActiveLayout`**
 ```typescript
 async (args: { id: Id<"displayLayouts"> }) => void
 ```
-Sets specified layout as active, deactivates all others.
+Sets specified layout as active, deactivates other layouts of the same pageType only.
 
-**`api.layouts.update`**
+**`api.layouts.updateLayout`**
 ```typescript
 async (args: { id: Id<"displayLayouts">, config: {...} }) => void
 ```
 
-**`api.layouts.delete`**
+**`api.layouts.deleteLayout`**
 ```typescript
 async (args: { id: Id<"displayLayouts"> }) => void
 ```
+
+**`api.layouts.initializeDefaultLayouts`**
+```typescript
+async () => void
+```
+Creates default layouts for both display and order page types if none exist.
+
+**`api.layouts.migrateLayoutsToPageType`**
+```typescript
+async () => { migrated: number }
+```
+Migrates existing layouts without pageType field to default "display" pageType.
 
 ---
 
@@ -832,19 +874,60 @@ async (args: { id: Id<"schoolMeals"> }) => void
 
 ---
 
-#### `LayoutRenderer.svelte`
-**Location:** `src/lib/components/layouts/LayoutRenderer.svelte`
-**Size:** 1786 bytes
+#### `TraditionalChineseGrid.svelte`
+**Location:** `src/lib/components/layouts/TraditionalChineseGrid.svelte`
+**Size:** ~12 KB
 
 **Props:**
 ```typescript
 {
-  items: MenuItem[]
-  layout: DisplayLayout
+  categories: Array<Doc<'categories'> & { items: Doc<'menuItems'>[] }>
+  config: {
+    columnsPerRow?: number            // Default: 2
+    showCheckboxes?: boolean
+    showItemNumbers?: boolean
+    showImages?: boolean
+    categoryStyle?: 'header' | 'tabs' | 'colored'
+    showQuantityInput?: boolean       // Show quantity input boxes
+    colorScheme?: 'classic-red' | 'jade-green' | 'gold'
+  }
 }
 ```
 
-**Description:** Dynamic layout switcher, renders appropriate layout based on config.
+**Events:**
+```typescript
+on:select={(e) => {
+  // e.detail: { item: MenuItem, quantity: number }
+}}
+```
+
+**Description:** Classic Chinese dim sum order sheet layout with:
+- Traditional ornamental characters (龍, 鳳, 壽, 福, 喜)
+- Three color schemes: classic-red (default), jade-green, gold
+- Quantity input boxes instead of checkboxes
+- Double-border traditional styling
+- Chinese + English text for headers and labels
+- Print-friendly styles
+
+---
+
+#### `LayoutRenderer.svelte`
+**Location:** `src/lib/components/layouts/LayoutRenderer.svelte`
+**Size:** ~3 KB
+
+**Props:**
+```typescript
+{
+  pageType?: 'display' | 'order'       // Page type to fetch layout for (default: 'display')
+  layoutOverride?: 'standard-list' | 'dim-sum-grid' | 'card-grid' | 'traditional-chinese' | null
+}
+```
+
+**Description:** Dynamic layout switcher with per-page support. Fetches the active layout for the specified pageType from Convex and renders the appropriate layout component. Supports four layout types:
+- `standard-list`: Simple vertical list
+- `dim-sum-grid`: Checkbox-style grid
+- `card-grid`: Image-based card layout
+- `traditional-chinese`: Classic dim sum order sheet
 
 ---
 
@@ -958,6 +1041,42 @@ on:update={(e) => {
 ```
 
 **Description:** Comprehensive modifier and dietary tag configuration.
+
+---
+
+#### `CurrencyConfigEditor.svelte`
+**Location:** `src/lib/components/admin/CurrencyConfigEditor.svelte`
+**Size:** ~15 KB
+
+**Props:**
+```typescript
+{
+  currencies: Array<{
+    code: string           // "CZK", "EUR", "USD", "CNY"
+    name: string           // "Czech Koruna", etc.
+    symbol: string         // "Kč", "€", "$", "¥"
+    rate: number           // Exchange rate relative to base
+    isEnabled: boolean     // Whether to show in UI
+  }>
+  displayMode: 'single' | 'multi' | 'toggle'
+  showSymbols: boolean
+  compactMode: boolean
+}
+```
+
+**Events:**
+```typescript
+on:update={(e) => {
+  // e.detail: { currencies, displayMode, showSymbols, compactMode }
+}}
+```
+
+**Features:**
+- Reorder currencies with move up/down buttons (first = primary, shown with ★)
+- Toggle currency visibility with checkboxes
+- Edit exchange rates inline
+- Display mode selector: single (primary only), multi (all enabled), toggle (switch between)
+- Options for showSymbols and compactMode
 
 ---
 
@@ -1243,4 +1362,4 @@ npx convex deploy
 ---
 
 *Last Updated: January 22, 2026*
-*Version: 0.2.0*
+*Version: 0.3.0*

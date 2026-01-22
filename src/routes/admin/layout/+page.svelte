@@ -12,11 +12,15 @@
 		LayoutRenderer = module.default;
 	});
 
-	// Fetch layouts
-	const layoutsQuery = browser ? useQuery(api.layouts.getAllLayouts) : null;
-	$: layouts = $layoutsQuery ?? [];
+	// Page type selection (tab)
+	let selectedPageType: 'display' | 'order' = 'display';
 
-	const activeLayoutQuery = browser ? useQuery(api.layouts.getActiveLayout) : null;
+	// Fetch layouts for the selected page type
+	const allLayoutsQuery = browser ? useQuery(api.layouts.getAllLayouts, {}) : null;
+	$: allLayouts = $allLayoutsQuery ?? [];
+	$: layouts = allLayouts.filter((l) => l.pageType === selectedPageType);
+
+	const activeLayoutQuery = browser ? useQuery(api.layouts.getActiveLayout, { pageType: selectedPageType }) : null;
 	$: activeLayout = $activeLayoutQuery;
 
 	// Mutations
@@ -24,6 +28,7 @@
 	const updateLayout = browser ? useMutation(api.layouts.updateLayout) : null;
 	const setActiveLayout = browser ? useMutation(api.layouts.setActiveLayout) : null;
 	const initDefaultLayouts = browser ? useMutation(api.layouts.initializeDefaultLayouts) : null;
+	const migrateLayouts = browser ? useMutation(api.layouts.migrateLayoutsToPageType) : null;
 
 	// Layout type labels
 	const layoutLabels: Record<string, { name: string; description: string; icon: string }> = {
@@ -42,6 +47,11 @@
 			description: 'Pinterest-style cards with images, great for visual menus',
 			icon: '🖼️',
 		},
+		'traditional-chinese': {
+			name: 'Traditional Chinese',
+			description: 'Classic dim sum order sheet with ornamental styling',
+			icon: '🏮',
+		},
 	};
 
 	// Category style labels
@@ -49,6 +59,13 @@
 		{ value: 'header', label: 'Headers', description: 'Bold section headers' },
 		{ value: 'tabs', label: 'Tabs', description: 'Tab navigation' },
 		{ value: 'colored', label: 'Colored', description: 'Color-coded sections' },
+	];
+
+	// Color scheme options for traditional layout
+	const colorSchemes = [
+		{ value: 'classic-red', label: 'Classic Red', description: 'Traditional red and cream' },
+		{ value: 'jade-green', label: 'Jade Green', description: 'Elegant green tones' },
+		{ value: 'gold', label: 'Gold', description: 'Luxurious gold accents' },
 	];
 
 	// Toast notification state
@@ -61,6 +78,7 @@
 
 	// Loading states
 	let isInitializing = false;
+	let isMigrating = false;
 	let activatingId: string | null = null;
 	let isSaving = false;
 
@@ -69,11 +87,24 @@
 		isInitializing = true;
 		try {
 			await initDefaultLayouts({});
-			showToast('Default layouts initialized');
+			showToast('Default layouts initialized for both page types');
 		} catch (error) {
 			showToast('Failed to initialize layouts', 'error');
 		} finally {
 			isInitializing = false;
+		}
+	}
+
+	async function handleMigrate() {
+		if (!migrateLayouts) return;
+		isMigrating = true;
+		try {
+			const result = await migrateLayouts({});
+			showToast(result.message);
+		} catch (error) {
+			showToast('Failed to migrate layouts', 'error');
+		} finally {
+			isMigrating = false;
 		}
 	}
 
@@ -125,7 +156,7 @@
 	}
 
 	// Preview layout type selection
-	let previewLayoutType: 'standard-list' | 'dim-sum-grid' | 'card-grid' = 'standard-list';
+	let previewLayoutType: 'standard-list' | 'dim-sum-grid' | 'card-grid' | 'traditional-chinese' = 'standard-list';
 	$: if (activeLayout?.layoutType) {
 		previewLayoutType = activeLayout.layoutType as typeof previewLayoutType;
 	}
@@ -134,8 +165,11 @@
 	let showPreview = false;
 
 	function setPreviewType(type: string) {
-		previewLayoutType = type as 'standard-list' | 'dim-sum-grid' | 'card-grid';
+		previewLayoutType = type as 'standard-list' | 'dim-sum-grid' | 'card-grid' | 'traditional-chinese';
 	}
+
+	// Check if any layouts need migration
+	$: needsMigration = allLayouts.some((l) => !l.pageType);
 </script>
 
 <svelte:head>
@@ -146,11 +180,14 @@
 	<header class="page-header">
 		<div class="header-content">
 			<h1>Display Layouts</h1>
-			<p class="subtitle">Configure how your menu is displayed to customers</p>
+			<p class="subtitle">Configure layouts for different page types</p>
 		</div>
 		<div class="header-actions">
 			<a href="/order" class="preview-btn" target="_blank" rel="noopener">
 				Preview Order Page
+			</a>
+			<a href="/" class="preview-btn" target="_blank" rel="noopener">
+				Preview Display Page
 			</a>
 		</div>
 	</header>
@@ -161,7 +198,42 @@
 		</div>
 	{/if}
 
-	{#if layouts.length === 0}
+	<!-- Page Type Tabs -->
+	<div class="page-type-tabs">
+		<button
+			class="tab-btn"
+			class:active={selectedPageType === 'display'}
+			on:click={() => (selectedPageType = 'display')}
+		>
+			<span class="tab-icon">📺</span>
+			<span class="tab-label">Display Pages</span>
+			<span class="tab-desc">Home & TV</span>
+		</button>
+		<button
+			class="tab-btn"
+			class:active={selectedPageType === 'order'}
+			on:click={() => (selectedPageType = 'order')}
+		>
+			<span class="tab-icon">🛒</span>
+			<span class="tab-label">Order Page</span>
+			<span class="tab-desc">Customer ordering</span>
+		</button>
+	</div>
+
+	{#if needsMigration}
+		<div class="migration-notice">
+			<p>Some layouts need migration to support per-page configuration.</p>
+			<button class="btn primary" on:click={handleMigrate} disabled={isMigrating}>
+				{#if isMigrating}
+					<span class="spinner"></span> Migrating...
+				{:else}
+					Migrate Layouts
+				{/if}
+			</button>
+		</div>
+	{/if}
+
+	{#if layouts.length === 0 && allLayouts.length === 0}
 		<div class="empty-state">
 			<p>No layouts configured yet.</p>
 			<button class="btn primary" on:click={handleInitDefaults} disabled={isInitializing}>
@@ -171,6 +243,11 @@
 					Initialize Default Layouts
 				{/if}
 			</button>
+		</div>
+	{:else if layouts.length === 0}
+		<div class="empty-state">
+			<p>No layouts configured for {selectedPageType === 'display' ? 'display pages' : 'order page'}.</p>
+			<p class="hint">Initialize default layouts to create layouts for all page types.</p>
 		</div>
 	{:else}
 		<!-- Live Preview Toggle -->
@@ -198,11 +275,11 @@
 		{#if showPreview && LayoutRenderer}
 			<div class="live-preview-panel">
 				<div class="preview-header">
-					<h3>Live Preview: {layoutLabels[previewLayoutType]?.name}</h3>
+					<h3>Live Preview: {layoutLabels[previewLayoutType]?.name} ({selectedPageType === 'display' ? 'Display' : 'Order'} Page)</h3>
 					<p class="preview-note">This shows how the menu will appear to customers</p>
 				</div>
 				<div class="preview-content">
-					<svelte:component this={LayoutRenderer} layoutOverride={previewLayoutType} />
+					<svelte:component this={LayoutRenderer} layoutOverride={previewLayoutType} pageType={selectedPageType} />
 				</div>
 			</div>
 		{/if}
@@ -275,6 +352,22 @@
 									</select>
 								</label>
 
+								{#if layout.layoutType === 'traditional-chinese'}
+									<label class="form-field checkbox">
+										<input type="checkbox" bind:checked={editConfig.showQuantityInput} />
+										<span>Show quantity input</span>
+									</label>
+
+									<label class="form-field">
+										<span>Color scheme</span>
+										<select bind:value={editConfig.colorScheme}>
+											{#each colorSchemes as scheme}
+												<option value={scheme.value}>{scheme.label}</option>
+											{/each}
+										</select>
+									</label>
+								{/if}
+
 								<div class="form-actions">
 									<button class="btn sm" on:click={cancelEditing} disabled={isSaving}>Cancel</button>
 									<button class="btn sm primary" on:click={saveEditing} disabled={isSaving}>
@@ -308,6 +401,16 @@
 									<span class="config-label">Category style:</span>
 									<span class="config-value">{layout.config.categoryStyle ?? 'header'}</span>
 								</div>
+								{#if layout.layoutType === 'traditional-chinese'}
+									<div class="config-item">
+										<span class="config-label">Quantity input:</span>
+										<span class="config-value">{layout.config.showQuantityInput ? 'Yes' : 'No'}</span>
+									</div>
+									<div class="config-item">
+										<span class="config-label">Color scheme:</span>
+										<span class="config-value">{layout.config.colorScheme ?? 'classic-red'}</span>
+									</div>
+								{/if}
 
 								<button class="btn sm edit-btn" on:click={() => startEditing(layout)}>
 									Edit Configuration
@@ -351,6 +454,17 @@
 				<h4>Card Grid</h4>
 				<p>Visual cards with images</p>
 			</div>
+			<div class="preview-card">
+				<div class="preview-icon traditional">
+					<div class="ornament">龍</div>
+					<div class="lines">
+						<div class="row"></div>
+						<div class="row"></div>
+					</div>
+				</div>
+				<h4>Traditional Chinese</h4>
+				<p>Classic dim sum order sheet</p>
+			</div>
 		</div>
 	</section>
 </div>
@@ -388,6 +502,72 @@
 		}
 	}
 
+	/* Page Type Tabs */
+	.page-type-tabs {
+		display: flex;
+		gap: var(--space-2, 0.5rem);
+		margin-bottom: var(--space-5, 1.5rem);
+		padding: var(--space-2, 0.5rem);
+		background: var(--color-surface, white);
+		border-radius: var(--radius-lg, 12px);
+		border: 1px solid var(--color-border, #e5e5e5);
+	}
+
+	.tab-btn {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-1, 0.25rem);
+		padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+		background: transparent;
+		border: 2px solid transparent;
+		border-radius: var(--radius-md, 8px);
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.tab-btn:hover {
+		background: rgba(0, 0, 0, 0.03);
+	}
+
+	.tab-btn.active {
+		background: rgba(196, 90, 59, 0.1);
+		border-color: var(--color-accent, #c45a3b);
+	}
+
+	.tab-icon {
+		font-size: 1.5rem;
+	}
+
+	.tab-label {
+		font-weight: 600;
+		font-size: var(--text-sm, 0.875rem);
+		color: var(--color-text, #1a1a1a);
+	}
+
+	.tab-desc {
+		font-size: var(--text-xs, 0.75rem);
+		color: var(--color-text-muted, #666);
+	}
+
+	/* Migration notice */
+	.migration-notice {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+		background: #fff3cd;
+		border: 1px solid #ffc107;
+		border-radius: var(--radius-md, 8px);
+		margin-bottom: var(--space-4, 1rem);
+	}
+
+	.migration-notice p {
+		margin: 0;
+		color: #856404;
+	}
+
 	/* Preview Toggle Bar */
 	.preview-toggle-bar {
 		display: flex;
@@ -415,6 +595,7 @@
 		gap: var(--space-2, 0.5rem);
 		font-size: var(--text-sm, 0.875rem);
 		color: var(--color-text-muted, #666);
+		flex-wrap: wrap;
 	}
 
 	.preview-type-btn {
@@ -499,6 +680,8 @@
 		justify-content: space-between;
 		align-items: flex-start;
 		margin-bottom: var(--space-5, 1.5rem);
+		flex-wrap: wrap;
+		gap: var(--space-3, 0.75rem);
 	}
 
 	.header-content h1 {
@@ -511,6 +694,12 @@
 	.subtitle {
 		color: var(--color-text-muted, #666);
 		margin: 0;
+	}
+
+	.header-actions {
+		display: flex;
+		gap: var(--space-2, 0.5rem);
+		flex-wrap: wrap;
 	}
 
 	.preview-btn {
@@ -573,6 +762,11 @@
 	.empty-state p {
 		color: var(--color-text-muted, #666);
 		margin-bottom: var(--space-4, 1rem);
+	}
+
+	.empty-state .hint {
+		font-size: var(--text-sm, 0.875rem);
+		margin-bottom: 0;
 	}
 
 	.layouts-grid {
@@ -748,7 +942,7 @@
 
 	.preview-cards {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(4, 1fr);
 		gap: var(--space-4, 1rem);
 	}
 
@@ -818,6 +1012,32 @@
 		border-radius: 4px;
 	}
 
+	.preview-icon.traditional {
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		background: #fdf5e6;
+		border: 2px solid #c41e3a;
+	}
+
+	.preview-icon.traditional .ornament {
+		font-size: 14px;
+		color: #c41e3a;
+	}
+
+	.preview-icon.traditional .lines {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		width: 100%;
+	}
+
+	.preview-icon.traditional .row {
+		height: 6px;
+		background: rgba(196, 30, 58, 0.2);
+		border-radius: 2px;
+	}
+
 	@media (max-width: 768px) {
 		.page-header {
 			flex-direction: column;
@@ -829,7 +1049,11 @@
 		}
 
 		.preview-cards {
-			grid-template-columns: 1fr;
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.page-type-tabs {
+			flex-direction: column;
 		}
 	}
 </style>

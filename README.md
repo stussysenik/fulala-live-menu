@@ -7,7 +7,8 @@ A real-time restaurant menu display system with mobile-first responsive design.
 - **Real-time updates**: Menu changes sync instantly to all displays
 - **Mobile-first design**: Works on phones, tablets, and vertical TV screens
 - **TV display mode**: Optimized view for restaurant displays (`/tv`)
-- **Display layouts**: 3 layout types (standard-list, dim-sum-grid, card-grid) with real-time switching
+- **Display layouts**: 4 layout types (standard-list, dim-sum-grid, card-grid, traditional-chinese) with real-time switching
+- **Per-page layouts**: Independent layout configuration for display pages (/, /tv) vs order page (/order)
 - **Customer ordering**: Session-based cart system with order lifecycle tracking
 - **Item modifiers**: 7 modifier types (temperature, noodle, frying, broth, spice, drinks, add-ons)
 - **Dietary tags**: Visual icons for vegetarian, vegan, allergens, halal, kosher, and more
@@ -77,8 +78,8 @@ Open [http://localhost:5173](http://localhost:5173) to see the menu.
 | Route | Description |
 |-------|-------------|
 | `/admin` | Admin dashboard - menu item and category management |
-| `/admin/theme` | Theme editor with live preview |
-| `/admin/layout` | Display layout configuration and preview |
+| `/admin/theme` | Theme editor with live preview and currency configuration |
+| `/admin/layout` | Display layout configuration with per-page tabs (Display Pages / Order Page) |
 | `/admin/events` | Event packages, catering, and school meals management |
 | `/admin/analytics` | Display session analytics |
 
@@ -136,12 +137,14 @@ fulala-live-menu/
 │   │   ├── components/
 │   │   │   ├── admin/           # Admin UI components
 │   │   │   │   ├── ItemModifierEditor.svelte
+│   │   │   │   ├── CurrencyConfigEditor.svelte
 │   │   │   │   ├── ColorPicker.svelte
 │   │   │   │   ├── ThemeEditor.svelte
 │   │   │   │   └── TypographyPanel.svelte
 │   │   │   ├── layouts/         # Display layout components
 │   │   │   │   ├── CardGrid.svelte
 │   │   │   │   ├── DimSumGrid.svelte
+│   │   │   │   ├── TraditionalChineseGrid.svelte
 │   │   │   │   └── LayoutRenderer.svelte
 │   │   │   ├── modifiers/       # Modifier components
 │   │   │   │   ├── ModifierBadges.svelte
@@ -181,6 +184,8 @@ fulala-live-menu/
 ├── tests/
 │   ├── menu.spec.ts             # Menu display tests
 │   ├── currency-toggle.spec.ts  # Currency toggle tests
+│   ├── currency-admin.spec.ts   # Currency admin configuration tests
+│   ├── layouts.spec.ts          # Per-page layout tests
 │   ├── realtime.spec.ts         # Real-time sync tests
 │   └── accessibility.spec.ts    # Accessibility tests
 ├── openspec/                    # OpenSpec proposals and specs

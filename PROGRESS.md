@@ -2,10 +2,66 @@
 
 ## Version History
 
+### v0.3.0 - Per-Page Layouts & Traditional Chinese Style (January 22, 2026)
+
+**Major Features:**
+- ✅ **Per-Page Layouts** - Independent layout configuration for display pages (/, /tv) vs order page (/order)
+- ✅ **Traditional Chinese Layout** - Classic dim sum order sheet style with ornamental characters
+- ✅ **Currency Configuration** - Admin UI for currency ordering, visibility, and display modes
+- ✅ **Layout Migration** - Backwards-compatible migration for existing layouts
+
+**Schema Changes:**
+- Added `pageType` field to `displayLayouts` table ("display" | "order")
+- Added `traditional-chinese` layout type
+- Added new config options: `showQuantityInput`, `colorScheme`
+- Added `by_page_type` index for efficient per-page queries
+
+**New Components:**
+- `TraditionalChineseGrid.svelte` - Traditional Chinese dim sum order sheet layout
+  - Three color schemes: classic-red, jade-green, gold
+  - Ornamental Chinese characters (龍, 鳳, 壽, 福, 喜)
+  - Quantity input boxes with +/- controls
+  - Print-friendly styles
+- `CurrencyConfigEditor.svelte` - Currency configuration admin UI
+  - Reorder currencies (first = primary)
+  - Toggle currency visibility
+  - Display mode selector (single/multi/toggle)
+
+**Backend Updates:**
+- `convex/layouts.ts` - Complete rewrite with per-page support
+  - `getActiveLayout(pageType)` - Fetch active layout for page type
+  - `getAllLayouts(pageType)` - Fetch all layouts for page type
+  - `setActiveLayout` - Only deactivates same pageType layouts
+  - `initializeDefaultLayouts` - Creates defaults for both page types
+  - `migrateLayoutsToPageType` - Migration helper for existing data
+
+**Admin Interface:**
+- Updated `/admin/layout` with tabs for "Display Pages" and "Order Page"
+- Added migration notice for layouts without pageType
+- Added Traditional Chinese layout preview card with color scheme config
+
+**Files Added (4):**
+- `src/lib/components/layouts/TraditionalChineseGrid.svelte`
+- `src/lib/components/admin/CurrencyConfigEditor.svelte`
+- `tests/layouts.spec.ts` - Per-page layout E2E tests
+- `tests/currency-admin.spec.ts` - Currency configuration E2E tests
+
+**Files Modified (8):**
+- `convex/schema.ts` - Added pageType, traditional-chinese, new index
+- `convex/layouts.ts` - Complete rewrite for per-page support
+- `src/lib/components/layouts/LayoutRenderer.svelte` - Added pageType prop
+- `src/routes/+page.svelte` - Uses LayoutRenderer with pageType="display"
+- `src/routes/tv/+page.svelte` - Uses LayoutRenderer with pageType="display"
+- `src/routes/order/+page.svelte` - Added pageType="order"
+- `src/routes/admin/layout/+page.svelte` - Added tabs for page types
+- Documentation files (README.md, DOCS.md, PROGRESS.md)
+
+---
+
 ### v0.2.0 - Advanced Features (January 22, 2026)
 
 **Major Features:**
-- ✅ **Display Layouts** - 3 layout types (standard-list, dim-sum-grid, card-grid) with real-time switching
+- ✅ **Display Layouts** - 3 layout types with real-time switching (extended to 4 in v0.3.0)
 - ✅ **Event Management** - Event packages, catering menus, school meal schedules
 - ✅ **Customer Ordering** - Session-based cart system with order lifecycle (active → submitted → completed)
 - ✅ **Item Modifiers** - 7 modifier types (temperature, noodle, frying, broth, spice, drinks, add-ons)
@@ -85,14 +141,29 @@
 
 ---
 
-## Current Status (v0.2.0)
+## Current Status (v0.3.0)
 
 ### Completed Phases
 
 **Phase 1: Display Layouts ✅**
-- 3 layout types fully implemented
-- Admin interface for layout configuration
+- 4 layout types fully implemented (standard-list, dim-sum-grid, card-grid, traditional-chinese)
+- Per-page layout support (display vs order pages)
+- Admin interface with tabs for page type configuration
 - Real-time layout switching via Convex reactivity
+
+**Phase 1.5: Traditional Chinese Layout ✅** (v0.3.0)
+- Classic dim sum order sheet style
+- Three color schemes: classic-red, jade-green, gold
+- Ornamental characters (龍, 鳳, 壽, 福, 喜)
+- Quantity input boxes with +/- controls
+- Print-friendly styles
+
+**Phase 1.6: Currency Configuration ✅** (v0.3.0)
+- Currency ordering with drag/reorder
+- Primary currency indicator (★)
+- Visibility toggles per currency
+- Display mode selector (single/multi/toggle)
+- Exchange rate configuration
 
 **Phase 2: Item Modifiers ✅**
 - 7 modifier types with validated enums
@@ -116,12 +187,12 @@
 - School meal weekly schedules (Mon-Fri)
 - Unified admin interface at `/admin/events`
 
-### In Progress
+### Notes
 
-**Multi-Currency Enhancement (Phase 1.5)**
-- Basic currency display implemented in v0.1.0
-- Full multi-currency system in progress (see `openspec/changes/add-multi-currency/`)
-- Includes: Base currency, exchange rates, display modes, admin UI
+**Vercel Deployment:**
+- Requires `VITE_CONVEX_URL` environment variable to be set
+- Value: `https://cheery-setter-27.convex.cloud`
+- Must be set in Vercel Dashboard → Project Settings → Environment Variables
 
 ---
 
@@ -368,4 +439,4 @@ This project is private and proprietary. All rights reserved.
 ---
 
 *Last Updated: January 22, 2026*
-*Version: 0.2.0*
+*Version: 0.3.0*

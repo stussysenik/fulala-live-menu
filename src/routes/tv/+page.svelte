@@ -1,27 +1,8 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import Category from '$lib/components/Category.svelte';
+	import LayoutRenderer from '$lib/components/layouts/LayoutRenderer.svelte';
 	import AnalyticsTracker from '$lib/components/AnalyticsTracker.svelte';
 	import CurrencyLens from '$lib/components/CurrencyLens.svelte';
-	import { useQuery } from '$lib/convex';
-	import { api } from '../../../convex/_generated/api';
-	import type { Doc } from '../../../convex/_generated/dataModel';
 	import { onMount } from 'svelte';
-
-	type CategoryDoc = Doc<'categories'>;
-	type MenuItemDoc = Doc<'menuItems'>;
-
-	// Only subscribe to data on the client
-	const categoriesQuery = browser ? useQuery(api.menu.getCategories) : null;
-	const menuItemsQuery = browser ? useQuery(api.menu.getMenuItems) : null;
-
-	$: categories = ($categoriesQuery ?? []) as CategoryDoc[];
-	$: menuItems = ($menuItemsQuery ?? []) as MenuItemDoc[];
-
-	$: categoriesWithItems = categories.map((category: CategoryDoc) => ({
-		...category,
-		items: menuItems.filter((item: MenuItemDoc) => item.categoryId === category._id)
-	}));
 
 	// Current time for display
 	let currentTime = '';
@@ -65,19 +46,7 @@
 	</header>
 
 	<div class="tv-menu" role="region" aria-label="Menu">
-		{#if categories.length === 0}
-			<div class="loading" aria-live="polite">
-				<p>Loading menu...</p>
-			</div>
-		{:else}
-			<div class="menu-columns">
-				{#each categoriesWithItems as category (category._id)}
-					<div class="column-item">
-						<Category {category} items={category.items} />
-					</div>
-				{/each}
-			</div>
-		{/if}
+		<LayoutRenderer pageType="display" />
 	</div>
 
 	<footer class="tv-footer">
@@ -147,26 +116,6 @@
 		overflow: hidden;
 	}
 
-	.loading {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100%;
-		font-size: 1.5rem;
-		color: var(--text-muted);
-	}
-
-	.menu-columns {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-		gap: var(--space-5);
-		align-items: start;
-	}
-
-	.column-item {
-		break-inside: avoid;
-	}
-
 	.tv-footer {
 		padding-top: var(--space-4);
 		border-top: 1px solid var(--border);
@@ -181,23 +130,12 @@
 
 	/* Vertical TV adjustments (1080x1920) */
 	@media (max-width: 1200px) and (min-height: 1600px) {
-		.menu-columns {
-			grid-template-columns: 1fr;
-		}
-
 		.tv-page {
 			font-size: 28px;
 		}
 
 		.title {
 			font-size: 4rem;
-		}
-	}
-
-	/* Landscape TV adjustments */
-	@media (min-width: 1600px) {
-		.menu-columns {
-			grid-template-columns: repeat(3, 1fr);
 		}
 	}
 </style>

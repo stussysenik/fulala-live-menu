@@ -5,7 +5,13 @@ import { v } from "convex/values";
 const layoutTypeValidator = v.union(
   v.literal("standard-list"),
   v.literal("dim-sum-grid"),
-  v.literal("card-grid")
+  v.literal("card-grid"),
+  v.literal("traditional-chinese")
+);
+
+const pageTypeValidator = v.union(
+  v.literal("display"),
+  v.literal("order")
 );
 
 const layoutConfigValidator = v.object({
@@ -18,26 +24,50 @@ const layoutConfigValidator = v.object({
     v.literal("tabs"),
     v.literal("colored")
   )),
+  showQuantityInput: v.optional(v.boolean()),
+  colorScheme: v.optional(v.union(
+    v.literal("classic-red"),
+    v.literal("jade-green"),
+    v.literal("gold")
+  )),
 });
 
-// Get the active layout
+// Get the active layout for a specific page type
 export const getActiveLayout = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    pageType: v.optional(pageTypeValidator),
+  },
+  handler: async (ctx, args) => {
+    const pageType = args.pageType ?? "display";
+
+    // Try to find an active layout for this page type
     const layouts = await ctx.db
+      .query("displayLayouts")
+      .withIndex("by_page_type", (q) =>
+        q.eq("pageType", pageType).eq("isActive", true)
+      )
+      .collect();
+
+    // Return the first active layout for this page type
+    if (layouts.length > 0) {
+      return layouts[0];
+    }
+
+    // Fallback: Try to find any active layout (for backwards compatibility)
+    const anyActiveLayouts = await ctx.db
       .query("displayLayouts")
       .withIndex("by_active", (q) => q.eq("isActive", true))
       .collect();
 
-    // Return the first active layout, or a default if none exists
-    if (layouts.length > 0) {
-      return layouts[0];
+    if (anyActiveLayouts.length > 0) {
+      return anyActiveLayouts[0];
     }
 
     // Default layout
     return {
       _id: null,
       layoutType: "standard-list" as const,
+      pageType: pageType,
       config: {
         columnsPerRow: 1,
         showCheckboxes: false,
@@ -50,11 +80,32 @@ export const getActiveLayout = query({
   },
 });
 
-// Get all layouts
+// Get all layouts (optionally filtered by page type)
 export const getAllLayouts = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    pageType: v.optional(pageTypeValidator),
+  },
+  handler: async (ctx, args) => {
+    if (args.pageType) {
+      return await ctx.db
+        .query("displayLayouts")
+        .filter((q) => q.eq(q.field("pageType"), args.pageType))
+        .collect();
+    }
     return await ctx.db.query("displayLayouts").collect();
+  },
+});
+
+// Get layouts by page type
+export const getLayoutsByPageType = query({
+  args: {
+    pageType: pageTypeValidator,
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("displayLayouts")
+      .filter((q) => q.eq(q.field("pageType"), args.pageType))
+      .collect();
   },
 });
 
@@ -62,13 +113,18 @@ export const getAllLayouts = query({
 export const createLayout = mutation({
   args: {
     layoutType: layoutTypeValidator,
+    pageType: pageTypeValidator,
     config: layoutConfigValidator,
     isActive: v.boolean(),
   },
   handler: async (ctx, args) => {
-    // If this layout is active, deactivate all others
+    // If this layout is active, deactivate all others of the same page type
     if (args.isActive) {
-      const existingLayouts = await ctx.db.query("displayLayouts").collect();
+      const existingLayouts = await ctx.db
+        .query("displayLayouts")
+        .filter((q) => q.eq(q.field("pageType"), args.pageType))
+        .collect();
+
       for (const layout of existingLayouts) {
         if (layout.isActive) {
           await ctx.db.patch(layout._id, { isActive: false });
@@ -85,6 +141,7 @@ export const updateLayout = mutation({
   args: {
     id: v.id("displayLayouts"),
     layoutType: v.optional(layoutTypeValidator),
+    pageType: v.optional(pageTypeValidator),
     config: v.optional(layoutConfigValidator),
     isActive: v.optional(v.boolean()),
   },
@@ -93,9 +150,15 @@ export const updateLayout = mutation({
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Layout not found");
 
-    // If activating this layout, deactivate all others
+    const targetPageType = updates.pageType ?? existing.pageType;
+
+    // If activating this layout, deactivate all others of the same page type
     if (updates.isActive === true) {
-      const existingLayouts = await ctx.db.query("displayLayouts").collect();
+      const existingLayouts = await ctx.db
+        .query("displayLayouts")
+        .filter((q) => q.eq(q.field("pageType"), targetPageType))
+        .collect();
+
       for (const layout of existingLayouts) {
         if (layout._id !== id && layout.isActive) {
           await ctx.db.patch(layout._id, { isActive: false });
@@ -111,7 +174,7 @@ export const updateLayout = mutation({
   },
 });
 
-// Set active layout
+// Set active layout (only deactivates layouts of the same page type)
 export const setActiveLayout = mutation({
   args: {
     id: v.id("displayLayouts"),
@@ -120,8 +183,12 @@ export const setActiveLayout = mutation({
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Layout not found");
 
-    // Deactivate all layouts
-    const allLayouts = await ctx.db.query("displayLayouts").collect();
+    // Deactivate all layouts of the same page type
+    const allLayouts = await ctx.db
+      .query("displayLayouts")
+      .filter((q) => q.eq(q.field("pageType"), existing.pageType))
+      .collect();
+
     for (const layout of allLayouts) {
       if (layout.isActive) {
         await ctx.db.patch(layout._id, { isActive: false });
@@ -144,7 +211,7 @@ export const deleteLayout = mutation({
   },
 });
 
-// Initialize default layouts (run once)
+// Initialize default layouts (run once) - creates layouts for both page types
 export const initializeDefaultLayouts = mutation({
   args: {},
   handler: async (ctx) => {
@@ -153,10 +220,11 @@ export const initializeDefaultLayouts = mutation({
       return { message: "Layouts already initialized" };
     }
 
-    // Create default layouts
-    const layouts = [
+    // Default layouts for display pages (/ and /tv)
+    const displayLayouts = [
       {
         layoutType: "standard-list" as const,
+        pageType: "display" as const,
         config: {
           columnsPerRow: 1,
           showCheckboxes: false,
@@ -168,6 +236,7 @@ export const initializeDefaultLayouts = mutation({
       },
       {
         layoutType: "dim-sum-grid" as const,
+        pageType: "display" as const,
         config: {
           columnsPerRow: 2,
           showCheckboxes: true,
@@ -179,6 +248,7 @@ export const initializeDefaultLayouts = mutation({
       },
       {
         layoutType: "card-grid" as const,
+        pageType: "display" as const,
         config: {
           columnsPerRow: 3,
           showCheckboxes: false,
@@ -188,12 +258,90 @@ export const initializeDefaultLayouts = mutation({
         },
         isActive: false,
       },
+      {
+        layoutType: "traditional-chinese" as const,
+        pageType: "display" as const,
+        config: {
+          columnsPerRow: 2,
+          showCheckboxes: false,
+          showItemNumbers: true,
+          showImages: false,
+          categoryStyle: "header" as const,
+          showQuantityInput: true,
+          colorScheme: "classic-red" as const,
+        },
+        isActive: false,
+      },
     ];
 
-    for (const layout of layouts) {
+    // Default layouts for order page
+    const orderLayouts = [
+      {
+        layoutType: "dim-sum-grid" as const,
+        pageType: "order" as const,
+        config: {
+          columnsPerRow: 2,
+          showCheckboxes: true,
+          showItemNumbers: true,
+          showImages: false,
+          categoryStyle: "colored" as const,
+        },
+        isActive: true,
+      },
+      {
+        layoutType: "card-grid" as const,
+        pageType: "order" as const,
+        config: {
+          columnsPerRow: 3,
+          showCheckboxes: false,
+          showItemNumbers: false,
+          showImages: true,
+          categoryStyle: "tabs" as const,
+        },
+        isActive: false,
+      },
+      {
+        layoutType: "traditional-chinese" as const,
+        pageType: "order" as const,
+        config: {
+          columnsPerRow: 2,
+          showCheckboxes: false,
+          showItemNumbers: true,
+          showImages: false,
+          categoryStyle: "header" as const,
+          showQuantityInput: true,
+          colorScheme: "classic-red" as const,
+        },
+        isActive: false,
+      },
+    ];
+
+    // Insert all layouts
+    for (const layout of [...displayLayouts, ...orderLayouts]) {
       await ctx.db.insert("displayLayouts", layout);
     }
 
-    return { message: "Default layouts created" };
+    return { message: "Default layouts created for display and order pages" };
+  },
+});
+
+// Migration helper: Add pageType to existing layouts without it
+export const migrateLayoutsToPageType = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const layouts = await ctx.db.query("displayLayouts").collect();
+    let migrated = 0;
+
+    for (const layout of layouts) {
+      // Check if layout has pageType (using type assertion since old records might not have it)
+      const layoutWithPageType = layout as typeof layout & { pageType?: string };
+      if (!layoutWithPageType.pageType) {
+        // Default existing layouts to "display" page type
+        await ctx.db.patch(layout._id, { pageType: "display" as const });
+        migrated++;
+      }
+    }
+
+    return { message: `Migrated ${migrated} layouts to include pageType` };
   },
 });

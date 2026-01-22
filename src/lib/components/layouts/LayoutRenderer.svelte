@@ -5,18 +5,22 @@
 	import type { Doc } from '../../../../convex/_generated/dataModel';
 	import DimSumGrid from './DimSumGrid.svelte';
 	import CardGrid from './CardGrid.svelte';
+	import TraditionalChineseGrid from './TraditionalChineseGrid.svelte';
 	import Menu from '../Menu.svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	// Allow override of layout via prop (useful for order page)
-	export let layoutOverride: 'standard-list' | 'dim-sum-grid' | 'card-grid' | null = null;
+	// Which page type to fetch layout for
+	export let pageType: 'display' | 'order' = 'display';
+
+	// Allow override of layout via prop (useful for preview in admin)
+	export let layoutOverride: 'standard-list' | 'dim-sum-grid' | 'card-grid' | 'traditional-chinese' | null = null;
 
 	const dispatch = createEventDispatcher<{
 		select: { item: Doc<'menuItems'>; quantity?: number };
 	}>();
 
-	// Fetch active layout from database
-	const layoutQuery = browser ? useQuery(api.layouts.getActiveLayout) : null;
+	// Fetch active layout from database for this page type
+	const layoutQuery = browser ? useQuery(api.layouts.getActiveLayout, { pageType }) : null;
 	$: layoutData = $layoutQuery;
 
 	// Fetch full menu data
@@ -31,6 +35,8 @@
 		showItemNumbers: false,
 		showImages: true,
 		categoryStyle: 'header' as 'header' | 'tabs' | 'colored',
+		showQuantityInput: false,
+		colorScheme: 'classic-red' as 'classic-red' | 'jade-green' | 'gold',
 	};
 
 	function handleItemSelect(event: CustomEvent<{ item: Doc<'menuItems'>; quantity?: number }>) {
@@ -43,6 +49,8 @@
 		<DimSumGrid {categories} config={layoutConfig} on:select={handleItemSelect} />
 	{:else if layoutType === 'card-grid'}
 		<CardGrid {categories} config={layoutConfig} on:select={handleItemSelect} />
+	{:else if layoutType === 'traditional-chinese'}
+		<TraditionalChineseGrid {categories} config={layoutConfig} on:select={handleItemSelect} />
 	{:else}
 		<!-- Standard list layout - use existing Menu component -->
 		<Menu />

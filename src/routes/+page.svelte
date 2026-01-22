@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Menu from '$lib/components/Menu.svelte';
+	import LayoutRenderer from '$lib/components/layouts/LayoutRenderer.svelte';
 	import AnalyticsTracker from '$lib/components/AnalyticsTracker.svelte';
 	import CurrencyLens from '$lib/components/CurrencyLens.svelte';
 </script>
@@ -19,7 +19,7 @@
 			<CurrencyLens />
 		</div>
 	</header>
-	<Menu />
+	<LayoutRenderer pageType="display" />
 </main>
 
 <style>

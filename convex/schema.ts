@@ -108,7 +108,12 @@ export default defineSchema({
     layoutType: v.union(
       v.literal("standard-list"),
       v.literal("dim-sum-grid"),
-      v.literal("card-grid")
+      v.literal("card-grid"),
+      v.literal("traditional-chinese")  // Classic dim sum order sheet style
+    ),
+    pageType: v.union(              // Which page type this layout is for
+      v.literal("display"),         // For / and /tv pages
+      v.literal("order")            // For /order page
     ),
     config: v.object({
       columnsPerRow: v.optional(v.number()),      // 2 for dim sum
@@ -120,9 +125,16 @@ export default defineSchema({
         v.literal("tabs"),      // Tab navigation
         v.literal("colored")    // Color-coded sections
       )),
+      showQuantityInput: v.optional(v.boolean()),  // For traditional layout
+      colorScheme: v.optional(v.union(             // For traditional layout
+        v.literal("classic-red"),
+        v.literal("jade-green"),
+        v.literal("gold")
+      )),
     }),
     isActive: v.boolean(),
-  }).index("by_active", ["isActive"]),
+  }).index("by_active", ["isActive"])
+    .index("by_page_type", ["pageType", "isActive"]),
 
   // Customer Orders (Phase 4)
   customerOrders: defineTable({
