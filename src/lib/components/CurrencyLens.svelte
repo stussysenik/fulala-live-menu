@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, tick } from "svelte";
+  import { getContext, tick, onMount } from "svelte";
   import type { Writable } from "svelte/store";
   import type { ThemeConfig } from "$lib/theme/defaults";
   import { defaultTheme } from "$lib/theme/defaults";
@@ -16,6 +16,14 @@
 
   // Derive active currency directly from store with fallback
   $: activeCurrency = $selectedCurrency ?? displayCurrencies?.[0] ?? "CZK";
+
+  // Auto-select first currency on mount if none is selected
+  // This ensures single-price display on initial load
+  onMount(() => {
+    if ($selectedCurrency === null && displayCurrencies.length > 0) {
+      selectedCurrency.set(displayCurrencies[0]);
+    }
+  });
 
   // Set the selected currency with immediate DOM update
   async function selectCurrency(currency: CurrencyCode) {
