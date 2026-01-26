@@ -35,6 +35,23 @@
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
+
+  /* Animation variables (luxury theme) */
+  /* Physics-based easing curves for "grilling noodles" motion */
+  --anim-ease-enter: cubic-bezier(0.34, 1.56, 0.64, 1);       /* Overshoot entrance */
+  --anim-ease-exit: cubic-bezier(0.22, 0.61, 0.36, 1);        /* Smooth exit */
+  --anim-ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Spring bounce */
+
+  /* Animation durations */
+  --anim-duration-quick: 200ms;
+  --anim-duration-normal: 400ms;
+  --anim-duration-slow: 600ms;
+  --anim-duration-page: 800ms;
+
+  /* Luxury spacing tokens */
+  --spacing-card-padding: 2rem;       /* 32px inside cards */
+  --spacing-section-margin: 4rem;     /* 64px between sections */
+  --spacing-min-touch-target: 3rem;   /* 48px accessibility */
 }
 
 /* TV mode - larger everything */
@@ -48,6 +65,26 @@
   --text-xl: 1.75rem;
   --text-2xl: 2rem;
   --text-3xl: 2.5rem;
+}
+
+/* Accessibility - Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --anim-duration-quick: 0ms;
+    --anim-duration-normal: 0ms;
+    --anim-duration-slow: 0ms;
+    --anim-duration-page: 0ms;
+    --transition-fast: 0ms;
+    --transition-normal: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Global resets */

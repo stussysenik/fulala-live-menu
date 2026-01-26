@@ -74,6 +74,12 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     allergens: v.optional(v.array(v.string())),
 
+    // Enhanced nutritional and portion information (luxury theme)
+    portionGrams: v.optional(v.number()),           // Weight in grams (e.g., 250)
+    servingSize: v.optional(v.string()),            // Serving description (e.g., "Serves 2-3 people")
+    allergenDetails: v.optional(v.array(v.string())), // Detailed allergen list (e.g., ["peanuts", "tree nuts"])
+    nutritionalHighlights: v.optional(v.array(v.string())), // Badges (e.g., ["High Protein", "Low Carb"])
+
     // Item code for dim sum numbering (e.g., "S1", "F2", "N3")
     itemCode: v.optional(v.string()),
 

@@ -1,4 +1,8 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
+	import type { Writable } from 'svelte/store';
+	import type { ThemeConfig } from '$lib/theme/defaults';
+
 	// Dietary tag type matching schema
 	type DietaryTag =
 		| 'vegetarian'
@@ -16,8 +20,10 @@
 	export let tags: DietaryTag[];
 	export let compact: boolean = false;
 
-	// Tag configuration with icons, labels, and colors
-	const tagConfig: Record<
+	const themeStore = getContext<Writable<ThemeConfig>>('theme');
+
+	// Default tag configuration with icons, labels, and colors
+	const defaultTagConfig: Record<
 		DietaryTag,
 		{ icon: string; label: string; color: string; bgColor: string }
 	> = {
@@ -88,6 +94,83 @@
 			bgColor: '#e0e7ff',
 		},
 	};
+
+	// Luxury theme tag configuration - harmonized with luxury color palette
+	const luxuryTagConfig: Record<
+		DietaryTag,
+		{ icon: string; label: string; color: string; bgColor: string }
+	> = {
+		vegetarian: {
+			icon: '🥬',
+			label: 'Vegetarian',
+			color: '#00B085', // Jungle Green
+			bgColor: '#E5F9F3', // 10% tint
+		},
+		vegan: {
+			icon: '🌱',
+			label: 'Vegan',
+			color: '#00B085', // Jungle Green
+			bgColor: '#E5F9F3', // 10% tint
+		},
+		'contains-seafood': {
+			icon: '🦐',
+			label: 'Seafood',
+			color: '#00B085', // Jungle Green
+			bgColor: '#E5F9F3', // 10% tint
+		},
+		'contains-pork': {
+			icon: '🐷',
+			label: 'Pork',
+			color: '#D63330', // Cinnabar
+			bgColor: '#FCEAEA', // 10% tint
+		},
+		'contains-beef': {
+			icon: '🐄',
+			label: 'Beef',
+			color: '#5D3F37', // Dark Walnut
+			bgColor: '#F0ECE9', // 10% tint
+		},
+		'contains-chicken': {
+			icon: '🐔',
+			label: 'Chicken',
+			color: '#E9A754', // Honey Bronze
+			bgColor: '#FCF3E5', // 10% tint
+		},
+		'contains-nuts': {
+			icon: '🥜',
+			label: 'Nuts',
+			color: '#E9A754', // Honey Bronze
+			bgColor: '#FCF3E5', // 10% tint
+		},
+		'gluten-free': {
+			icon: 'GF',
+			label: 'Gluten-Free',
+			color: '#C89865', // Darker Soft Apricot for contrast
+			bgColor: '#FEF5EC', // 10% tint
+		},
+		'dairy-free': {
+			icon: 'DF',
+			label: 'Dairy-Free',
+			color: '#00B085', // Jungle Green
+			bgColor: '#E5F9F3', // 10% tint
+		},
+		halal: {
+			icon: '☪️',
+			label: 'Halal',
+			color: '#00B085', // Jungle Green
+			bgColor: '#E5F9F3', // 10% tint
+		},
+		kosher: {
+			icon: '✡️',
+			label: 'Kosher',
+			color: '#5D3F37', // Dark Walnut
+			bgColor: '#F0ECE9', // 10% tint
+		},
+	};
+
+	// Determine which config to use based on active theme
+	$: isLuxuryTheme = $themeStore.fonts.headline.includes('Cormorant Garamond');
+	$: tagConfig = isLuxuryTheme ? luxuryTagConfig : defaultTagConfig;
 
 	// Filter to only show valid tags
 	$: validTags = tags.filter((tag) => tag in tagConfig);

@@ -108,11 +108,15 @@
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transform: scale(1.05);
+    transition:
+      opacity var(--anim-duration-slow, 600ms) var(--anim-ease-exit, ease),
+      transform var(--anim-duration-slow, 600ms) var(--anim-ease-exit, ease);
   }
 
   img.loaded {
     opacity: 1;
+    transform: scale(1);
   }
 
   .placeholder {
@@ -137,7 +141,7 @@
       rgba(255, 255, 255, 0.4),
       transparent
     );
-    animation: shimmer 1.5s infinite;
+    animation: shimmer 2s var(--anim-ease-enter, ease) infinite;
   }
 
   @keyframes shimmer {

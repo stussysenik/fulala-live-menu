@@ -78,7 +78,9 @@
     <!-- Multi-currency display when no lens is active -->
     <span class="price-multi">
       {#each formattedPrices as { currency, formatted }, i}
-        <span class="price-value" data-currency={currency}>{formatted}</span>
+        {#key formatted}
+          <span class="price-value" data-currency={currency}>{formatted}</span>
+        {/key}
         {#if i < formattedPrices.length - 1}
           <span class="price-separator" aria-hidden="true">·</span>
         {/if}
@@ -92,7 +94,9 @@
       title="Click to show price in different currency"
       aria-label="Price: {singlePrice}. Click to toggle currency."
     >
-      <span class="price-value">{singlePrice}</span>
+      {#key singlePrice}
+        <span class="price-value">{singlePrice}</span>
+      {/key}
       {#if displayCurrencies.length > 1}
         <span class="toggle-indicator" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,7 +110,9 @@
     </button>
   {:else}
     <!-- Single price display (lens active, single mode, or default) -->
-    <span class="price-value">{singlePrice}</span>
+    {#key singlePrice}
+      <span class="price-value">{singlePrice}</span>
+    {/key}
   {/if}
 </span>
 
@@ -146,6 +152,20 @@
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     min-width: fit-content;
+    display: inline-block;
+    animation: price-pulse var(--anim-duration-normal, 400ms) var(--anim-ease-spring, ease);
+  }
+
+  @keyframes price-pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 
   /* Multi-currency display */
@@ -186,13 +206,20 @@
     font: inherit;
     color: inherit;
     cursor: pointer;
-    padding: 0;
+    padding: 2px 6px;
     border-radius: 4px;
-    transition: background-color 0.15s ease;
+    transition:
+      background-color var(--anim-duration-quick, 200ms) var(--anim-ease-enter, ease),
+      transform var(--anim-duration-quick, 200ms) var(--anim-ease-enter, ease);
   }
 
   .price-toggle:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: color-mix(in srgb, var(--color-accent, var(--accent)) 10%, transparent);
+    transform: scale(1.02);
+  }
+
+  .price-toggle:active {
+    transform: scale(0.98);
   }
 
   .price-toggle:focus-visible {
@@ -203,7 +230,9 @@
   .toggle-indicator {
     display: inline-flex;
     opacity: 0.5;
-    transition: opacity 0.15s ease;
+    transition:
+      opacity var(--anim-duration-quick, 200ms) ease,
+      transform var(--anim-duration-quick, 200ms) var(--anim-ease-spring, ease);
   }
 
   .toggle-indicator svg {
@@ -213,5 +242,6 @@
 
   .price-toggle:hover .toggle-indicator {
     opacity: 0.8;
+    transform: rotate(15deg);
   }
 </style>

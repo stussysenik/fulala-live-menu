@@ -44,6 +44,20 @@ export interface ThemeConfig {
     scale: number;
     itemGap: string;
     categoryGap: string;
+    cardPadding?: string;      // Padding inside cards (luxury theme)
+    sectionMargin?: string;    // Margin between major sections (luxury theme)
+    minTouchTarget?: string;   // Minimum touch target size for accessibility (luxury theme)
+  };
+  animations?: {
+    // Custom easing curves for physics-based motion
+    easeEnter: string;         // Overshoot entrance animation
+    easeExit: string;          // Smooth exit animation
+    easeSpring: string;        // Spring bounce animation
+    // Durations for different animation contexts
+    durationQuick: string;     // Quick transitions (200ms)
+    durationNormal: string;    // Normal transitions (400ms)
+    durationSlow: string;      // Slow emphasis transitions (600ms)
+    durationPage: string;      // Page layout transitions (800ms)
   };
   display: {
     showCurrencySymbol: boolean;
@@ -163,11 +177,62 @@ export const themePresets: Record<string, ThemeConfig> = {
       border: "#334155",
     },
   },
+
+  luxury: {
+    ...defaultTheme,
+    fonts: {
+      headline: "Cormorant Garamond, serif",
+      body: "Inter, sans-serif",
+      price: "DM Mono, monospace",
+    },
+    typography: {
+      headlineSize: "2rem",          // 32px - 20% larger for luxury presence
+      subheadlineSize: "1.5rem",     // 24px
+      bodySize: "1.0625rem",         // 17px - 15% larger for comfort
+      priceSize: "1.125rem",         // 18px - emphasized pricing
+      allergenSize: "0.875rem",      // 14px - subtle but readable
+      lineSpacing: 1.65,             // Generous breathing room
+    },
+    colors: {
+      text: "#5D3F37",               // Dark Walnut - warm, sophisticated
+      textMuted: "#8D6F67",          // Lighter Dark Walnut
+      price: "#00B085",              // Jungle Green - fresh, premium
+      background: "#FFFFFF",         // Pure white
+      surface: "#EFE7CA",            // Cornsilk - cream/beige cards
+      accent: "#D63330",             // Cinnabar - bold red for CTAs
+      available: "#00B085",          // Jungle Green
+      unavailable: "#E9A754",        // Honey Bronze - warm, not aggressive
+      border: "#E5DCC0",             // Darker Cornsilk variant
+    },
+    spacing: {
+      scale: 1.5,                    // 50% more space everywhere
+      itemGap: "1.5rem",             // 24px
+      categoryGap: "3rem",           // 48px
+      cardPadding: "2rem",           // 32px inside cards
+      sectionMargin: "4rem",         // 64px between sections
+      minTouchTarget: "3rem",        // 48px accessibility
+    },
+    animations: {
+      // Physics-based "grilling noodles" motion
+      easeEnter: "cubic-bezier(0.34, 1.56, 0.64, 1)",      // Overshoot entrance
+      easeExit: "cubic-bezier(0.22, 0.61, 0.36, 1)",       // Smooth exit
+      easeSpring: "cubic-bezier(0.68, -0.55, 0.265, 1.55)", // Spring bounce
+      durationQuick: "200ms",
+      durationNormal: "400ms",
+      durationSlow: "600ms",
+      durationPage: "800ms",
+    },
+    display: {
+      ...defaultTheme.display,
+      showImages: true,              // Luxury benefits from imagery
+      imageSize: "large",            // Larger images for premium feel
+    },
+  },
 };
 
 // Helper to convert theme to CSS variables
 export function themeToCssVars(theme: ThemeConfig): Record<string, string> {
-  return {
+  const vars: Record<string, string> = {
     "--font-headline": theme.fonts.headline,
     "--font-body": theme.fonts.body,
     "--font-price": theme.fonts.price,
@@ -192,6 +257,30 @@ export function themeToCssVars(theme: ThemeConfig): Record<string, string> {
     "--tv-scale-factor": String(theme.tv.scaleFactor),
     "--tv-column-count": String(theme.tv.columnCount),
   };
+
+  // Add optional spacing variables (luxury theme)
+  if (theme.spacing.cardPadding) {
+    vars["--spacing-card-padding"] = theme.spacing.cardPadding;
+  }
+  if (theme.spacing.sectionMargin) {
+    vars["--spacing-section-margin"] = theme.spacing.sectionMargin;
+  }
+  if (theme.spacing.minTouchTarget) {
+    vars["--spacing-min-touch-target"] = theme.spacing.minTouchTarget;
+  }
+
+  // Add animation variables if defined (luxury theme)
+  if (theme.animations) {
+    vars["--anim-ease-enter"] = theme.animations.easeEnter;
+    vars["--anim-ease-exit"] = theme.animations.easeExit;
+    vars["--anim-ease-spring"] = theme.animations.easeSpring;
+    vars["--anim-duration-quick"] = theme.animations.durationQuick;
+    vars["--anim-duration-normal"] = theme.animations.durationNormal;
+    vars["--anim-duration-slow"] = theme.animations.durationSlow;
+    vars["--anim-duration-page"] = theme.animations.durationPage;
+  }
+
+  return vars;
 }
 
 // Helper to get image size dimensions
@@ -220,6 +309,8 @@ export function getGoogleFontsUrl(theme: ThemeConfig): string | null {
     "Montserrat",
     "Raleway",
     "Poppins",
+    "Cormorant Garamond",
+    "DM Mono",
   ];
 
   const checkFont = (fontStack: string) => {

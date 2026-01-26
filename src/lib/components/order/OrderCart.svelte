@@ -47,7 +47,7 @@
 			{:else}
 				<div class="cart-items">
 					{#each $localCart as item, index (index)}
-						<div class="cart-item">
+						<div class="cart-item" style:animation-delay="{index * 50}ms">
 							<div class="item-details">
 								<h4 class="item-name">{item.name}</h4>
 								{#if item.selectedModifiers}
@@ -151,15 +151,18 @@
 		background: var(--color-surface, white);
 		display: flex;
 		flex-direction: column;
-		animation: slideIn 0.2s ease;
+		animation: slideIn var(--anim-duration-page, 800ms) var(--anim-ease-enter, cubic-bezier(0.34, 1.56, 0.64, 1));
+		box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
 	}
 
 	@keyframes slideIn {
 		from {
 			transform: translateX(100%);
+			opacity: 0;
 		}
 		to {
 			transform: translateX(0);
+			opacity: 1;
 		}
 	}
 
@@ -188,6 +191,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		transition:
+			background-color var(--anim-duration-quick, 200ms) ease,
+			transform var(--anim-duration-quick, 200ms) var(--anim-ease-spring, ease);
+	}
+
+	.close-btn:hover {
+		background: rgba(0, 0, 0, 0.2);
+		transform: scale(1.1) rotate(90deg);
+	}
+
+	.close-btn:active {
+		transform: scale(0.95) rotate(90deg);
 	}
 
 	.cart-empty {
@@ -230,6 +245,18 @@
 		background: rgba(0, 0, 0, 0.02);
 		border-radius: var(--radius-md, 8px);
 		margin-bottom: var(--space-2, 0.5rem);
+		animation: fadeInItem var(--anim-duration-normal, 400ms) var(--anim-ease-enter, ease) both;
+	}
+
+	@keyframes fadeInItem {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.item-details {
@@ -355,11 +382,22 @@
 		font-size: var(--text-lg, 1.125rem);
 		font-weight: 600;
 		cursor: pointer;
-		transition: opacity 0.15s ease;
+		position: relative;
+		overflow: hidden;
+		transition:
+			transform var(--anim-duration-quick, 200ms) var(--anim-ease-enter, ease),
+			box-shadow var(--anim-duration-quick, 200ms) ease;
 	}
 
 	.checkout-btn:hover {
-		opacity: 0.9;
+		transform: scale(1.03);
+		box-shadow:
+			0 0 0 4px color-mix(in srgb, var(--color-accent, #c45a3b) 20%, transparent),
+			0 8px 16px rgba(0, 0, 0, 0.15);
+	}
+
+	.checkout-btn:active {
+		transform: scale(0.98);
 	}
 
 	/* Floating cart button */
