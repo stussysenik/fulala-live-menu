@@ -3,8 +3,8 @@
   --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --text: #1a1a1a;           /* 15:1 contrast */
   --text-muted: #525252;     /* 7:1 contrast */
-  --bg: #ffffff;
-  --surface: #fafafa;
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
   --accent: #2563eb;         /* 4.5:1 contrast */
   --available: #16a34a;
   --unavailable: #dc2626;

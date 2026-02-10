@@ -70,6 +70,7 @@ export interface ThemeConfig {
     columnCount: number;
   };
   currency: CurrencyConfig;
+  animationsEnabled?: boolean;
 }
 
 // Default theme based on Tufte principles and menu research:
@@ -95,8 +96,8 @@ export const defaultTheme: ThemeConfig = {
     text: "#1a1a1a",              // High contrast (15:1) - titles/headings
     textMuted: "#525252",          // Secondary (7:1 contrast)
     price: "#2d5016",              // Distinct price color - deep forest green for instant recognition
-    background: "#ffffff",
-    surface: "#fafafa",
+    background: "#FFFFFF",
+    surface: "#FFFFFF",
     accent: "#c45a3b",             // Warm terracotta - appetite stimulating
     available: "#16a34a",
     unavailable: "#dc2626",
@@ -118,10 +119,10 @@ export const defaultTheme: ThemeConfig = {
     columnCount: 3,
   },
   currency: {
-    baseCurrency: "USD",  // Prices stored in USD cents in DB
-    displayCurrencies: ["CZK", "EUR", "USD"],  // CZK first for Czech customers
+    baseCurrency: "CZK",
+    displayCurrencies: ["CZK", "EUR"],
     displayMode: "single",
-    rates: { CZK: 23.5, EUR: 0.92, USD: 1, CNY: 7.25 },
+    rates: { CZK: 1, EUR: 0.039, USD: 0.042, CNY: 0.31 },
     showSymbols: true,
     compactMode: true,
   },
@@ -227,6 +228,65 @@ export const themePresets: Record<string, ThemeConfig> = {
       showImages: true,              // Luxury benefits from imagery
       imageSize: "large",            // Larger images for premium feel
     },
+  },
+
+  fulala: {
+    ...defaultTheme,
+    fonts: {
+      headline: "Cormorant Garamond, serif",
+      body: "Inter, sans-serif",
+      price: "DM Mono, monospace",
+    },
+    typography: {
+      headlineSize: "1.75rem",
+      subheadlineSize: "1.25rem",
+      bodySize: "1rem",
+      priceSize: "1.125rem",
+      allergenSize: "0.8125rem",
+      lineSpacing: 1.6,
+    },
+    colors: {
+      text: "#2C2C2C",
+      textMuted: "#6B6B6B",
+      price: "#16a34a",
+      background: "#FFFFFF",         // Pure white
+      surface: "#FFFFFF",            // Pure white cards
+      accent: "#E83636",             // Fulala brand red
+      available: "#2d5016",
+      unavailable: "#dc2626",
+      border: "#E8E8E4",
+    },
+    spacing: {
+      scale: 1.25,
+      itemGap: "1.25rem",
+      categoryGap: "2.5rem",
+      cardPadding: "1.25rem",
+      sectionMargin: "3rem",
+    },
+    animations: {
+      easeEnter: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      easeExit: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+      easeSpring: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+      durationQuick: "200ms",
+      durationNormal: "400ms",
+      durationSlow: "600ms",
+      durationPage: "800ms",
+    },
+    display: {
+      showCurrencySymbol: true,
+      priceAlignment: "right",
+      showImages: true,
+      imageSize: "large",
+    },
+    currency: {
+      baseCurrency: "CZK",
+      displayCurrencies: ["CZK", "EUR"],
+      displayMode: "single",
+      rates: { CZK: 1, EUR: 0.039, USD: 0.042, CNY: 0.31 },
+      showSymbols: true,
+      compactMode: true,
+    },
+    animationsEnabled: true,
   },
 };
 
