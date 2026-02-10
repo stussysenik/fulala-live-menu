@@ -65,52 +65,52 @@ export interface ThemeConfig {
   currency: CurrencyConfig;
 }
 
-// Default theme based on research (warm colors, no currency symbol, etc.)
+// Default theme - Fulala style
 export const defaultTheme: ThemeConfig = {
   fonts: {
-    headline: "Georgia, serif",
-    body: "Helvetica Neue, Arial, sans-serif",
-    price: "Helvetica Neue, Arial, sans-serif",
+    headline: "Cormorant Garamond, serif",
+    body: "Inter, sans-serif",
+    price: "DM Mono, monospace",
   },
   typography: {
-    headlineSize: "1.875rem",
+    headlineSize: "1.75rem",
     subheadlineSize: "1.25rem",
     bodySize: "1rem",
-    priceSize: "1rem",
-    allergenSize: "0.75rem",
-    lineSpacing: 1.5,
+    priceSize: "1.125rem",
+    allergenSize: "0.8125rem",
+    lineSpacing: 1.6,
   },
   colors: {
-    text: "#1a1a1a",
-    textMuted: "#525252",
-    price: "#2d5016",        // Distinct price color - deep forest green
-    background: "#ffffff",
-    surface: "#fafafa",
-    accent: "#c45a3b",       // Warm terracotta - appetite stimulating
-    available: "#16a34a",
+    text: "#2C2C2C",
+    textMuted: "#6B6B6B",
+    price: "#16a34a",
+    background: "#FFFFFF",
+    surface: "#FFFFFF",
+    accent: "#E83636",
+    available: "#2d5016",
     unavailable: "#dc2626",
-    border: "#e5e5e5",
+    border: "#E8E8E4",
   },
   spacing: {
-    scale: 1,
-    itemGap: "1rem",
-    categoryGap: "2rem",
+    scale: 1.25,
+    itemGap: "1.25rem",
+    categoryGap: "2.5rem",
   },
   display: {
-    showCurrencySymbol: false,  // Research shows ~8% increase without $
+    showCurrencySymbol: true,
     priceAlignment: "right",
-    showImages: false,
-    imageSize: "medium",
+    showImages: true,
+    imageSize: "large",
   },
   tv: {
     scaleFactor: 1.5,
     columnCount: 3,
   },
   currency: {
-    baseCurrency: "USD",
-    displayCurrencies: ["USD", "EUR", "CZK"],
+    baseCurrency: "CZK",
+    displayCurrencies: ["CZK", "EUR"],
     displayMode: "single",
-    rates: { CZK: 23.5, EUR: 0.92, USD: 1, CNY: 7.25 },
+    rates: { CZK: 1, EUR: 0.039, USD: 0.042, CNY: 0.31 },
     showSymbols: true,
     compactMode: true,
   },
@@ -258,6 +258,107 @@ export const loadPreset = mutation({
       return await ctx.db.insert("siteSettings", {
         key: "theme",
         value: preset.theme,
+        updatedAt: Date.now(),
+      });
+    }
+  },
+});
+
+// Get menu schedule
+export const getMenuSchedule = query({
+  args: {},
+  handler: async (ctx) => {
+    const settings = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "menu-schedule"))
+      .first();
+    if (!settings) return null;
+    return settings.value as {
+      weekNumber: number;
+      monthLabel: string;
+      year: number;
+      startDate: string;
+      endDate: string;
+    };
+  },
+});
+
+// Update menu schedule
+export const updateMenuSchedule = mutation({
+  args: { schedule: v.any() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "menu-schedule"))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        value: args.schedule,
+        updatedAt: Date.now(),
+      });
+      return existing._id;
+    } else {
+      return await ctx.db.insert("siteSettings", {
+        key: "menu-schedule",
+        value: args.schedule,
+        updatedAt: Date.now(),
+      });
+    }
+  },
+});
+
+// Get customer info
+export const getCustomerInfo = query({
+  args: {},
+  handler: async (ctx) => {
+    const settings = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "customer-info"))
+      .first();
+    if (!settings) return null;
+    return settings.value as {
+      sections: {
+        title: string;
+        titleLocal?: string;
+        description: string;
+        descriptionLocal?: string;
+      }[];
+    };
+  },
+});
+
+// Get animations enabled setting
+export const getAnimationsEnabled = query({
+  args: {},
+  handler: async (ctx) => {
+    const settings = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "animations-enabled"))
+      .first();
+    if (!settings) return true;
+    return settings.value as boolean;
+  },
+});
+
+// Update animations enabled setting
+export const updateAnimationsEnabled = mutation({
+  args: { enabled: v.boolean() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "animations-enabled"))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        value: args.enabled,
+        updatedAt: Date.now(),
+      });
+    } else {
+      await ctx.db.insert("siteSettings", {
+        key: "animations-enabled",
+        value: args.enabled,
         updatedAt: Date.now(),
       });
     }

@@ -1,6 +1,6 @@
 import { mutation } from "./_generated/server";
 
-// Seed the database with example menu data
+// Seed the database with real Fulala menu data
 export const seedMenu = mutation({
   args: {},
   handler: async (ctx) => {
@@ -14,12 +14,22 @@ export const seedMenu = mutation({
 
     // Create categories
     const categories = [
-      { name: "dumplings", displayName: "Dumplings", sortOrder: 1, isActive: true },
-      { name: "noodles", displayName: "Noodles", sortOrder: 2, isActive: true },
-      { name: "rice", displayName: "Rice Dishes", sortOrder: 3, isActive: true },
-      { name: "snacks", displayName: "Snacks", sortOrder: 4, isActive: true },
-      { name: "drinks", displayName: "Drinks", sortOrder: 5, isActive: true },
-      { name: "juices", displayName: "Fresh Juices", sortOrder: 6, isActive: true },
+      {
+        name: "steamed-dumplings",
+        displayName: "STEAMED DUMPLINGS",
+        displayNameLocal: "PARNÍ KNEDLÍČKY",
+        subtitle: "Starters / Předkrmy",
+        sortOrder: 1,
+        isActive: true,
+      },
+      {
+        name: "noodle-soups",
+        displayName: "NOODLE SOUPS",
+        displayNameLocal: "POLÉVKY S NUDLEMI",
+        subtitle: "Mains / Hlavní jídla",
+        sortOrder: 2,
+        isActive: true,
+      },
     ];
 
     const categoryIds: Record<string, any> = {};
@@ -28,207 +38,190 @@ export const seedMenu = mutation({
       categoryIds[category.name] = id;
     }
 
-    // Create menu items with Unsplash images
+    // Create menu items with real photos
     const menuItems = [
-      // Dumplings
+      // === STEAMED DUMPLINGS ===
       {
-        name: "Pork Gyoza (6pc)",
-        description: "Pan-fried with ginger soy",
-        price: 850, // $8.50
-        categoryName: "dumplings",
-        isAvailable: true,
-        sortOrder: 1,
-        imageUrl: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Veggie Dumplings (6pc)",
-        description: "Steamed cabbage & mushroom",
-        price: 750,
-        categoryName: "dumplings",
-        isAvailable: true,
-        sortOrder: 2,
-        imageUrl: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Soup Dumplings (4pc)",
-        description: "Shanghai-style xiaolongbao",
-        price: 950,
-        categoryName: "dumplings",
-        isAvailable: true,
-        sortOrder: 3,
-        imageUrl: "https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Shrimp Har Gow (4pc)",
+        name: "Har Gow s krevetami",
+        nameLocal: "Har Gow s krevetami",
+        nameChinese: "虾饺",
         description: "Crystal shrimp dumplings",
-        price: 900,
-        categoryName: "dumplings",
-        isAvailable: false,
-        sortOrder: 4,
-        imageUrl: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&h=300&fit=crop&q=80",
-      },
-
-      // Noodles
-      {
-        name: "Dan Dan Noodles",
-        description: "Spicy sesame pork",
-        price: 1200,
-        categoryName: "noodles",
+        price: 89,
+        categoryName: "steamed-dumplings",
         isAvailable: true,
         sortOrder: 1,
-        imageUrl: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0759_MQ.webp",
+        allergenCodes: ["1a", "2", "6", "11"],
+        allergenNumbers: [1, 2, 6, 11],
+        quantity: "3ks",
+        isFeatured: false,
+        isSweet: false,
+        isGlutenFree: false,
       },
       {
-        name: "Cold Sesame Noodles",
-        description: "Chilled with cucumber",
-        price: 1000,
-        categoryName: "noodles",
+        name: "Steamed Pork & Chinese Cabbage Dumplings",
+        nameLocal: "Vepřové knedlíčky s čínským zelím",
+        nameChinese: "猪肉蒸饺",
+        description: "Steamed pork dumplings with napa cabbage",
+        price: 179,
+        categoryName: "steamed-dumplings",
         isAvailable: true,
         sortOrder: 2,
-        imageUrl: "https://images.unsplash.com/photo-1552611052-33e04de081de?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0560_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        quantity: "6ks",
+        isFeatured: true,
+        isSweet: false,
+        isGlutenFree: false,
       },
       {
-        name: "Beef Noodle Soup",
-        description: "Slow-braised beef, hand-pulled noodles",
-        price: 1450,
-        categoryName: "noodles",
+        name: "Steamed Beef & Onion Dumplings",
+        nameLocal: "Hovězí knedlíčky s cibulí",
+        nameChinese: "牛肉蒸饺",
+        description: "Steamed beef dumplings with onion",
+        price: 209,
+        categoryName: "steamed-dumplings",
         isAvailable: true,
         sortOrder: 3,
-        imageUrl: "https://images.unsplash.com/photo-1555126634-323283e090fa?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0579_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        quantity: "6ks",
+        isFeatured: true,
+        isSweet: false,
+        isGlutenFree: false,
       },
       {
-        name: "Wonton Noodle Soup",
-        description: "Pork & shrimp wontons",
-        price: 1100,
-        categoryName: "noodles",
-        isAvailable: true,
-        sortOrder: 4,
-        imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=400&h=300&fit=crop&q=80",
-      },
-
-      // Rice Dishes
-      {
-        name: "Mapo Tofu Rice",
-        description: "Sichuan-style silken tofu",
-        price: 1100,
-        categoryName: "rice",
-        isAvailable: true,
-        sortOrder: 1,
-        imageUrl: "https://images.unsplash.com/photo-1582576163090-09d3b6f8a969?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Curry Chicken Rice",
-        description: "Yellow curry with vegetables",
-        price: 1250,
-        categoryName: "rice",
-        isAvailable: true,
-        sortOrder: 2,
-        imageUrl: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Teriyaki Salmon Bowl",
-        description: "Grilled salmon, steamed rice, pickles",
-        price: 1550,
-        categoryName: "rice",
-        isAvailable: true,
-        sortOrder: 3,
-        imageUrl: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop&q=80",
-      },
-
-      // Snacks
-      {
-        name: "Scallion Pancakes",
-        description: "Crispy layers with dipping sauce",
-        price: 600,
-        categoryName: "snacks",
-        isAvailable: true,
-        sortOrder: 1,
-        imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Cucumber Salad",
-        description: "Smashed cucumbers, garlic, chili",
-        price: 500,
-        categoryName: "snacks",
-        isAvailable: true,
-        sortOrder: 2,
-        imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Edamame",
-        description: "Sea salt",
-        price: 450,
-        categoryName: "snacks",
-        isAvailable: true,
-        sortOrder: 3,
-        imageUrl: "https://images.unsplash.com/photo-1564894809611-1742fc40ed80?w=400&h=300&fit=crop&q=80",
-      },
-
-      // Drinks
-      {
-        name: "Jasmine Tea",
-        description: "Hot or iced",
-        price: 300,
-        categoryName: "drinks",
-        isAvailable: true,
-        sortOrder: 1,
-        imageUrl: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Oolong Tea",
-        description: "Hot or iced",
-        price: 350,
-        categoryName: "drinks",
-        isAvailable: true,
-        sortOrder: 2,
-        imageUrl: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Thai Iced Tea",
-        description: "Sweet & creamy",
-        price: 450,
-        categoryName: "drinks",
-        isAvailable: true,
-        sortOrder: 3,
-        imageUrl: "https://images.unsplash.com/photo-1558857563-b371033873b8?w=400&h=300&fit=crop&q=80",
-      },
-      {
-        name: "Sparkling Water",
-        description: "Topo Chico",
-        price: 350,
-        categoryName: "drinks",
+        name: "Chicken, Spinach & Corn Dumplings w/ Cheese",
+        nameLocal: "Kuřecí knedlíčky se špenátem, kukuřicí a sýrem",
+        nameChinese: "鸡肉奶酪",
+        description: "Chicken dumplings with spinach, corn and cheese",
+        price: 199,
+        categoryName: "steamed-dumplings",
         isAvailable: true,
         sortOrder: 4,
-        imageUrl: "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0779_MQ.webp",
+        allergenCodes: ["1", "3", "7"],
+        allergenNumbers: [1, 3, 7],
+        isFeatured: false,
+        isSweet: false,
+        isGlutenFree: false,
+      },
+      {
+        name: "Steamed Custard Bun",
+        nameLocal: "Parní buchta s vanilkovým krémem",
+        nameChinese: "玉兔奶黄包",
+        description: "Sweet steamed bun with custard filling",
+        price: 89,
+        categoryName: "steamed-dumplings",
+        isAvailable: true,
+        sortOrder: 5,
+        imageUrl: "/images/menu/0697_MQ.webp",
+        allergenCodes: ["1", "3", "7"],
+        allergenNumbers: [1, 3, 7],
+        quantity: "3ks",
+        isFeatured: false,
+        isSweet: true,
+        isGlutenFree: false,
+      },
+      {
+        name: "Peach-Shaped Steamed Bun w/ Red Bean Paste",
+        nameLocal: "Broskvičky s pastou z červených fazolí",
+        nameChinese: "寿桃豆沙包",
+        description: "Sweet peach-shaped buns with red bean paste",
+        price: 89,
+        categoryName: "steamed-dumplings",
+        isAvailable: true,
+        sortOrder: 6,
+        imageUrl: "/images/menu/0795_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        quantity: "3ks",
+        isFeatured: false,
+        isSweet: true,
+        isGlutenFree: false,
       },
 
-      // Juices
+      // === NOODLE SOUPS ===
       {
-        name: "Fresh Orange",
-        description: "Squeezed to order",
-        price: 500,
-        categoryName: "juices",
+        name: "Fresh Noodles with Braised Beef Brisket",
+        nameLocal: "Čerstvé nudle s dušeným hovězím",
+        nameChinese: "牛腩面",
+        description: "Hand-pulled noodles in rich beef broth with braised brisket",
+        price: 319,
+        categoryName: "noodle-soups",
         isAvailable: true,
         sortOrder: 1,
-        imageUrl: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0622_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        isFeatured: true,
+        isSweet: false,
+        isGlutenFree: false,
       },
       {
-        name: "Watermelon",
-        description: "Refreshing & sweet",
-        price: 550,
-        categoryName: "juices",
+        name: "Fresh Noodles with Minced Pork & Seasonal Vegetables",
+        nameLocal: "Čerstvé nudle s mletým vepřovým a zeleninou",
+        nameChinese: "猪肉面",
+        description: "Fresh noodles topped with minced pork and seasonal vegetables",
+        price: 289,
+        categoryName: "noodle-soups",
         isAvailable: true,
         sortOrder: 2,
-        imageUrl: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0642_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        isFeatured: false,
+        isSweet: false,
+        isGlutenFree: false,
       },
       {
-        name: "Green Juice",
-        description: "Cucumber, celery, apple, ginger",
-        price: 650,
-        categoryName: "juices",
+        name: "Fresh Noodles with Eggplant (Vegetarian)",
+        nameLocal: "Čerstvé nudle s lilkem (vegetariánské)",
+        nameChinese: "茄子素面",
+        description: "Fresh noodles with braised eggplant, vegetarian",
+        price: 269,
+        categoryName: "noodle-soups",
         isAvailable: true,
         sortOrder: 3,
-        imageUrl: "https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400&h=300&fit=crop&q=80",
+        imageUrl: "/images/menu/0704_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        isFeatured: false,
+        isSweet: false,
+        isGlutenFree: false,
+      },
+      {
+        name: "Diced Chicken with Red & Green Peppers Noodles",
+        nameLocal: "Nudle s kuřecím masem a paprikami",
+        description: "Fresh noodles with diced chicken, red and green peppers",
+        price: 279,
+        categoryName: "noodle-soups",
+        isAvailable: true,
+        sortOrder: 4,
+        imageUrl: "/images/menu/0723_MQ.webp",
+        allergenCodes: ["1", "6"],
+        allergenNumbers: [1, 6],
+        isFeatured: false,
+        isSweet: false,
+        isGlutenFree: false,
+      },
+      {
+        name: "Gluten-Free Thick Rice Noodles with Minced Pork",
+        nameLocal: "Bezlepkové rýžové nudle s mletým vepřovým",
+        nameChinese: "猪肉米线",
+        description: "Thick rice noodles with minced pork, gluten-free",
+        price: 289,
+        categoryName: "noodle-soups",
+        isAvailable: true,
+        sortOrder: 5,
+        imageUrl: "/images/menu/0659_MQ.webp",
+        allergenCodes: ["6"],
+        allergenNumbers: [6],
+        isFeatured: false,
+        isSweet: false,
+        isGlutenFree: true,
       },
     ];
 
@@ -236,17 +229,13 @@ export const seedMenu = mutation({
       const categoryId = categoryIds[item.categoryName];
       if (!categoryId) continue;
 
+      const { categoryName, ...itemData } = item;
       const id = await ctx.db.insert("menuItems", {
-        name: item.name,
-        description: item.description,
-        price: item.price,
+        ...itemData,
         categoryId,
-        isAvailable: item.isAvailable,
-        sortOrder: item.sortOrder,
         addedAt: now,
         lastModifiedAt: now,
         modificationCount: 0,
-        imageUrl: item.imageUrl,
       });
 
       // Archive the creation
@@ -259,8 +248,54 @@ export const seedMenu = mutation({
       });
     }
 
+    // Seed siteSettings
+    await ctx.db.insert("siteSettings", {
+      key: "menu-schedule",
+      value: {
+        weekNumber: 2,
+        monthLabel: "February",
+        year: 2026,
+        startDate: "2026-02-09",
+        endDate: "2026-02-15",
+      },
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("siteSettings", {
+      key: "customer-info",
+      value: {
+        sections: [
+          {
+            title: "Kids & Family",
+            titleLocal: "Děti a rodina",
+            description: "Kids/family portions available on request",
+            descriptionLocal: "Dětské / rodinné porce na vyžádání",
+          },
+          {
+            title: "Students -10%",
+            titleLocal: "Studenti -10%",
+            description: "10% off with valid ISIC card",
+            descriptionLocal: "10% sleva s platnou ISIC kartou",
+          },
+          {
+            title: "Seniors -10%",
+            titleLocal: "Senioři -10%",
+            description: "10% off for guests aged 65+",
+            descriptionLocal: "10% sleva pro hosty 65+",
+          },
+        ],
+      },
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("siteSettings", {
+      key: "animations-enabled",
+      value: true,
+      updatedAt: now,
+    });
+
     return {
-      message: "Database seeded successfully",
+      message: "Database seeded with Fulala menu",
       categories: categories.length,
       items: menuItems.length,
     };
@@ -276,6 +311,7 @@ export const clearAll = mutation({
     const archives = await ctx.db.query("menuArchive").collect();
     const snapshots = await ctx.db.query("dailySnapshots").collect();
     const syncStates = await ctx.db.query("syncState").collect();
+    const settings = await ctx.db.query("siteSettings").collect();
 
     for (const item of menuItems) {
       await ctx.db.delete(item._id);
@@ -291,6 +327,9 @@ export const clearAll = mutation({
     }
     for (const state of syncStates) {
       await ctx.db.delete(state._id);
+    }
+    for (const setting of settings) {
+      await ctx.db.delete(setting._id);
     }
 
     return { message: "All data cleared" };

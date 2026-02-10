@@ -57,6 +57,8 @@ export default defineSchema({
   categories: defineTable({
     name: v.string(),
     displayName: v.string(),
+    displayNameLocal: v.optional(v.string()),   // Czech category name
+    subtitle: v.optional(v.string()),           // e.g., "Starters / Předkrmy"
     sortOrder: v.number(),
     isActive: v.boolean(),
   }).index("by_sort", ["sortOrder"]),
@@ -64,7 +66,7 @@ export default defineSchema({
   menuItems: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
-    price: v.number(),              // cents
+    price: v.number(),              // whole currency units (CZK)
     categoryId: v.id("categories"),
     isAvailable: v.boolean(),
     sortOrder: v.number(),
@@ -73,6 +75,22 @@ export default defineSchema({
     modificationCount: v.number(),
     imageUrl: v.optional(v.string()),
     allergens: v.optional(v.array(v.string())),
+
+    // Fulala: Bilingual names
+    nameLocal: v.optional(v.string()),              // Czech name
+    nameChinese: v.optional(v.string()),            // Chinese characters
+
+    // Fulala: EU allergen system
+    allergenNumbers: v.optional(v.array(v.number())), // EU allergen numbers [1, 6, 11]
+    allergenCodes: v.optional(v.array(v.string())),   // Display codes ["1a", "2", "6"]
+
+    // Fulala: Item details
+    quantity: v.optional(v.string()),               // e.g., "3ks", "6ks"
+    isSweet: v.optional(v.boolean()),               // Sweet item flag
+    isFeatured: v.optional(v.boolean()),            // Star/recommended item
+    isGlutenFree: v.optional(v.boolean()),          // GF flag
+    priceCZK: v.optional(v.number()),               // CZK price (backup)
+    priceEUR: v.optional(v.number()),               // EUR price (backup)
 
     // Enhanced nutritional and portion information (luxury theme)
     portionGrams: v.optional(v.number()),           // Weight in grams (e.g., 250)
@@ -117,10 +135,10 @@ export default defineSchema({
       v.literal("card-grid"),
       v.literal("traditional-chinese")  // Classic dim sum order sheet style
     ),
-    pageType: v.union(              // Which page type this layout is for
+    pageType: v.optional(v.union(   // Which page type this layout is for
       v.literal("display"),         // For / and /tv pages
       v.literal("order")            // For /order page
-    ),
+    )),
     config: v.object({
       columnsPerRow: v.optional(v.number()),      // 2 for dim sum
       showCheckboxes: v.optional(v.boolean()),   // dim sum style

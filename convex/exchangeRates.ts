@@ -22,13 +22,14 @@ interface FrankfurterResponse {
  * Fetch live exchange rates from Frankfurter API
  * Free, no API key required, no rate limits
  * https://api.frankfurter.dev/v1
+ * CZK-based: 1 CZK = X target currency
  */
 export const fetchLiveRates = action({
   args: {},
   handler: async (): Promise<ExchangeRates> => {
-    // Fetch rates with USD as base
+    // Fetch rates with CZK as base
     const response = await fetch(
-      "https://api.frankfurter.dev/v1/latest?base=USD&symbols=CZK,EUR,CNY"
+      "https://api.frankfurter.dev/v1/latest?base=CZK&symbols=EUR,USD,CNY"
     );
 
     if (!response.ok) {
@@ -37,12 +38,12 @@ export const fetchLiveRates = action({
 
     const data: FrankfurterResponse = await response.json();
 
-    // Build rates object with USD = 1
+    // Build rates object with CZK = 1
     const rates: ExchangeRates = {
-      USD: 1,
-      CZK: data.rates.CZK ?? 23.5, // Fallback to approximate values
-      EUR: data.rates.EUR ?? 0.92,
-      CNY: data.rates.CNY ?? 7.25,
+      CZK: 1,
+      EUR: data.rates.EUR ?? 0.039,
+      USD: data.rates.USD ?? 0.042,
+      CNY: data.rates.CNY ?? 0.31,
     };
 
     return rates;
@@ -104,9 +105,8 @@ export const updateExchangeRatesInTheme = internalMutation({
 export const refreshExchangeRates = action({
   args: {},
   handler: async (ctx): Promise<ExchangeRates> => {
-    // Fetch live rates
     const response = await fetch(
-      "https://api.frankfurter.dev/v1/latest?base=USD&symbols=CZK,EUR,CNY"
+      "https://api.frankfurter.dev/v1/latest?base=CZK&symbols=EUR,USD,CNY"
     );
 
     if (!response.ok) {
@@ -116,10 +116,10 @@ export const refreshExchangeRates = action({
     const data: FrankfurterResponse = await response.json();
 
     const rates: ExchangeRates = {
-      USD: 1,
-      CZK: data.rates.CZK ?? 23.5,
-      EUR: data.rates.EUR ?? 0.92,
-      CNY: data.rates.CNY ?? 7.25,
+      CZK: 1,
+      EUR: data.rates.EUR ?? 0.039,
+      USD: data.rates.USD ?? 0.042,
+      CNY: data.rates.CNY ?? 0.31,
     };
 
     // Update theme with new rates
@@ -139,7 +139,7 @@ export const cronRefreshRates = internalAction({
   handler: async (ctx): Promise<void> => {
     try {
       const response = await fetch(
-        "https://api.frankfurter.dev/v1/latest?base=USD&symbols=CZK,EUR,CNY"
+        "https://api.frankfurter.dev/v1/latest?base=CZK&symbols=EUR,USD,CNY"
       );
 
       if (!response.ok) {
@@ -150,17 +150,17 @@ export const cronRefreshRates = internalAction({
       const data: FrankfurterResponse = await response.json();
 
       const rates: ExchangeRates = {
-        USD: 1,
-        CZK: data.rates.CZK ?? 23.5,
-        EUR: data.rates.EUR ?? 0.92,
-        CNY: data.rates.CNY ?? 7.25,
+        CZK: 1,
+        EUR: data.rates.EUR ?? 0.039,
+        USD: data.rates.USD ?? 0.042,
+        CNY: data.rates.CNY ?? 0.31,
       };
 
       await ctx.runMutation(internal.exchangeRates.updateExchangeRatesInTheme, {
         rates,
       });
 
-      console.log(`Exchange rates updated: CZK=${rates.CZK}, EUR=${rates.EUR}, CNY=${rates.CNY}`);
+      console.log(`Exchange rates updated: EUR=${rates.EUR}, USD=${rates.USD}, CNY=${rates.CNY}`);
     } catch (error) {
       console.error("Failed to refresh exchange rates:", error);
     }

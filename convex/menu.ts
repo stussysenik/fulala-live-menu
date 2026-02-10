@@ -94,6 +94,15 @@ export const createMenuItem = mutation({
     categoryId: v.id("categories"),
     isAvailable: v.boolean(),
     sortOrder: v.number(),
+    imageUrl: v.optional(v.string()),
+    nameLocal: v.optional(v.string()),
+    nameChinese: v.optional(v.string()),
+    allergenNumbers: v.optional(v.array(v.number())),
+    allergenCodes: v.optional(v.array(v.string())),
+    quantity: v.optional(v.string()),
+    isSweet: v.optional(v.boolean()),
+    isFeatured: v.optional(v.boolean()),
+    isGlutenFree: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -126,6 +135,15 @@ export const updateMenuItem = mutation({
     categoryId: v.optional(v.id("categories")),
     isAvailable: v.optional(v.boolean()),
     sortOrder: v.optional(v.number()),
+    imageUrl: v.optional(v.string()),
+    nameLocal: v.optional(v.string()),
+    nameChinese: v.optional(v.string()),
+    allergenNumbers: v.optional(v.array(v.number())),
+    allergenCodes: v.optional(v.array(v.string())),
+    quantity: v.optional(v.string()),
+    isSweet: v.optional(v.boolean()),
+    isFeatured: v.optional(v.boolean()),
+    isGlutenFree: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
@@ -172,6 +190,24 @@ export const deleteMenuItem = mutation({
     });
 
     await ctx.db.delete(args.id);
+  },
+});
+
+// Migrate image URLs from .jpg to .webp
+export const migrateImagesToWebp = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const items = await ctx.db.query("menuItems").collect();
+    let updated = 0;
+    for (const item of items) {
+      if (item.imageUrl && item.imageUrl.endsWith(".jpg")) {
+        await ctx.db.patch(item._id, {
+          imageUrl: item.imageUrl.replace(".jpg", ".webp"),
+        });
+        updated++;
+      }
+    }
+    return { message: `Migrated ${updated} image URLs to .webp` };
   },
 });
 
