@@ -3,10 +3,11 @@
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: "home" },
-    { href: "/admin/layout", label: "Layout", icon: "grid" },
+    { href: "/admin/menu", label: "Menu Items", icon: "grid" },
+    { href: "/admin/schedule", label: "Schedule", icon: "calendar" },
     { href: "/admin/theme", label: "Theme", icon: "palette" },
+    { href: "/admin/print", label: "Print Menu", icon: "print" },
     { href: "/admin/analytics", label: "Analytics", icon: "chart" },
-    { href: "/admin/events", label: "Events", icon: "calendar" },
   ];
 
   $: currentPath = $page.url.pathname;
@@ -59,6 +60,12 @@
                 <line x1="8" y1="2" x2="8" y2="6" />
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
+            {:else if item.icon === "print"}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9" />
+                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+                <rect x="6" y="14" width="12" height="8" />
+              </svg>
             {/if}
           </span>
           <span class="nav-label">{item.label}</span>
@@ -73,6 +80,14 @@
           <polyline points="12 19 5 12 12 5" />
         </svg>
         Back to Menu
+      </a>
+      <a href="/admin/logout" class="back-link" data-sveltekit-preload-data="off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Logout
       </a>
     </div>
   </aside>

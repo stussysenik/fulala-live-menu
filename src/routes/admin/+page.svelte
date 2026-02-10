@@ -73,6 +73,36 @@
   <div class="quick-actions">
     <h2>Quick Actions</h2>
     <div class="actions-grid">
+      <a href="/admin/menu" class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+        </div>
+        <div class="action-content">
+          <h3>Menu Items</h3>
+          <p>Add, edit, and manage menu items</p>
+        </div>
+      </a>
+
+      <a href="/admin/schedule" class="action-card">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+        </div>
+        <div class="action-content">
+          <h3>Schedule</h3>
+          <p>Set week number and date range</p>
+        </div>
+      </a>
+
       <a href="/admin/theme" class="action-card">
         <div class="action-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -86,17 +116,17 @@
         </div>
       </a>
 
-      <a href="/admin/analytics" class="action-card">
+      <a href="/admin/print" class="action-card">
         <div class="action-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="20" x2="18" y2="10" />
-            <line x1="12" y1="20" x2="12" y2="4" />
-            <line x1="6" y1="20" x2="6" y2="14" />
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
           </svg>
         </div>
         <div class="action-content">
-          <h3>View Analytics</h3>
-          <p>Display sessions and usage metrics</p>
+          <h3>Print Menu</h3>
+          <p>Preview and print A4 menu sheet</p>
         </div>
       </a>
 
@@ -114,16 +144,17 @@
         </div>
       </a>
 
-      <a href="/tv" class="action-card" target="_blank">
+      <a href="/admin/analytics" class="action-card">
         <div class="action-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="7" width="20" height="15" rx="2" />
-            <polyline points="17 2 12 7 7 2" />
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
           </svg>
         </div>
         <div class="action-content">
-          <h3>TV Display</h3>
-          <p>Open the TV display mode</p>
+          <h3>View Analytics</h3>
+          <p>Display sessions and usage metrics</p>
         </div>
       </a>
     </div>
