@@ -7,7 +7,6 @@
   import {
     defaultTheme,
     themeToCssVars,
-    getGoogleFontsUrl,
     type ThemeConfig,
   } from "$lib/theme/defaults";
 
@@ -18,9 +17,6 @@
   // Subscribe to theme from Convex (only on browser)
   const themeQuery = browser ? useQuery(api.settings.getTheme, {}) : null;
 
-  // Track loaded Google Fonts to avoid duplicates
-  let loadedFontsUrl: string | null = null;
-
   // Apply CSS variables to document
   function applyTheme(theme: ThemeConfig) {
     if (!browser) return;
@@ -30,6 +26,14 @@
 
     for (const [key, value] of Object.entries(vars)) {
       root.style.setProperty(key, value);
+    }
+
+    // When animations are disabled, set all durations to 0ms
+    if (theme.animationsEnabled === false) {
+      root.style.setProperty("--anim-duration-quick", "0ms");
+      root.style.setProperty("--anim-duration-normal", "0ms");
+      root.style.setProperty("--anim-duration-slow", "0ms");
+      root.style.setProperty("--anim-duration-page", "0ms");
     }
 
     // Also update legacy variables for backwards compatibility
@@ -45,38 +49,10 @@
     root.style.setProperty("--border", theme.colors.border);
   }
 
-  // Load Google Fonts
-  function loadGoogleFonts(theme: ThemeConfig) {
-    if (!browser) return;
-
-    const url = getGoogleFontsUrl(theme);
-
-    // Skip if same URL already loaded
-    if (url === loadedFontsUrl) return;
-
-    // Remove old font link if exists
-    const existingLink = document.getElementById("theme-google-fonts");
-    if (existingLink) {
-      existingLink.remove();
-    }
-
-    if (url) {
-      const link = document.createElement("link");
-      link.id = "theme-google-fonts";
-      link.rel = "stylesheet";
-      link.href = url;
-      document.head.appendChild(link);
-      loadedFontsUrl = url;
-    } else {
-      loadedFontsUrl = null;
-    }
-  }
-
   // React to theme changes
   $: if (themeQuery && $themeQuery) {
     themeStore.set($themeQuery);
     applyTheme($themeQuery);
-    loadGoogleFonts($themeQuery);
   }
 
   // Apply default theme on mount (before Convex loads)

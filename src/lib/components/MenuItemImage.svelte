@@ -85,6 +85,7 @@
       width={dimensions.width}
       height={dimensions.height}
       loading="lazy"
+      decoding="async"
       class:loaded
       on:load={handleLoad}
       on:error={handleError}

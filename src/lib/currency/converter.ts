@@ -10,13 +10,13 @@ export interface ExchangeRates {
   CNY: number;
 }
 
-// Default exchange rates (from USD base, approximate January 2025)
+// Default exchange rates (CZK-based for Fulala)
 // These will be overridden by the theme config
 export const defaultRates: ExchangeRates = {
-  CZK: 23.5,   // 1 USD = 23.5 CZK
-  EUR: 0.92,   // 1 USD = 0.92 EUR
-  USD: 1,      // 1 USD = 1 USD (base)
-  CNY: 7.25,   // 1 USD = 7.25 CNY
+  CZK: 1,       // Base currency
+  EUR: 0.039,   // 1 CZK ≈ 0.039 EUR
+  USD: 0.042,   // 1 CZK ≈ 0.042 USD
+  CNY: 0.31,    // 1 CZK ≈ 0.31 CNY
 };
 
 // Convert an amount from base currency to target currency
@@ -39,15 +39,14 @@ export function convert(
   return amount * (toRate / fromRate);
 }
 
-// Convert a price in cents from base currency to target currency
+// Convert a price from base currency to target currency (whole units)
 export function convertPrice(
-  priceInCents: number,
+  price: number,
   baseCurrency: CurrencyCode,
   targetCurrency: CurrencyCode,
   rates: ExchangeRates
 ): number {
-  const priceInBase = priceInCents / 100;
-  return convert(priceInBase, baseCurrency, targetCurrency, rates);
+  return convert(price, baseCurrency, targetCurrency, rates);
 }
 
 // Validate exchange rates (all must be positive)
@@ -58,9 +57,9 @@ export function validateRates(rates: ExchangeRates): boolean {
 // Reasonable price ranges for menu items (in each currency)
 // Used to validate that conversions make sense
 const PRICE_RANGES: Record<CurrencyCode, { min: number; max: number }> = {
-  USD: { min: 1, max: 500 },      // $1 - $500
-  EUR: { min: 1, max: 450 },      // €1 - €450
   CZK: { min: 20, max: 10000 },   // 20 Kč - 10,000 Kč
+  EUR: { min: 1, max: 450 },      // €1 - €450
+  USD: { min: 1, max: 500 },      // $1 - $500
   CNY: { min: 5, max: 3000 },     // ¥5 - ¥3,000
 };
 
@@ -96,11 +95,12 @@ export function validatePrice(
 }
 
 // Validate exchange rates are realistic (within expected ranges)
+// Rates are relative to CZK base
 const RATE_SANITY_CHECKS: Record<CurrencyCode, { min: number; max: number }> = {
-  USD: { min: 0.5, max: 2 },       // Base reference
-  EUR: { min: 0.4, max: 1.5 },     // Relative to USD
-  CZK: { min: 15, max: 35 },       // 1 USD = 15-35 CZK
-  CNY: { min: 5, max: 10 },        // 1 USD = 5-10 CNY
+  CZK: { min: 0.5, max: 2 },       // Base reference
+  EUR: { min: 0.03, max: 0.06 },    // 1 CZK = 0.03-0.06 EUR
+  USD: { min: 0.03, max: 0.06 },    // 1 CZK = 0.03-0.06 USD
+  CNY: { min: 0.2, max: 0.5 },      // 1 CZK = 0.2-0.5 CNY
 };
 
 export function validateRatesSanity(
@@ -109,17 +109,15 @@ export function validateRatesSanity(
 ): PriceValidationResult {
   const warnings: string[] = [];
 
-  // Check if rates are relative to USD (most common reference)
-  const usdRate = rates.USD;
+  const czkRate = rates.CZK;
 
   for (const [currency, rate] of Object.entries(rates) as [CurrencyCode, number][]) {
-    // Normalize rate relative to USD
-    const normalizedRate = rate / usdRate;
+    const normalizedRate = rate / czkRate;
     const expected = RATE_SANITY_CHECKS[currency];
 
     if (normalizedRate < expected.min || normalizedRate > expected.max) {
       warnings.push(
-        `${currency} rate (${rate}) seems unusual. Expected ${expected.min}-${expected.max} relative to USD.`
+        `${currency} rate (${rate}) seems unusual. Expected ${expected.min}-${expected.max} relative to CZK.`
       );
     }
   }
