@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
+  import { getContext } from "svelte";
   import type { Writable } from "svelte/store";
   import type { ThemeConfig } from "$lib/theme/defaults";
   import { defaultTheme, getImageSize } from "$lib/theme/defaults";
@@ -19,30 +19,7 @@
   // Track loading state
   let loaded = false;
   let error = false;
-  let imgElement: HTMLImageElement;
-
-  // Use IntersectionObserver for lazy loading
-  let visible = false;
-
-  onMount(() => {
-    if (!imgElement) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            visible = true;
-            observer.disconnect();
-          }
-        });
-      },
-      { rootMargin: "100px" }
-    );
-
-    observer.observe(imgElement);
-
-    return () => observer.disconnect();
-  });
+  // Load images eagerly — only 11 menu items, lazy loading adds unnecessary delay
 
   function handleLoad() {
     loaded = true;
@@ -79,12 +56,10 @@
       </div>
     {/if}
     <img
-      bind:this={imgElement}
-      src={visible ? src : ""}
+      {src}
       {alt}
       width={dimensions.width}
       height={dimensions.height}
-      loading="lazy"
       decoding="async"
       class:loaded
       on:load={handleLoad}
