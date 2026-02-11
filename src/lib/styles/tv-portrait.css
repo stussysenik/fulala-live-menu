@@ -1,0 +1,36 @@
+/* TV Portrait Mode — 1080x1920 CSS pixels, 3m viewing distance */
+/* Imported only by (tv-portrait)/+layout.svelte */
+
+/* Typography scale */
+:root {
+	--tv-title-size: 56px;
+	--tv-subtitle-size: 28px;
+	--tv-item-name-size: 36px;
+	--tv-item-name-secondary: 24px;
+	--tv-chinese-size: 28px;
+	--tv-price-size: 44px;
+	--tv-quantity-size: 24px;
+	--tv-allergen-size: 18px;
+	--tv-tag-size: 18px;
+	--tv-footer-size: 22px;
+	--tv-header-brand-size: 48px;
+	--tv-header-tagline-size: 20px;
+	--tv-schedule-size: 22px;
+	--tv-clock-size: 32px;
+	--tv-info-title-size: 36px;
+	--tv-info-body-size: 26px;
+
+	/* Spacing */
+	--tv-page-pad-x: 40px;
+	--tv-page-pad-y: 28px;
+	--tv-section-gap: 32px;
+	--tv-item-gap: 16px;
+	--tv-item-padding: 14px;
+
+	/* Image sizing */
+	--tv-image-size: 96px;
+	--tv-image-radius: 10px;
+
+	/* Allergen badge sizing */
+	--tv-allergen-badge-size: 32px;
+}

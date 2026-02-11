@@ -27,6 +27,9 @@ Open [localhost:5173](http://localhost:5173)
 |-------|-----|------|
 | `/` | Customers | Main menu (mobile/web) |
 | `/tv` | Staff | TV display (large fonts, multi-column) |
+| `/tv-dumplings` | TV | Vertical TV — steamed dumplings (portrait) |
+| `/tv-noodles` | TV | Vertical TV — noodle soups (portrait) |
+| `/tv-info` | TV | Vertical TV — highlights, discounts, allergens |
 | `/order` | Customers | Cart + checkout |
 | `/admin` | Staff | Menu CRUD, categories |
 | `/admin/theme` | Staff | Colors, fonts, currency config |
@@ -45,6 +48,7 @@ Open [localhost:5173](http://localhost:5173)
 - **Weekly schedule** — Auto-displays current week number and date range
 - **Theme system** — Customizable colors, fonts, spacing with live preview
 - **TV mode** — Optimized for restaurant displays at `/tv`
+- **Vertical TV** — 3 dedicated portrait routes for LG 43" TVs (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)
 
 ## Architecture
@@ -55,6 +59,7 @@ fulala-live-menu/
 │   ├── routes/           # Pages (menu, tv, order, admin)
 │   ├── lib/
 │   │   ├── components/   # MenuItem, Category, AllergenLegend, ...
+│   │   │   └── tv/       # TV-optimized portrait display components
 │   │   ├── stores/       # Currency, order cart
 │   │   ├── i18n/         # Czech + English
 │   │   ├── currency/     # Multi-currency formatting + conversion

@@ -39,6 +39,14 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - Switched Vercel region from iad1 to fra1 (Frankfurt)
 - Added Nix flake for reproducible dev environment
 
+**v0.4.0 — Vertical TV Portrait Display** (Feb 11, 2026)
+- 3 dedicated routes for portrait-mounted TVs: `/tv-dumplings`, `/tv-noodles`, `/tv-info`
+- CSS rotation wrapper for landscape-output TVs mounted vertically
+- TV-optimized components: `TvMenuItem`, `TvCategory`, `TvPortraitHeader`, `TvPortraitFooter`
+- Bilingual display (Czech + English shown simultaneously, no toggle needed)
+- Shared route group layout `(tv-portrait)` as reusable template for future TV pages
+- Designed for 3m viewing distance on LG 43UR78003LK (43" 4K) displays
+
 **v0.3.2 — Documentation Update** (Feb 11, 2026)
 - Rewrote README.md, DOCS.md, PROGRESS.md
 
@@ -50,6 +58,7 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] Real-time menu display via Convex WebSocket subscriptions
 - [x] Mobile-first responsive layout
 - [x] TV display mode with optimized fonts
+- [x] Vertical TV portrait routes for 3x wall-mounted displays
 - [x] 4 display layouts with per-page configuration
 - [x] Bilingual display (Czech + English) with language toggle
 - [x] Multi-currency toggle (CZK, EUR, USD, CNY)

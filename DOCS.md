@@ -51,6 +51,36 @@ Same content, optimized for large screens:
 - Multi-column layout
 - No interactive elements
 
+### Vertical TV Display (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
+
+Three dedicated routes for the restaurant's 3x LG 43UR78003LK TVs mounted in portrait orientation. Each TV loads one URL in its built-in browser.
+
+| Route | TV | Content |
+|-------|-----|---------|
+| `/tv-dumplings` | Left | Steamed dumplings — 6 items with photos, bilingual names, prices, allergens |
+| `/tv-noodles` | Middle | Noodle soups — 5 items with photos, bilingual names, prices, allergens |
+| `/tv-info` | Right | Featured highlights, student/senior discounts, allergen legend |
+
+**Design:**
+- Non-scrollable (`overflow: hidden`, `100vh`)
+- Bilingual: Czech primary + English secondary shown simultaneously
+- Prices in CZK only (no interactive currency switching on passive display)
+- Large typography: 36px item names, 44px prices, 56px category titles
+- Food photos (96px thumbnails) next to each item
+- Fulala Red (#E83636) accent, green (#16a34a) prices
+
+**CSS Rotation:**
+The TVs output 1920x1080 landscape but are physically mounted portrait. A CSS rotation wrapper creates a 1080x1920 portrait container and rotates it 90° to fill the landscape viewport. To flip rotation direction, change `rotate(90deg)` to `rotate(-90deg)` in `src/routes/(tv-portrait)/+layout.svelte`.
+
+**Shared layout:**
+All TV portrait routes share `(tv-portrait)/+layout.svelte` which provides the header (brand, week schedule, clock), footer (prices note), and rotation wrapper. Adding a new TV page is just creating a `+page.svelte` in the route group.
+
+**Components** (`src/lib/components/tv/`):
+- `TvPortraitHeader.svelte` — Brand name, tagline, week/schedule, live clock
+- `TvPortraitFooter.svelte` — Bilingual prices note
+- `TvMenuItem.svelte` — Large-font menu item (image, names, price, allergens, tags)
+- `TvCategory.svelte` — Category section with bilingual title and item list
+
 ### Customer Ordering (`/order`)
 Full cart experience:
 - Browse menu items
