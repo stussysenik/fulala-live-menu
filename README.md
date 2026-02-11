@@ -49,6 +49,7 @@ Open [localhost:5173](http://localhost:5173)
 - **Theme system** — Customizable colors, fonts, spacing with live preview
 - **TV mode** — Optimized for restaurant displays at `/tv`
 - **Vertical TV** — 3 dedicated portrait routes for LG 43" TVs (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
+- **TV design system** — Token-driven CSS, 24px minimum font, Playwright legibility tests
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)
 
 ## Architecture
@@ -60,6 +61,7 @@ fulala-live-menu/
 │   ├── lib/
 │   │   ├── components/   # MenuItem, Category, AllergenLegend, ...
 │   │   │   └── tv/       # TV-optimized portrait display components
+│   │   ├── design/      # TV design system docs
 │   │   ├── stores/       # Currency, order cart
 │   │   ├── i18n/         # Czech + English
 │   │   ├── currency/     # Multi-currency formatting + conversion

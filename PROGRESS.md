@@ -47,6 +47,15 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - Shared route group layout `(tv-portrait)` as reusable template for future TV pages
 - Designed for 3m viewing distance on LG 43UR78003LK (43" 4K) displays
 
+**v0.4.1 — TV Design System & Legibility** (Feb 11, 2026)
+- Design system bridge doc (`src/lib/design/tv-design-system.md`)
+- All TV font sizes raised to 24px minimum (3m legibility floor)
+- Food images increased from 96px to 120px
+- Simplified tv-info: removed featured section, kept allergens + customer info only
+- Replaced 30+ hardcoded px values with CSS custom properties
+- Fixed tv-noodles overflow (last item clipping)
+- Playwright TV portrait tests (overflow, font size, contrast, image size)
+
 **v0.3.2 — Documentation Update** (Feb 11, 2026)
 - Rewrote README.md, DOCS.md, PROGRESS.md
 
@@ -87,6 +96,7 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] Vercel auto-deploy from `main` (fra1 region)
 - [x] Convex production database
 - [x] Playwright E2E tests (menu, currency, layouts, accessibility)
+- [x] TV portrait design system with legibility tests
 - [x] Nix flake for reproducible dev environment
 - [x] Google Sheets sync (optional)
 
@@ -137,6 +147,8 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 | `src/lib/components/MenuItem.svelte` | Menu item rendering |
 | `src/lib/allergens/index.ts` | EU 14-allergen data |
 | `src/lib/theme/defaults.ts` | Theme configuration |
+| `src/lib/design/tv-design-system.md` | TV portrait design system bridge doc |
+| `tests/tv-portrait.spec.ts` | TV portrait Playwright tests |
 
 ---
 

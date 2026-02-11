@@ -59,14 +59,14 @@ Three dedicated routes for the restaurant's 3x LG 43UR78003LK TVs mounted in por
 |-------|-----|---------|
 | `/tv-dumplings` | Left | Steamed dumplings — 6 items with photos, bilingual names, prices, allergens |
 | `/tv-noodles` | Middle | Noodle soups — 5 items with photos, bilingual names, prices, allergens |
-| `/tv-info` | Right | Featured highlights, student/senior discounts, allergen legend |
+| `/tv-info` | Right | Student/senior discounts, allergen legend |
 
 **Design:**
 - Non-scrollable (`overflow: hidden`, `100vh`)
 - Bilingual: Czech primary + English secondary shown simultaneously
 - Prices in CZK only (no interactive currency switching on passive display)
-- Large typography: 36px item names, 44px prices, 56px category titles
-- Food photos (96px thumbnails) next to each item
+- Large typography: 40px item names, 48px prices, 56px category titles (24px minimum floor)
+- Food photos (120px thumbnails) next to each item
 - Fulala Red (#E83636) accent, green (#16a34a) prices
 
 **CSS Rotation:**
@@ -80,6 +80,9 @@ All TV portrait routes share `(tv-portrait)/+layout.svelte` which provides the h
 - `TvPortraitFooter.svelte` — Bilingual prices note
 - `TvMenuItem.svelte` — Large-font menu item (image, names, price, allergens, tags)
 - `TvCategory.svelte` — Category section with bilingual title and item list
+
+**Design System** (`src/lib/design/tv-design-system.md`):
+All TV portrait tokens live in `src/lib/styles/tv-portrait.css`. Minimum font size: 24px. See the design system doc for space budget, legibility rules, and deploy checklist.
 
 ### Customer Ordering (`/order`)
 Full cart experience:
