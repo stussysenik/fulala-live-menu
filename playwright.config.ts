@@ -43,6 +43,15 @@ export default defineConfig({
         viewport: { width: 1080, height: 1920 },
       },
     },
+
+    // TV Portrait (real TV output: 1920x1080, CSS rotation creates portrait)
+    {
+      name: 'TV Portrait',
+      use: {
+        viewport: { width: 1920, height: 1080 },
+      },
+      testMatch: '**/tv-portrait.spec.ts',
+    },
   ],
 
   webServer: {

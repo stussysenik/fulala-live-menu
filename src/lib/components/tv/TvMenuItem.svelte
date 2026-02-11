@@ -74,9 +74,12 @@
 		display: flex;
 		align-items: flex-start;
 		gap: 20px;
-		padding: var(--tv-item-padding, 20px);
+		padding: var(--tv-item-padding, 16px);
 		border-bottom: 1px solid var(--color-border, #E8E8E4);
 		position: relative;
+		flex-shrink: 1;
+		min-height: 0;
+		overflow: hidden;
 	}
 
 	.tv-item[data-available="false"] {
@@ -191,7 +194,7 @@
 
 	.tv-tag {
 		display: inline-block;
-		padding: 4px 14px;
+		padding: 6px 16px;
 		border-radius: 16px;
 		font-size: var(--tv-tag-size, 20px);
 		font-family: var(--font-body, 'Inter', sans-serif);

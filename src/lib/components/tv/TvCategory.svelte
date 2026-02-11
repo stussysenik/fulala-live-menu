@@ -77,6 +77,8 @@
 		display: flex;
 		flex-direction: column;
 		flex: 1;
+		min-height: 0;
 		justify-content: space-evenly;
+		overflow: hidden;
 	}
 </style>

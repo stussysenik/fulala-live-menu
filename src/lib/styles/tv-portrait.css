@@ -1,36 +1,50 @@
-/* TV Portrait Mode — 1080x1920 CSS pixels, 3m viewing distance */
-/* Imported only by (tv-portrait)/+layout.svelte */
+/* TV Portrait Mode — 1080x1920 CSS pixels (rotated from 1920x1080)
+ * Target: LG 43UR78003LK 43" 4K TVs at 3m viewing distance
+ * Minimum readable font: 24px  |  Recommended body: 36-48px
+ * Content area height: ~1626px (after header/footer/padding)
+ * Design system docs: src/lib/design/tv-design-system.md
+ * Imported only by (tv-portrait)/+layout.svelte
+ */
 
-/* Typography scale */
 :root {
+	/* Typography scale — nothing below 24px (3m legibility floor) */
 	--tv-title-size: 56px;
-	--tv-subtitle-size: 28px;
-	--tv-item-name-size: 36px;
-	--tv-item-name-secondary: 24px;
-	--tv-chinese-size: 28px;
-	--tv-price-size: 44px;
-	--tv-quantity-size: 24px;
-	--tv-allergen-size: 18px;
-	--tv-tag-size: 18px;
-	--tv-footer-size: 22px;
+	--tv-subtitle-size: 32px;
+	--tv-item-name-size: 40px;
+	--tv-item-name-secondary: 28px;
+	--tv-chinese-size: 32px;
+	--tv-price-size: 48px;
+	--tv-quantity-size: 26px;
+	--tv-allergen-size: 24px;
+	--tv-tag-size: 24px;
+	--tv-footer-size: 24px;
 	--tv-header-brand-size: 48px;
-	--tv-header-tagline-size: 20px;
-	--tv-schedule-size: 22px;
+	--tv-header-tagline-size: 24px;
+	--tv-schedule-size: 24px;
 	--tv-clock-size: 32px;
-	--tv-info-title-size: 36px;
-	--tv-info-body-size: 26px;
+
+	/* tv-info page — section headings and body */
+	--tv-info-title-size: 44px;
+	--tv-info-body-size: 36px;
+
+	/* tv-info allergen legend */
+	--tv-info-allergen-badge-size: 44px;
+	--tv-info-allergen-number-size: 28px;
+	--tv-info-allergen-icon-size: 32px;
+	--tv-info-allergen-name-size: 30px;
+	--tv-info-allergen-name-en-size: 26px;
 
 	/* Spacing */
 	--tv-page-pad-x: 40px;
 	--tv-page-pad-y: 28px;
-	--tv-section-gap: 32px;
-	--tv-item-gap: 16px;
-	--tv-item-padding: 14px;
+	--tv-section-gap: 36px;
+	--tv-item-gap: 20px;
+	--tv-item-padding: 16px;
 
 	/* Image sizing */
-	--tv-image-size: 96px;
-	--tv-image-radius: 10px;
+	--tv-image-size: 120px;
+	--tv-image-radius: 12px;
 
-	/* Allergen badge sizing */
-	--tv-allergen-badge-size: 32px;
+	/* Allergen badge sizing (on menu item rows) */
+	--tv-allergen-badge-size: 36px;
 }
