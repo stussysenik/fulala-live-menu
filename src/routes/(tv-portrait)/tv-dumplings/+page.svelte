@@ -25,7 +25,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: var(--tv-item-name-size, 42px);
+		font-size: var(--tv-item-name-size, 40px);
 		color: var(--color-text-muted, #6B6B6B);
 	}
 </style>

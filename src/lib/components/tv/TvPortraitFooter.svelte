@@ -5,7 +5,7 @@
 <footer class="tv-footer">
 	<p class="tv-footer-note">
 		Ceny v Kč. Všechny ceny jsou včetně DPH.
-		<span class="tv-footer-sep">|</span>
+		<span class="tv-footer-sep">/</span>
 		Prices in CZK. All prices include VAT.
 	</p>
 </footer>

@@ -113,9 +113,9 @@ for (const route of TV_ROUTES) {
 
 // --- Color Contrast (WCAG AA) ---
 
-test('tv-info: allergen text meets WCAG AA contrast', async ({ page }) => {
+test('tv-info: drink name text meets WCAG AA contrast', async ({ page }) => {
 	await page.goto('/tv-info');
-	await page.waitForSelector('.tv-allergen-name-cs', { timeout: 10000 });
+	await page.waitForSelector('.tv-drink-name', { timeout: 10000 });
 	await page.waitForTimeout(2000);
 
 	const result = await page.evaluate(() => {
@@ -140,11 +140,10 @@ test('tv-info: allergen text meets WCAG AA contrast', async ({ page }) => {
 			return (lighter + 0.05) / (darker + 0.05);
 		}
 
-		const el = document.querySelector('.tv-allergen-name-cs');
+		const el = document.querySelector('.tv-drink-name');
 		if (!el) return { ratio: 21, passes: true };
 		const style = getComputedStyle(el);
 		const fg = style.color;
-		// Walk up to find non-transparent background
 		let bg = 'rgb(255, 255, 255)';
 		let ancestor: Element | null = el;
 		while (ancestor) {
@@ -234,12 +233,12 @@ test('tv-info: does NOT contain featured section', async ({ page }) => {
 	expect(hasFeatured).toBe(0);
 });
 
-test('tv-info: has allergen section', async ({ page }) => {
+test('tv-info: has drinks section', async ({ page }) => {
 	await page.goto('/tv-info');
-	await page.waitForSelector('.tv-allergens', { timeout: 10000 });
+	await page.waitForSelector('.tv-drinks', { timeout: 10000 });
 
-	const allergenSection = page.locator('.tv-allergens');
-	await expect(allergenSection).toBeVisible();
+	const drinksSection = page.locator('.tv-drinks');
+	await expect(drinksSection).toBeVisible();
 });
 
 test('tv-info: has customer info section', async ({ page }) => {

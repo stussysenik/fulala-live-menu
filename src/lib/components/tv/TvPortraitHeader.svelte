@@ -19,8 +19,7 @@
 <header class="tv-header">
 	<div class="tv-header-top">
 		<div class="tv-brand">
-			<h1 class="tv-brand-name">FULALA.CZ</h1>
-			<p class="tv-brand-tagline">Fresh Noodles & Dumplings & Snacks</p>
+			<h1 class="tv-brand-name">FULALA.CZ 🐯</h1>
 		</div>
 		{#if currentTime}
 			<time class="tv-clock">{currentTime}</time>
@@ -55,25 +54,16 @@
 
 	.tv-brand-name {
 		font-family: var(--font-headline, 'Cormorant Garamond', serif);
-		font-size: var(--tv-header-brand-size, 56px);
+		font-size: var(--tv-header-brand-size, 48px);
 		font-weight: 700;
 		letter-spacing: 0.04em;
 		line-height: 1;
 		color: var(--color-text, #2C2C2C);
 	}
 
-	.tv-brand-tagline {
-		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-header-tagline-size, 22px);
-		color: var(--color-text-muted, #6B6B6B);
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-		margin-top: 4px;
-	}
-
 	.tv-clock {
 		font-family: var(--font-price, 'DM Mono', monospace);
-		font-size: var(--tv-clock-size, 36px);
+		font-size: var(--tv-clock-size, 32px);
 		font-weight: 500;
 		color: var(--color-text-muted, #6B6B6B);
 		font-variant-numeric: tabular-nums;

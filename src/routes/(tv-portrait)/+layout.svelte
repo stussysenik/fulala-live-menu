@@ -64,7 +64,7 @@
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
-		padding: var(--tv-page-pad-y, 36px) var(--tv-page-pad-x, 48px);
+		padding: var(--tv-page-pad-y, 28px) var(--tv-page-pad-x, 40px);
 		background: var(--color-bg, #FFFFFF);
 		font-family: var(--font-body, 'Inter', sans-serif);
 		box-sizing: border-box;

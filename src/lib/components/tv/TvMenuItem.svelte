@@ -77,9 +77,7 @@
 		padding: var(--tv-item-padding, 16px);
 		border-bottom: 1px solid var(--color-border, #E8E8E4);
 		position: relative;
-		flex-shrink: 1;
-		min-height: 0;
-		overflow: hidden;
+		flex-shrink: 0;
 	}
 
 	.tv-item[data-available="false"] {
@@ -87,9 +85,9 @@
 	}
 
 	.tv-item-image {
-		width: var(--tv-image-size, 110px);
-		height: var(--tv-image-size, 110px);
-		border-radius: var(--tv-image-radius, 10px);
+		width: var(--tv-image-size, 120px);
+		height: var(--tv-image-size, 120px);
+		border-radius: var(--tv-image-radius, 12px);
 		overflow: hidden;
 		flex-shrink: 0;
 	}
@@ -120,19 +118,19 @@
 		min-width: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 6px;
 	}
 
 	.tv-item-name {
 		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-item-name-size, 42px);
+		font-size: var(--tv-item-name-size, 40px);
 		font-weight: 600;
 		color: var(--color-text, #2C2C2C);
-		line-height: 1.15;
+		line-height: 1.25;
 	}
 
 	.tv-item-chinese {
-		font-size: var(--tv-chinese-size, 36px);
+		font-size: var(--tv-chinese-size, 32px);
 		color: var(--color-text-muted, #6B6B6B);
 		font-weight: 400;
 		line-height: 1.2;
@@ -140,7 +138,7 @@
 
 	.tv-item-secondary {
 		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-item-name-secondary, 30px);
+		font-size: var(--tv-item-name-secondary, 28px);
 		font-weight: 400;
 		color: var(--color-text-muted, #6B6B6B);
 		line-height: 1.2;
@@ -156,7 +154,7 @@
 
 	.tv-item-quantity {
 		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-quantity-size, 28px);
+		font-size: var(--tv-quantity-size, 26px);
 		color: var(--color-text-muted, #6B6B6B);
 	}
 
@@ -188,7 +186,7 @@
 	.tv-allergen-codes :global(.allergen-badge) {
 		min-width: var(--tv-allergen-badge-size, 36px);
 		height: var(--tv-allergen-badge-size, 36px);
-		font-size: var(--tv-allergen-size, 20px);
+		font-size: var(--tv-allergen-size, 24px);
 		border-width: 2px;
 	}
 
@@ -196,7 +194,7 @@
 		display: inline-block;
 		padding: 6px 16px;
 		border-radius: 16px;
-		font-size: var(--tv-tag-size, 20px);
+		font-size: var(--tv-tag-size, 24px);
 		font-family: var(--font-body, 'Inter', sans-serif);
 		font-weight: 600;
 		letter-spacing: 0.03em;
@@ -224,7 +222,7 @@
 		left: 50%;
 		transform: translate(-50%, -50%);
 		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-tag-size, 20px);
+		font-size: var(--tv-tag-size, 24px);
 		font-weight: 700;
 		color: var(--color-unavailable, #dc2626);
 		text-transform: uppercase;
