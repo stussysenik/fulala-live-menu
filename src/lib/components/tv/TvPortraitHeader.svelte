@@ -19,7 +19,7 @@
 <header class="tv-header">
 	<div class="tv-header-top">
 		<div class="tv-brand">
-			<h1 class="tv-brand-name">FULALA.CZ 🐯</h1>
+			<h1 class="tv-brand-name">FULALA.CZ <span class="tv-tiger">🐯</span></h1>
 		</div>
 		{#if currentTime}
 			<time class="tv-clock">{currentTime}</time>
@@ -59,6 +59,10 @@
 		letter-spacing: 0.04em;
 		line-height: 1;
 		color: var(--color-text, #2C2C2C);
+	}
+
+	.tv-tiger {
+		color: #E88636;
 	}
 
 	.tv-clock {

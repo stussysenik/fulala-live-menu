@@ -16,7 +16,14 @@ const MIN_FONT_SIZE = 24;
 // Helper: wait for page data to load
 async function waitForData(page: import('@playwright/test').Page) {
 	await page.waitForSelector('.tv-portrait-page', { timeout: 10000 });
-	await page.waitForTimeout(3000);
+	await page.waitForTimeout(5000);
+}
+
+// Helper: wait for menu items to load on menu pages
+async function waitForMenuData(page: import('@playwright/test').Page) {
+	await page.waitForSelector('.tv-portrait-page', { timeout: 10000 });
+	await page.waitForSelector('.tv-item', { timeout: 15000 });
+	await page.waitForTimeout(1000);
 }
 
 // --- 1. Header consistency across all pages ---
@@ -111,7 +118,7 @@ test('menu pages: price font sizes are consistent', async ({ page }) => {
 
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
-		await waitForData(page);
+		await waitForMenuData(page);
 
 		const sizes = await page.evaluate(() => {
 			return Array.from(document.querySelectorAll('.tv-item-price')).map(el =>
@@ -136,7 +143,7 @@ test('menu pages: item name font sizes are consistent', async ({ page }) => {
 
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
-		await waitForData(page);
+		await waitForMenuData(page);
 
 		const sizes = await page.evaluate(() => {
 			return Array.from(document.querySelectorAll('.tv-item-name')).map(el =>
@@ -160,7 +167,7 @@ test('menu pages: item name font sizes are consistent', async ({ page }) => {
 test('menu pages: all prices use Kč notation', async ({ page }) => {
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
-		await waitForData(page);
+		await waitForMenuData(page);
 
 		const prices = await page.evaluate(() => {
 			return Array.from(document.querySelectorAll('.tv-item-price'))
@@ -206,7 +213,7 @@ test('all pages: content does not overflow viewport', async ({ page }) => {
 test('menu pages: price text meets WCAG AA contrast', async ({ page }) => {
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
-		await waitForData(page);
+		await waitForMenuData(page);
 
 		const result = await page.evaluate(() => {
 			function luminance(r: number, g: number, b: number) {
@@ -246,7 +253,7 @@ test('menu pages: food images are consistent size', async ({ page }) => {
 
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
-		await waitForData(page);
+		await waitForMenuData(page);
 
 		const sizes = await page.evaluate(() => {
 			return Array.from(document.querySelectorAll('.tv-item-image')).map(el => {
@@ -275,17 +282,17 @@ test('menu pages: food images are consistent size', async ({ page }) => {
 test('menu pages: no category heading displayed', async ({ page }) => {
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
-		await waitForData(page);
+		await waitForMenuData(page);
 
 		const headings = await page.locator('.tv-category-header').count();
 		expect(headings, `${route}: should not have category header`).toBe(0);
 	}
 });
 
-// --- 9. Extras section on noodles ---
+// --- 9. Extras section on info page ---
 
-test('tv-noodles: has extras section', async ({ page }) => {
-	await page.goto('/tv-noodles');
+test('tv-info: has extras section', async ({ page }) => {
+	await page.goto('/tv-info');
 	await waitForData(page);
 
 	await expect(page.locator('.tv-extras')).toBeVisible();
@@ -304,10 +311,41 @@ test('tv-info: has drinks section', async ({ page }) => {
 	expect(cards).toBe(5);
 });
 
+test('tv-info: drink prices displayed with Kč notation', async ({ page }) => {
+	await page.goto('/tv-info');
+	await waitForData(page);
+
+	const prices = await page.evaluate(() => {
+		return Array.from(document.querySelectorAll('.tv-drink-price'))
+			.map(el => el.textContent?.trim() ?? '');
+	});
+
+	// 4 drinks have prices (Tsingtao has no price)
+	expect(prices.length).toBe(4);
+	for (const price of prices) {
+		expect(price).toMatch(/^\d+ Kč$/);
+	}
+});
+
 test('tv-info: no allergen legend', async ({ page }) => {
 	await page.goto('/tv-info');
 	await waitForData(page);
 
 	const allergens = await page.locator('.tv-allergen-grid').count();
 	expect(allergens, 'allergen legend should be removed').toBe(0);
+});
+
+// --- 11. Color-coded customer info cards ---
+
+test('tv-info: customer cards are color-coded', async ({ page }) => {
+	await page.goto('/tv-info');
+	await waitForData(page);
+
+	const kids = await page.locator('.tv-card-kids').count();
+	const students = await page.locator('.tv-card-students').count();
+	const seniors = await page.locator('.tv-card-seniors').count();
+
+	expect(kids, 'should have kids card').toBe(1);
+	expect(students, 'should have students card').toBe(1);
+	expect(seniors, 'should have seniors card').toBe(1);
 });

@@ -303,6 +303,18 @@ export const seedMenu = mutation({
   },
 });
 
+// One-time migration: fix Har Gow price/quantity in live DB
+export const fixHarGow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const items = await ctx.db.query("menuItems").collect();
+    const harGow = items.find(i => i.nameChinese === "虾饺");
+    if (!harGow) return { message: "Har Gow not found" };
+    await ctx.db.patch(harGow._id, { price: 189, quantity: "6ks" });
+    return { message: "Updated to 189 Kč / 6ks" };
+  },
+});
+
 // Clear all data (for testing)
 export const clearAll = mutation({
   args: {},

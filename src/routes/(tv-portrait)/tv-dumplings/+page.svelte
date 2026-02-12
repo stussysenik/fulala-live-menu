@@ -13,13 +13,22 @@
 	<title>FULALA.CZ | Parní Knedlíčky / Steamed Dumplings</title>
 </svelte:head>
 
-{#if category}
-	<TvCategory {category} items={category.items} />
-{:else}
-	<div class="tv-loading">Načítání menu...</div>
-{/if}
+<div class="tv-dumplings-page">
+	{#if category}
+		<TvCategory {category} items={category.items} />
+	{:else}
+		<div class="tv-loading">Načítání menu...</div>
+	{/if}
+</div>
 
 <style>
+	.tv-dumplings-page {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+	}
+
 	.tv-loading {
 		flex: 1;
 		display: flex;

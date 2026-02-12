@@ -87,6 +87,8 @@
 	.tv-item-image {
 		width: var(--tv-image-size, 120px);
 		height: var(--tv-image-size, 120px);
+		min-width: var(--tv-image-size, 120px);
+		min-height: var(--tv-image-size, 120px);
 		border-radius: var(--tv-image-radius, 12px);
 		overflow: hidden;
 		flex-shrink: 0;
