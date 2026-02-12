@@ -58,23 +58,23 @@
 							{#if getCardType(section) === 'students'}
 								<img src="/images/isic-logo.png" alt="ISIC" class="tv-isic-logo" />
 							{:else if getCardType(section) === 'kids'}
-								<!-- Notion-style hand-drawn family icon -->
-								<svg viewBox="0 0 48 48" fill="none" stroke="#B5651D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-									<circle cx="16" cy="11" r="5.5" />
-									<path d="M16 17c-5 0-9 3.5-9 8v3h18v-3c0-4.5-4-8-9-8z" />
-									<circle cx="34" cy="15" r="4" />
-									<path d="M34 20c-3.5 0-6.5 2.5-6.5 5.5V28h13v-2.5c0-3-3-5.5-6.5-5.5z" />
-									<path d="M10 38h28" stroke-dasharray="3 3" opacity="0.4" />
+								<!-- Hand-drawn family icon: parent + child holding hands -->
+								<svg viewBox="0 0 48 48" fill="none" stroke="#D4551A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="18" cy="12" r="5" />
+									<path d="M18 18c-5.5 0-9 4-9 8.5V30h18v-3.5c0-4.5-3.5-8.5-9-8.5z" />
+									<circle cx="35" cy="18" r="3.5" />
+									<path d="M35 22c-3 0-5.5 2.5-5.5 5.5V30h11v-2.5c0-3-2.5-5.5-5.5-5.5z" />
+									<path d="M27 26c2-1 4-1 3.5 0" stroke-width="1.8" opacity="0.6" />
+									<path d="M8 38c4 0 6-2 10-2s6 2 10 2 6-2 10-2" stroke-width="1.5" opacity="0.3" />
 								</svg>
 							{:else if getCardType(section) === 'seniors'}
-								<!-- Notion-style hand-drawn seniors icon -->
-								<svg viewBox="0 0 48 48" fill="none" stroke="#6C3483" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-									<circle cx="22" cy="11" r="5.5" />
-									<path d="M22 17c-5 0-9 3.5-9 8v3h18v-3c0-4.5-4-8-9-8z" />
-									<path d="M24 32l-2 14" />
-									<path d="M20 32l2 14" />
-									<path d="M36 12v26c0 2-1 4-3 4" stroke-width="2.5" />
-									<circle cx="36" cy="10" r="2" fill="#6C3483" stroke="none" />
+								<!-- Hand-drawn senior with walking cane -->
+								<svg viewBox="0 0 48 48" fill="none" stroke="#1B4F8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="20" cy="10" r="5" />
+									<path d="M20 16c-5 0-8.5 3.5-8.5 8v4h17v-4c0-4.5-3.5-8-8.5-8z" />
+									<path d="M16 28v10M24 28v10" stroke-width="2" />
+									<path d="M34 14v24c0 2-1 3-2.5 3" stroke-width="2.5" />
+									<path d="M32 14h4" stroke-width="2" />
 								</svg>
 							{/if}
 						</div>
@@ -177,11 +177,11 @@
 	}
 
 	.tv-card-kids {
-		border-left-color: #E88636;
+		border-left-color: #E8621F;
 	}
 
 	.tv-card-kids .tv-info-card-title {
-		color: #B5651D;
+		color: #D4551A;
 	}
 
 	.tv-card-students {
@@ -193,11 +193,11 @@
 	}
 
 	.tv-card-seniors {
-		border-left-color: #9B59B6;
+		border-left-color: #2E6EB5;
 	}
 
 	.tv-card-seniors .tv-info-card-title {
-		color: #6C3483;
+		color: #1B4F8A;
 	}
 
 	.tv-card-icon {
@@ -216,7 +216,8 @@
 
 	.tv-isic-logo {
 		height: 48px;
-		width: auto;
+		max-width: 48px;
+		object-fit: contain;
 		border-radius: 4px;
 	}
 

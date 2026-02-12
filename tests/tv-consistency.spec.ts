@@ -113,9 +113,7 @@ test('all pages: all text >= 24px', async ({ page }) => {
 	}
 });
 
-test('menu pages: price font sizes are consistent', async ({ page }) => {
-	const priceSizes: Record<string, number[]> = {};
-
+test('menu pages: price font sizes are uniform within each page', async ({ page }) => {
 	for (const route of ['/tv-dumplings', '/tv-noodles']) {
 		await page.goto(route);
 		await waitForMenuData(page);
@@ -126,16 +124,20 @@ test('menu pages: price font sizes are consistent', async ({ page }) => {
 			);
 		});
 
-		priceSizes[route] = sizes;
 		expect(sizes.length, `${route}: should have prices`).toBeGreaterThan(0);
 
 		// All prices on same page should be same size
 		const uniqueSizes = [...new Set(sizes)];
 		expect(uniqueSizes.length, `${route}: price sizes should be uniform`).toBe(1);
 	}
+});
 
-	// Price sizes consistent across pages
-	expect(priceSizes['/tv-dumplings']![0]).toBe(priceSizes['/tv-noodles']![0]);
+test('tv-dumplings: each item shows 3 price tiers', async ({ page }) => {
+	await page.goto('/tv-dumplings');
+	await waitForMenuData(page);
+
+	const tierRows = await page.locator('.tv-tier-row').count();
+	expect(tierRows, 'should have 18 tier rows (6 items × 3 tiers)').toBe(18);
 });
 
 test('menu pages: item name font sizes are consistent', async ({ page }) => {

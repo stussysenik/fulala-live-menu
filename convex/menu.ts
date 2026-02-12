@@ -100,6 +100,10 @@ export const createMenuItem = mutation({
     allergenNumbers: v.optional(v.array(v.number())),
     allergenCodes: v.optional(v.array(v.string())),
     quantity: v.optional(v.string()),
+    priceTiers: v.optional(v.array(v.object({
+      quantity: v.string(),
+      price: v.number(),
+    }))),
     isSweet: v.optional(v.boolean()),
     isFeatured: v.optional(v.boolean()),
     isGlutenFree: v.optional(v.boolean()),
@@ -141,6 +145,10 @@ export const updateMenuItem = mutation({
     allergenNumbers: v.optional(v.array(v.number())),
     allergenCodes: v.optional(v.array(v.string())),
     quantity: v.optional(v.string()),
+    priceTiers: v.optional(v.array(v.object({
+      quantity: v.string(),
+      price: v.number(),
+    }))),
     isSweet: v.optional(v.boolean()),
     isFeatured: v.optional(v.boolean()),
     isGlutenFree: v.optional(v.boolean()),

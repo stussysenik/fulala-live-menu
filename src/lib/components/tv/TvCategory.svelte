@@ -29,6 +29,7 @@
 		flex-direction: column;
 		flex: 1;
 		min-height: 0;
+		padding-top: var(--tv-content-pad-top, 12px);
 	}
 
 	.tv-items {
@@ -36,6 +37,7 @@
 		flex-direction: column;
 		flex: 1;
 		min-height: 0;
-		justify-content: space-evenly;
+		justify-content: center;
+		gap: var(--tv-item-gap, 20px);
 	}
 </style>

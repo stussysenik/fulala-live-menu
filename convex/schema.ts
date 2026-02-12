@@ -98,6 +98,12 @@ export default defineSchema({
     allergenDetails: v.optional(v.array(v.string())), // Detailed allergen list (e.g., ["peanuts", "tree nuts"])
     nutritionalHighlights: v.optional(v.array(v.string())), // Badges (e.g., ["High Protein", "Low Carb"])
 
+    // Multi-tier pricing (e.g., dumplings sold by 4ks/6ks/12ks)
+    priceTiers: v.optional(v.array(v.object({
+      quantity: v.string(),  // "4ks", "6ks", "12ks"
+      price: v.number(),     // CZK whole units
+    }))),
+
     // Item code for dim sum numbering (e.g., "S1", "F2", "N3")
     itemCode: v.optional(v.string()),
 

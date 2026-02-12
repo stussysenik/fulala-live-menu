@@ -35,6 +35,7 @@
 	--tv-info-allergen-name-en-size: 26px;
 
 	/* Spacing */
+	--tv-content-pad-top: 12px;
 	--tv-page-pad-x: 40px;
 	--tv-page-pad-y: 28px;
 	--tv-section-gap: 36px;
@@ -42,8 +43,11 @@
 	--tv-item-padding: 16px;
 
 	/* Image sizing */
-	--tv-image-size: 120px;
+	--tv-image-size: 180px;
 	--tv-image-radius: 12px;
+
+	/* Price tier sizing (multi-quantity dumplings) */
+	--tv-tier-price-size: 32px;
 
 	/* Allergen badge sizing (on menu item rows) */
 	--tv-allergen-badge-size: 36px;

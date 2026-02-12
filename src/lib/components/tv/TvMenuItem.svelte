@@ -34,11 +34,20 @@
 				{/if}
 			</div>
 
-			<div class="tv-item-price-col">
-				{#if item.quantity}
-					<span class="tv-item-quantity">{item.quantity}</span>
+			<div class="tv-item-price-col" class:tv-item-tiers={item.priceTiers && item.priceTiers.length > 0}>
+				{#if item.priceTiers && item.priceTiers.length > 0}
+					{#each item.priceTiers as tier}
+						<div class="tv-tier-row">
+							<span class="tv-item-quantity">{tier.quantity}</span>
+							<span class="tv-item-price">{formatPrice(tier.price)}</span>
+						</div>
+					{/each}
+				{:else}
+					{#if item.quantity}
+						<span class="tv-item-quantity">{item.quantity}</span>
+					{/if}
+					<span class="tv-item-price">{formatPrice(item.price)}</span>
 				{/if}
-				<span class="tv-item-price">{formatPrice(item.price)}</span>
 			</div>
 		</div>
 
@@ -74,10 +83,14 @@
 		display: flex;
 		align-items: flex-start;
 		gap: 20px;
-		padding: var(--tv-item-padding, 16px);
+		padding: var(--tv-item-padding, 16px) 0;
 		border-bottom: 1px solid var(--color-border, #E8E8E4);
 		position: relative;
-		flex-shrink: 0;
+		flex-shrink: var(--tv-item-shrink, 0);
+	}
+
+	.tv-item:last-child {
+		border-bottom: none;
 	}
 
 	.tv-item[data-available="false"] {
@@ -129,6 +142,10 @@
 		font-weight: 600;
 		color: var(--color-text, #2C2C2C);
 		line-height: 1.25;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 	}
 
 	.tv-item-chinese {
@@ -168,6 +185,27 @@
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
 		line-height: 1;
+	}
+
+	.tv-item-tiers {
+		gap: 6px;
+	}
+
+	.tv-tier-row {
+		display: flex;
+		align-items: baseline;
+		gap: 8px;
+		white-space: nowrap;
+	}
+
+	.tv-tier-row .tv-item-quantity {
+		font-size: 24px;
+		min-width: 4ch;
+		text-align: right;
+	}
+
+	.tv-tier-row .tv-item-price {
+		font-size: var(--tv-tier-price-size, 32px);
 	}
 
 	.tv-item-meta {
