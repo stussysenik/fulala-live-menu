@@ -12,6 +12,7 @@
 			currentTime = now.toLocaleTimeString('cs-CZ', {
 				hour: 'numeric',
 				minute: '2-digit',
+				second: '2-digit',
 				hour12: false
 			});
 		};

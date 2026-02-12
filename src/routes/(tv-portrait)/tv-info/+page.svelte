@@ -13,8 +13,8 @@
 	}
 
 	const extras = [
-		{ nameCS: '+ Vejce na měkko', nameEN: 'Boiled Egg', price: 29 },
-		{ nameCS: '+ Vejce do hněda', nameEN: 'Over-Easy Egg', price: 29 },
+		{ nameCS: '+ Vařené vejce', nameEN: 'Boiled Egg', price: 29 },
+		{ nameCS: '+ Na měkko', nameEN: 'Over-Easy Egg', price: 29 },
 		{ nameCS: '+ Nudle', nameEN: 'Extra Noodles', price: 49 },
 		{ nameCS: '+ Kuřecí', nameEN: 'Chicken', price: 79 },
 		{ nameCS: '+ Vepřové', nameEN: 'Pork', price: 79 },
@@ -24,9 +24,9 @@
 	const drinks = [
 		{ nameCS: 'Wang Lao Ji', nameCN: '王老吉', nameEN: 'Herbal Tea', image: '/images/drinks/wanglaoji.webp', price: 85 },
 		{ nameCS: 'Domácí limonáda', nameEN: 'Lemonade', image: '/images/drinks/lemonade.webp', price: 89 },
-		{ nameCS: 'Tsingtao', nameCN: '青岛啤酒', nameEN: 'Beer', image: '/images/drinks/tsingtao.webp' },
+		{ nameCS: 'Tsingtao', nameCN: '青岛啤酒', nameEN: 'Beer', image: '/images/drinks/tsingtao.webp', price: 79 },
 		{ nameCS: 'Káva', nameEN: 'Coffee', image: '/images/drinks/coffee.webp', price: 65 },
-		{ nameCS: 'Kofola', nameEN: 'Soft Drink', image: '/images/drinks/kofola.webp', price: 75 },
+		{ nameCS: 'Kofola', nameEN: 'Soft Drink', image: '/images/drinks/kofola.webp', price: 65 },
 	];
 
 	function getCardType(section: InfoSection): string {
@@ -54,6 +54,30 @@
 						class:tv-card-students={getCardType(section) === 'students'}
 						class:tv-card-seniors={getCardType(section) === 'seniors'}
 					>
+						<div class="tv-card-icon">
+							{#if getCardType(section) === 'students'}
+								<img src="/images/isic-logo.png" alt="ISIC" class="tv-isic-logo" />
+							{:else if getCardType(section) === 'kids'}
+								<!-- Notion-style hand-drawn family icon -->
+								<svg viewBox="0 0 48 48" fill="none" stroke="#B5651D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="16" cy="11" r="5.5" />
+									<path d="M16 17c-5 0-9 3.5-9 8v3h18v-3c0-4.5-4-8-9-8z" />
+									<circle cx="34" cy="15" r="4" />
+									<path d="M34 20c-3.5 0-6.5 2.5-6.5 5.5V28h13v-2.5c0-3-3-5.5-6.5-5.5z" />
+									<path d="M10 38h28" stroke-dasharray="3 3" opacity="0.4" />
+								</svg>
+							{:else if getCardType(section) === 'seniors'}
+								<!-- Notion-style hand-drawn seniors icon -->
+								<svg viewBox="0 0 48 48" fill="none" stroke="#6C3483" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="22" cy="11" r="5.5" />
+									<path d="M22 17c-5 0-9 3.5-9 8v3h18v-3c0-4.5-4-8-9-8z" />
+									<path d="M24 32l-2 14" />
+									<path d="M20 32l2 14" />
+									<path d="M36 12v26c0 2-1 4-3 4" stroke-width="2.5" />
+									<circle cx="36" cy="10" r="2" fill="#6C3483" stroke="none" />
+								</svg>
+							{/if}
+						</div>
 						<div class="tv-info-card-content">
 							<div class="tv-info-card-title">
 								{section.titleLocal || section.title}
@@ -174,6 +198,26 @@
 
 	.tv-card-seniors .tv-info-card-title {
 		color: #6C3483;
+	}
+
+	.tv-card-icon {
+		flex-shrink: 0;
+		width: 48px;
+		height: 48px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.tv-card-icon svg {
+		width: 48px;
+		height: 48px;
+	}
+
+	.tv-isic-logo {
+		height: 48px;
+		width: auto;
+		border-radius: 4px;
 	}
 
 	.tv-info-card-content {

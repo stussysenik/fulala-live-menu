@@ -320,8 +320,8 @@ test('tv-info: drink prices displayed with Kč notation', async ({ page }) => {
 			.map(el => el.textContent?.trim() ?? '');
 	});
 
-	// 4 drinks have prices (Tsingtao has no price)
-	expect(prices.length).toBe(4);
+	// All 5 drinks have prices
+	expect(prices.length).toBe(5);
 	for (const price of prices) {
 		expect(price).toMatch(/^\d+ Kč$/);
 	}
@@ -348,4 +348,17 @@ test('tv-info: customer cards are color-coded', async ({ page }) => {
 	expect(kids, 'should have kids card').toBe(1);
 	expect(students, 'should have students card').toBe(1);
 	expect(seniors, 'should have seniors card').toBe(1);
+});
+
+// --- 12. Card icons ---
+
+test('tv-info: cards have icons (ISIC logo + SVGs)', async ({ page }) => {
+	await page.goto('/tv-info');
+	await waitForData(page);
+
+	const icons = await page.locator('.tv-card-icon').count();
+	expect(icons, 'each card should have an icon').toBe(3);
+
+	const isicLogo = await page.locator('.tv-isic-logo').count();
+	expect(isicLogo, 'students card should have ISIC logo').toBe(1);
 });
