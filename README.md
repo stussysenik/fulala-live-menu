@@ -42,6 +42,7 @@ Open [localhost:5173](http://localhost:5173)
 - **Real-time** — Convex WebSocket subscriptions, ~200ms update propagation
 - **Bilingual** — Czech + English toggle, Chinese characters on items
 - **Multi-currency** — CZK (default), EUR, USD, CNY with configurable rates
+- **Multi-tier pricing** — Dumplings sold by 4ks/6ks/12ks (salty) and 3ks/6ks/9ks (sweet)
 - **4 layouts** — Standard list, dim sum grid, card grid, traditional Chinese order sheet
 - **Per-page layouts** — Different layouts for display vs ordering pages
 - **EU allergens** — Full 14-allergen system with sub-types (1a wheat, 1b rye, etc.)
@@ -49,7 +50,8 @@ Open [localhost:5173](http://localhost:5173)
 - **Theme system** — Customizable colors, fonts, spacing with live preview
 - **TV mode** — Optimized for restaurant displays at `/tv`
 - **Vertical TV** — 3 dedicated portrait routes for LG 43" TVs (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
-- **TV design system** — Token-driven CSS, 24px minimum font, Playwright legibility tests
+- **TV design system** — Token-driven CSS, 180px food images, 24px minimum font, Playwright legibility tests
+- **Storybook** — Component development and visual verification at port 6006
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)
 
 ## Architecture
@@ -60,7 +62,7 @@ fulala-live-menu/
 │   ├── routes/           # Pages (menu, tv, order, admin)
 │   ├── lib/
 │   │   ├── components/   # MenuItem, Category, AllergenLegend, ...
-│   │   │   └── tv/       # TV-optimized portrait display components
+│   │   │   └── tv/       # TV-optimized portrait display components + Storybook stories
 │   │   ├── design/      # TV design system docs
 │   │   ├── stores/       # Currency, order cart
 │   │   ├── i18n/         # Czech + English
@@ -80,6 +82,8 @@ fulala-live-menu/
 | `bun run dev:all` | Both |
 | `bun run build` | Production build |
 | `bun run test` | Playwright E2E |
+| `bun run storybook` | Storybook dev (port 6006) |
+| `bun run build-storybook` | Storybook static build |
 
 ## Environment
 
@@ -93,7 +97,7 @@ VITE_CONVEX_URL=https://cheery-setter-27.convex.cloud
 bunx convex run seed:seedMenu
 ```
 
-Seeds the real Fulala menu: steamed dumplings (Har Gow, pork & cabbage, beef & onion), noodle soups (braised beef brisket, minced pork, eggplant vegetarian), with Czech names, Chinese characters, allergen codes, and images.
+Seeds the real Fulala menu: steamed dumplings (Har Gow, pork & cabbage, beef & onion, chicken & cheese, custard bun, peach bun) with multi-tier pricing, noodle soups (braised beef brisket, minced pork, eggplant vegetarian, chicken & peppers, GF rice noodles), with Czech names, Chinese characters, allergen codes, and images.
 
 ---
 

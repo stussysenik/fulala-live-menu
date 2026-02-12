@@ -39,8 +39,8 @@ Each category (e.g., STEAMED DUMPLINGS, NOODLE SOUPS) shows items with:
 - **Czech name** (primary) — e.g., "Hovezi knedlicky s cibuli"
 - **Chinese characters** — e.g., "牛肉蒸饺"
 - **English subtitle** — e.g., "Steamed Beef & Onion Dumplings"
-- **Quantity** — e.g., "6ks" (6 pieces)
-- **Price** — e.g., "209 Kc"
+- **Quantity** — e.g., "6ks" (6 pieces); dumplings show multiple tiers (4ks/6ks/12ks)
+- **Price** — e.g., "209 Kc"; tiered items show all prices compactly
 - **Photo** — high-quality food photography
 - **Allergen badges** — numbered circles (1, 6, 11, etc.)
 - **Tags** — RECOMMENDED, SWEET, GLUTEN-FREE
@@ -57,17 +57,20 @@ Three dedicated routes for the restaurant's 3x LG 43UR78003LK TVs mounted in por
 
 | Route | TV | Content |
 |-------|-----|---------|
-| `/tv-dumplings` | Left | Steamed dumplings — 6 items with photos, bilingual names, prices, allergens |
+| `/tv-dumplings` | Left | Steamed dumplings — 6 items with photos, bilingual names, multi-tier pricing (4ks/6ks/12ks or 3ks/6ks/9ks), allergens |
 | `/tv-noodles` | Middle | Noodle soups — 5 items with photos, bilingual names, prices, allergens |
-| `/tv-info` | Right | Student/senior discounts, allergen legend |
+| `/tv-info` | Right | Drinks, extras, student/senior/kids discounts with color-coded cards |
 
 **Design:**
 - Non-scrollable (`overflow: hidden`, `100vh`)
 - Bilingual: Czech primary + English secondary shown simultaneously
 - Prices in CZK only (no interactive currency switching on passive display)
-- Large typography: 40px item names, 48px prices, 56px category titles (24px minimum floor)
-- Food photos (120px thumbnails) next to each item
+- Large typography: 40px item names, 48px single prices / 32px tier prices, 56px titles (24px minimum floor)
+- Food photos (180px thumbnails) next to each item
 - Fulala Red (#E83636) accent, green (#16a34a) prices
+- Multi-tier pricing: dumplings display 3 price tiers compactly in the price column
+- Color-coded customer info cards: Frank Ocean orange (kids), teal (students), Royal blue (seniors)
+- Hand-drawn SVG icons for kids/seniors cards, ISIC logo for students
 
 **CSS Rotation:**
 The TVs output 1920x1080 landscape but are physically mounted portrait. A CSS rotation wrapper creates a 1080x1920 portrait container and rotates it 90° to fill the landscape viewport. To flip rotation direction, change `rotate(90deg)` to `rotate(-90deg)` in `src/routes/(tv-portrait)/+layout.svelte`.
@@ -78,8 +81,13 @@ All TV portrait routes share `(tv-portrait)/+layout.svelte` which provides the h
 **Components** (`src/lib/components/tv/`):
 - `TvPortraitHeader.svelte` — Brand name, tagline, week/schedule, live clock
 - `TvPortraitFooter.svelte` — Bilingual prices note
-- `TvMenuItem.svelte` — Large-font menu item (image, names, price, allergens, tags)
+- `TvMenuItem.svelte` — Large-font menu item (image, names, price/tiers, allergens, tags)
 - `TvCategory.svelte` — Category section with bilingual title and item list
+
+**Storybook Stories** (`src/lib/components/tv/*.stories.svelte`):
+- `TvMenuItem.stories.svelte` — 7 variants: Default, Featured, Sweet, GF, Price Tiers (Salty), Price Tiers (Sweet), Sold Out
+- `TvPortraitHeader.stories.svelte` — With Clock, No Clock
+- `TvPortraitFooter.stories.svelte` — Default
 
 **Design System** (`src/lib/design/tv-design-system.md`):
 All TV portrait tokens live in `src/lib/styles/tv-portrait.css`. Minimum font size: 24px. See the design system doc for space budget, legibility rules, and deploy checklist.
@@ -252,9 +260,10 @@ bun run dev:all
 
 ### Testing
 ```bash
-bun run test              # All Playwright tests
+bun run test              # All Playwright tests (185 TV + general)
 bun run test -- --ui      # Interactive UI mode
 bun run test:unit         # Vitest unit tests
+bun run storybook         # Storybook component explorer (port 6006)
 ```
 
 ### Deployment
@@ -289,4 +298,4 @@ bunx convex deploy
 
 ---
 
-*Last updated: February 11, 2026*
+*Last updated: February 12, 2026*

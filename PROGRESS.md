@@ -59,6 +59,19 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 **v0.3.2 — Documentation Update** (Feb 11, 2026)
 - Rewrote README.md, DOCS.md, PROGRESS.md
 
+**v0.5.0 — Multi-Tier Pricing, Storybook, TV Polish** (Feb 12, 2026)
+- Multi-tier pricing for dumplings: salty sold by 4ks/6ks/12ks, sweet by 3ks/6ks/9ks
+- `priceTiers` schema field with proportional price calculation from per-piece rates
+- Compact 3-row tier display in TvMenuItem price column (32px tier font, 48px single-price)
+- Storybook v10 with `@storybook/sveltekit` for component development and visual verification
+- 7 story variants for TvMenuItem (Default, Featured, Sweet, GF, Tiers Salty, Tiers Sweet, Sold Out)
+- TV display fixes: 180px food images (up from 120px), line alignment, no double borders
+- tv-info card redesign: Frank Ocean orange (kids), Royal blue (seniors), hand-drawn SVG icons
+- ISIC logo fix with max-width constraint
+- `flex-shrink` CSS variable for per-page override (noodles page)
+- Playwright tests updated: 185 TV tests across 6 viewports, tier count test, split price-size check
+- Fixed Vercel deploy: vitest peer dependency conflict (`^1` → `^3`), Playwright browser skip
+
 ---
 
 ### Completed Features
@@ -74,7 +87,9 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] EU 14-allergen system with sub-types and bilingual legend
 - [x] Weekly schedule banner (week number, date range)
 - [x] Customer info section (discounts, family portions)
-- [x] Food photography with lazy loading
+- [x] Food photography with lazy loading (180px on TV)
+- [x] Multi-tier pricing for dumplings (4ks/6ks/12ks salty, 3ks/6ks/9ks sweet)
+- [x] Color-coded customer info cards (kids, students, seniors)
 
 **Ordering**
 - [x] Session-based cart with localStorage persistence
@@ -95,8 +110,9 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 **Infrastructure**
 - [x] Vercel auto-deploy from `main` (fra1 region)
 - [x] Convex production database
-- [x] Playwright E2E tests (menu, currency, layouts, accessibility)
-- [x] TV portrait design system with legibility tests
+- [x] Playwright E2E tests (menu, currency, layouts, accessibility, TV portrait)
+- [x] TV portrait design system with legibility tests (185 tests, 6 viewports)
+- [x] Storybook v10 for TV component development and visual verification
 - [x] Nix flake for reproducible dev environment
 - [x] Google Sheets sync (optional)
 
@@ -149,7 +165,10 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 | `src/lib/theme/defaults.ts` | Theme configuration |
 | `src/lib/design/tv-design-system.md` | TV portrait design system bridge doc |
 | `tests/tv-portrait.spec.ts` | TV portrait Playwright tests |
+| `tests/tv-consistency.spec.ts` | Cross-page TV consistency tests |
+| `src/lib/components/tv/*.stories.svelte` | Storybook stories for TV components |
+| `.storybook/` | Storybook configuration |
 
 ---
 
-*Last updated: February 11, 2026*
+*Last updated: February 12, 2026*
