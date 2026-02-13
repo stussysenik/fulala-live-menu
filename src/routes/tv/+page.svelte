@@ -208,31 +208,4 @@
 		}
 	}
 
-	/* 3x portrait TVs (3240px CSS total width, DPR 2) — dead on real hardware */
-	@media (min-width: 4000px) {
-		.tv-page {
-			padding: 4rem 6rem;
-			font-size: 2rem;
-		}
-
-		.title {
-			font-size: 5rem;
-		}
-
-		.tagline {
-			font-size: 1.5rem;
-		}
-
-		.clock {
-			font-size: 3rem;
-		}
-
-		.tv-menu-flow {
-			column-gap: 6rem;
-		}
-
-		.tv-section {
-			margin-bottom: 4rem;
-		}
-	}
 </style>

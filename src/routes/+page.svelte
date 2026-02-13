@@ -250,32 +250,6 @@
 		}
 	}
 
-	/* Ultra-wide: 3x portrait TV setup (3240px CSS) — dead on real hardware, DPR 2 */
-	@media (min-width: 4000px) {
-		.page {
-			padding: 4rem 6rem;
-			font-size: 1.75rem;
-		}
-
-		.menu-flow {
-			column-gap: 6rem;
-		}
-
-		.menu-section {
-			margin-bottom: 4rem;
-		}
-
-		.title {
-			font-size: 5rem;
-			letter-spacing: 0.08em;
-		}
-
-		.subtitle {
-			font-size: 1.75rem;
-			letter-spacing: 0.15em;
-		}
-	}
-
 	.top-info {
 		max-width: 600px;
 		margin: 0 auto var(--spacing-category-gap, 2.5rem);
