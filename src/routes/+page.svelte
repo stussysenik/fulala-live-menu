@@ -220,9 +220,9 @@
 	}
 
 	/* 3-column TV layout
-	   Targeted at 3x LG 43UR78003LK (3840x2160 each, portrait = 2160x3840)
-	   Total viewport: 6480 x 3840
-	   Each column: ~2160px width at 9:16 per screen */
+	   Targeted at 3x LG 43UR78003LK (1920×1080 CSS each, DPR 2, portrait via CSS rotation)
+	   Total CSS viewport: 3240 × 1080
+	   Each column: ~1080px width at 9:16 per screen */
 	@media (min-width: 1600px) {
 		.page {
 			padding: 2.5rem 4rem;
@@ -250,7 +250,7 @@
 		}
 	}
 
-	/* Ultra-wide: actual 3x portrait 4K TV setup (6480px+) */
+	/* Ultra-wide: 3x portrait TV setup (3240px CSS) — dead on real hardware, DPR 2 */
 	@media (min-width: 4000px) {
 		.page {
 			padding: 4rem 6rem;

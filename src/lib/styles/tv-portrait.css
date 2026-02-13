@@ -1,5 +1,5 @@
-/* TV Portrait Mode — 1080x1920 CSS pixels (rotated from 1920x1080)
- * Target: LG 43UR78003LK 43" 4K TVs at 3m viewing distance
+/* TV Portrait Mode — 1080x1920 CSS pixels (rotated from 1920x1080, DPR 2)
+ * Target: LG 43UR78003LK 43" 4K panel, webOS renders at 1080p CSS, DPR 2
  * Minimum readable font: 24px  |  Recommended body: 36-48px
  * Content area height: ~1626px (after header/footer/padding)
  * Design system docs: src/lib/design/tv-design-system.md

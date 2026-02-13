@@ -208,7 +208,7 @@
 		}
 	}
 
-	/* 3x portrait 4K TVs (6480px total width) */
+	/* 3x portrait TVs (3240px CSS total width, DPR 2) — dead on real hardware */
 	@media (min-width: 4000px) {
 		.tv-page {
 			padding: 4rem 6rem;
