@@ -27,6 +27,7 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 0;
+		--tv-item-shrink: 1;
 	}
 
 	.tv-loading {

@@ -199,7 +199,7 @@
 	}
 
 	.tv-tier-row .tv-item-quantity {
-		font-size: 24px;
+		font-size: var(--tv-tier-quantity-size, 24px);
 		min-width: 4ch;
 		text-align: right;
 	}

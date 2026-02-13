@@ -37,7 +37,6 @@
 		flex-direction: column;
 		flex: 1;
 		min-height: 0;
-		justify-content: center;
-		gap: var(--tv-item-gap, 20px);
+		justify-content: space-evenly;
 	}
 </style>

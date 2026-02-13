@@ -48,6 +48,7 @@
 
 	/* Price tier sizing (multi-quantity dumplings) */
 	--tv-tier-price-size: 32px;
+	--tv-tier-quantity-size: 24px;
 
 	/* Allergen badge sizing (on menu item rows) */
 	--tv-allergen-badge-size: 36px;
