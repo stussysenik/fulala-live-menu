@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 /**
  * TV Portrait Display Tests
  *
- * Viewport: 1920x1080 (real TV output — CSS rotation creates 1080x1920 portrait)
- * Target: LG 43" 4K TVs at 3m viewing distance
+ * Viewport: 1920×1080 CSS, DPR 2 (4K panel, CSS rotation creates 1080×1920 portrait)
+ * Target: LG 43UR78003LK 43" 4K TVs at 3m viewing distance
  * Design system: src/lib/design/tv-design-system.md
  */
 

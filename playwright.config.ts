@@ -36,19 +36,21 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    // TV (vertical 1080x1920)
+    // TV (vertical 1080x1920, DPR 2 matches LG 43UR78003LK 4K panel)
     {
       name: 'TV Vertical',
       use: {
         viewport: { width: 1080, height: 1920 },
+        deviceScaleFactor: 2,
       },
     },
 
-    // TV Portrait (real TV output: 1920x1080, CSS rotation creates portrait)
+    // TV Portrait (real TV output: 1920x1080 CSS, DPR 2, CSS rotation creates portrait)
     {
       name: 'TV Portrait',
       use: {
         viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 2,
       },
       testMatch: '**/tv-portrait.spec.ts',
     },

@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 /**
  * TV Portrait Cross-Page Consistency Tests
  *
+ * Viewport: 1920×1080 CSS, DPR 2 (4K panel, webOS renders at 1080p CSS)
  * Ensures all 3 TV pages (/tv-dumplings, /tv-noodles, /tv-info) are
  * consistent as a single visual unit — same tokens, same header/footer,
  * same typography scale.
