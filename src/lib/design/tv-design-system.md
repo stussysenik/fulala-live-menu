@@ -9,12 +9,19 @@ Check this file before making any TV route changes.
 
 | Property | Value |
 |----------|-------|
-| Hardware | 3x LG 43UR78003LK (43" 4K) |
+| Hardware | 3x LG 43UR78003LK (43" 4K panel, 3840×2160 physical) |
 | Mounting | Portrait orientation (physically rotated) |
-| Signal | 1920x1080 landscape, rotated 90deg via CSS |
-| Effective viewport | 1080 x 1920 CSS px |
+| Signal | 1920×1080 landscape, rotated 90° via CSS |
+| CSS viewport | 1080 × 1920 px (after rotation) |
+| Device Pixel Ratio | 2 (webOS upscales 1080p → 4K panel) |
 | Viewing distance | ~3 meters (restaurant seating) |
 | Environment | Bright indoor restaurant lighting |
+
+> **Why 1080p, not 4K?** The LG webOS browser renders at 1920×1080 CSS pixels
+> regardless of panel resolution. DPR 2 means each CSS pixel maps to a 2×2
+> hardware pixel grid. This is similar to a Retina MacBook — CSS dimensions
+> stay the same, but images and text render at 2× sharpness.
+> Serve images at 2× their CSS display size for best quality.
 
 ## Legibility Rules
 
@@ -98,6 +105,53 @@ Run before every TV deploy:
 | TvCategory | `src/lib/components/tv/TvCategory.svelte` | tv-dumplings, tv-noodles |
 | TvMenuItem | `src/lib/components/tv/TvMenuItem.svelte` | TvCategory |
 | Layout | `src/routes/(tv-portrait)/+layout.svelte` | All TV pages (rotation wrapper + header/footer) |
+
+## Dev Setup
+
+To match the real TV environment in your browser:
+
+**Chrome DevTools:**
+1. Open DevTools → Toggle device toolbar (Ctrl+Shift+M)
+2. Set viewport to **1920 × 1080**
+3. Set **DPR** (device pixel ratio) to **2** (in the toolbar dropdown)
+4. Navigate to `/tv-dumplings`, `/tv-noodles`, or `/tv-info`
+
+**Responsively App:**
+1. Add custom device "Fulala TV": 1920 × 1080, DPR 2
+2. Use landscape orientation (CSS rotation handles portrait)
+
+**Physical size approximation:**
+To preview at roughly the same angular size as the real TV at 3m, set your
+browser zoom to approximately: `(your monitor's CSS PPI) ÷ 51`. For a typical
+96 PPI monitor, that's ~188% zoom.
+
+## TV Hardware Prep Checklist
+
+Run through this on each TV before going live. These settings are **per-input
+and per-app** — they reset if the TV is factory-reset or the browser is
+reinstalled.
+
+1. **Aspect Ratio:** Settings → Picture → Aspect Ratio → **Just Scan = On**
+   (prevents the TV from cropping/overscanning the edges)
+2. **Browser Zoom:** Open LG browser menu → set zoom to **100%**
+   (each TV must match — different zoom = different effective font sizes)
+3. **Live Zoom:** Long-press Home button → verify Live Zoom is **Off**
+   (this feature can accidentally rescale the page)
+4. **Aspect Ratio Mode:** Verify set to **Original** or **16:9**
+   (not "All Direction Zoom" or "4:3")
+5. **Verify:** Open a TV route and confirm text matches across all 3 displays
+
+## Future: HDMI Direct
+
+Connecting an external device (Raspberry Pi, mini PC) via HDMI at 3840×2160
+native resolution would bypass the webOS 1080p CSS limit. This would require:
+
+- New viewport math (3840×2160 CSS, DPR 1)
+- Doubled token values in `tv-portrait.css`
+- Updated Playwright config and tests
+- Separate design gate verification
+
+Not implemented — documenting for future reference.
 
 ## Adding a New TV Page
 
