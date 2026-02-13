@@ -45,7 +45,7 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - TV-optimized components: `TvMenuItem`, `TvCategory`, `TvPortraitHeader`, `TvPortraitFooter`
 - Bilingual display (Czech + English shown simultaneously, no toggle needed)
 - Shared route group layout `(tv-portrait)` as reusable template for future TV pages
-- Designed for 3m viewing distance on LG 43UR78003LK (43" 4K) displays
+- Designed for 3m viewing distance on LG 43UR78003LK (43" 4K panel, 1080p CSS viewport, DPR 2)
 
 **v0.4.1 — TV Design System & Legibility** (Feb 11, 2026)
 - Design system bridge doc (`src/lib/design/tv-design-system.md`)
