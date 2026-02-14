@@ -59,6 +59,17 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 **v0.3.2 — Documentation Update** (Feb 11, 2026)
 - Rewrote README.md, DOCS.md, PROGRESS.md
 
+**v0.5.1 — Valentine's Day Seasonal Theme** (Feb 13, 2026)
+- 3 new Valentine TV portrait routes: `/tv-dumplings-valentine`, `/tv-noodles-valentine`, `/tv-info-valentine`
+- Separate `(tv-valentine)` route group with self-contained layout — zero changes to standard pages
+- 60/30/10 color scheme: warm cream (#FFF8F0), brand red + rose (#E83636, #E8D8D0), fortune gold (#B8860B)
+- Valentine header: gradient red→gold border, pulsing heart, bilingual greeting, heart schedule separators
+- SVG decorations: fortune 福 watermark, heart accents, fortune coin motif
+- Valentine info page: gradient section titles, gold prices, heart dividers, warm-tinted info cards
+- `fulala-valentine` theme preset in theme system (admin-selectable)
+- Removed unused `/tv` landscape route (only portrait TV routes used in production)
+- Same Convex data — menu updates apply to both standard and Valentine pages automatically
+
 **v0.5.0 — Multi-Tier Pricing, Storybook, TV Polish** (Feb 12, 2026)
 - Multi-tier pricing for dumplings: salty sold by 4ks/6ks/12ks, sweet by 3ks/6ks/9ks
 - `priceTiers` schema field with proportional price calculation from per-piece rates
@@ -90,6 +101,7 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] Food photography with lazy loading (180px on TV)
 - [x] Multi-tier pricing for dumplings (4ks/6ks/12ks salty, 3ks/6ks/9ks sweet)
 - [x] Color-coded customer info cards (kids, students, seniors)
+- [x] Seasonal Valentine's Day TV routes (separate URLs, no standard page changes)
 
 **Ordering**
 - [x] Session-based cart with localStorage persistence
@@ -171,4 +183,4 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 
 ---
 
-*Last updated: February 12, 2026*
+*Last updated: February 13, 2026*

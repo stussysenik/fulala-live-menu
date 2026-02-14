@@ -26,10 +26,12 @@ Open [localhost:5173](http://localhost:5173)
 | Route | For | What |
 |-------|-----|------|
 | `/` | Customers | Main menu (mobile/web) |
-| `/tv` | Staff | TV display (large fonts, multi-column) |
 | `/tv-dumplings` | TV | Vertical TV — steamed dumplings (portrait) |
 | `/tv-noodles` | TV | Vertical TV — noodle soups (portrait) |
 | `/tv-info` | TV | Vertical TV — highlights, discounts, allergens |
+| `/tv-dumplings-valentine` | TV | Valentine's Day — dumplings (seasonal) |
+| `/tv-noodles-valentine` | TV | Valentine's Day — noodle soups (seasonal) |
+| `/tv-info-valentine` | TV | Valentine's Day — info & drinks (seasonal) |
 | `/order` | Customers | Cart + checkout |
 | `/admin` | Staff | Menu CRUD, categories |
 | `/admin/theme` | Staff | Colors, fonts, currency config |
@@ -48,8 +50,8 @@ Open [localhost:5173](http://localhost:5173)
 - **EU allergens** — Full 14-allergen system with sub-types (1a wheat, 1b rye, etc.)
 - **Weekly schedule** — Auto-displays current week number and date range
 - **Theme system** — Customizable colors, fonts, spacing with live preview
-- **TV mode** — Optimized for restaurant displays at `/tv`
 - **Vertical TV** — 3 dedicated portrait routes for LG 43" TVs (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
+- **Seasonal themes** — Valentine's Day TV routes with warm cream, fortune gold, SVG decorations
 - **TV design system** — Token-driven CSS, 180px food images, 24px minimum font, Playwright legibility tests
 - **Storybook** — Component development and visual verification at port 6006
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)

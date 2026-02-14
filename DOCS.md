@@ -45,12 +45,6 @@ Each category (e.g., STEAMED DUMPLINGS, NOODLE SOUPS) shows items with:
 - **Allergen badges** — numbered circles (1, 6, 11, etc.)
 - **Tags** — RECOMMENDED, SWEET, GLUTEN-FREE
 
-### TV Display (`/tv`)
-Same content, optimized for large screens:
-- Bigger fonts and spacing
-- Multi-column layout
-- No interactive elements
-
 ### Vertical TV Display (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
 
 Three dedicated routes for the restaurant's 3x LG 43UR78003LK TVs mounted in portrait orientation. Each TV loads one URL in its built-in browser.
@@ -91,6 +85,34 @@ All TV portrait routes share `(tv-portrait)/+layout.svelte` which provides the h
 
 **Design System** (`src/lib/design/tv-design-system.md`):
 All TV portrait tokens live in `src/lib/styles/tv-portrait.css`. Minimum font size: 24px. See the design system doc for space budget, legibility rules, and deploy checklist.
+
+### Valentine's Day TV Routes (`/tv-dumplings-valentine`, `/tv-noodles-valentine`, `/tv-info-valentine`)
+
+Seasonal Valentine-themed versions of the 3 TV portrait pages. Same menu data (via Convex), different visual treatment. Self-contained in the `(tv-valentine)` route group — zero changes to standard pages.
+
+**How to switch:** Change the TV browser URLs from `/tv-dumplings` → `/tv-dumplings-valentine` (etc.). After the holiday, switch back.
+
+**Color Palette (60/30/10):**
+- 60% warm cream (`#FFF8F0` background, `#FFFAF5` surface)
+- 30% brand red (`#E83636`) + warm rose borders (`#E8D8D0`)
+- 10% fortune gold (`#B8860B` prices)
+
+**Valentine-specific elements:**
+- Gradient header border (red → gold)
+- Pulsing heart next to brand name
+- Bilingual greeting: "Šťastný Valentýn / Happy Valentine's Day"
+- Heart separators (♥) in schedule info
+- Fortune 福 character watermark (very subtle)
+- Heart SVG decorations on dumplings page
+- Fortune coin SVG on noodles page
+- Heart dividers and gradient section titles on info page
+- Gold prices on extras and drinks
+
+**Route group:** `src/routes/(tv-valentine)/`
+- `+layout.svelte` — Valentine layout (rotation wrapper, warm bg, valentine header, watermarks)
+- `tv-dumplings-valentine/+page.svelte`
+- `tv-noodles-valentine/+page.svelte`
+- `tv-info-valentine/+page.svelte`
 
 ### Customer Ordering (`/order`)
 Full cart experience:
@@ -134,7 +156,7 @@ Customize the visual appearance:
 Save presets and switch between them. Changes appear in real-time on all connected screens.
 
 ### Layout Configuration (`/admin/layout`)
-Four display layouts, configurable independently for display pages (/, /tv) and the order page (/order):
+Four display layouts, configurable independently for display pages (/) and the order page (/order):
 
 1. **Standard List** — Simple vertical list with images
 2. **Dim Sum Grid** — Two-column grid with checkboxes and item codes
@@ -241,8 +263,7 @@ Prices stored in CZK cents. Converted client-side using configurable exchange ra
 - **Price font:** DM Mono (monospace, 1.125rem)
 - **Accent color:** #E83636 (Fulala red)
 - **Price color:** #16a34a (green)
-
----
+- **Seasonal presets:** `fulala-valentine` (warm cream, fortune gold prices)
 
 ## Development
 
@@ -298,4 +319,4 @@ bunx convex deploy
 
 ---
 
-*Last updated: February 12, 2026*
+*Last updated: February 13, 2026*
