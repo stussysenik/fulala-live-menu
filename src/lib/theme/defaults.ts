@@ -71,6 +71,7 @@ export interface ThemeConfig {
   };
   currency: CurrencyConfig;
   animationsEnabled?: boolean;
+  season?: 'valentine' | 'christmas' | 'lunar-new-year' | null;
 }
 
 // Default theme based on Tufte principles and menu research:
@@ -288,6 +289,66 @@ export const themePresets: Record<string, ThemeConfig> = {
     },
     animationsEnabled: true,
   },
+
+  'fulala-valentine': {
+    ...defaultTheme,
+    fonts: {
+      headline: "Cormorant Garamond, serif",
+      body: "Inter, sans-serif",
+      price: "DM Mono, monospace",
+    },
+    typography: {
+      headlineSize: "1.75rem",
+      subheadlineSize: "1.25rem",
+      bodySize: "1rem",
+      priceSize: "1.125rem",
+      allergenSize: "0.8125rem",
+      lineSpacing: 1.6,
+    },
+    colors: {
+      text: "#2C2C2C",
+      textMuted: "#6B6B6B",
+      price: "#B8860B",            // Fortune gold (60/30/10 accent)
+      background: "#FFF8F0",       // Warm cream (60% dominant)
+      surface: "#FFFAF5",          // Soft rose surface
+      accent: "#E83636",           // Fulala brand red (30% secondary)
+      available: "#2d5016",
+      unavailable: "#dc2626",
+      border: "#E8D8D0",           // Warm rose border
+    },
+    spacing: {
+      scale: 1.25,
+      itemGap: "1.25rem",
+      categoryGap: "2.5rem",
+      cardPadding: "1.25rem",
+      sectionMargin: "3rem",
+    },
+    animations: {
+      easeEnter: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      easeExit: "cubic-bezier(0.22, 0.61, 0.36, 1)",
+      easeSpring: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+      durationQuick: "200ms",
+      durationNormal: "400ms",
+      durationSlow: "600ms",
+      durationPage: "800ms",
+    },
+    display: {
+      showCurrencySymbol: true,
+      priceAlignment: "right",
+      showImages: true,
+      imageSize: "large",
+    },
+    currency: {
+      baseCurrency: "CZK",
+      displayCurrencies: ["CZK", "EUR"],
+      displayMode: "single",
+      rates: { CZK: 1, EUR: 0.039, USD: 0.042, CNY: 0.31 },
+      showSymbols: true,
+      compactMode: true,
+    },
+    animationsEnabled: true,
+    season: 'valentine',
+  },
 };
 
 // Helper to convert theme to CSS variables
@@ -327,6 +388,11 @@ export function themeToCssVars(theme: ThemeConfig): Record<string, string> {
   }
   if (theme.spacing.minTouchTarget) {
     vars["--spacing-min-touch-target"] = theme.spacing.minTouchTarget;
+  }
+
+  // Add season variable for conditional seasonal styling
+  if (theme.season) {
+    vars["--season"] = theme.season;
   }
 
   // Add animation variables if defined (luxury theme)
