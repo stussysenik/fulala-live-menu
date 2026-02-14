@@ -70,6 +70,17 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - Removed unused `/tv` landscape route (only portrait TV routes used in production)
 - Same Convex data — menu updates apply to both standard and Valentine pages automatically
 
+**v0.6.0 — Admin Power-Up: Price Tiers, Image Swap, Live Preview** (Feb 14, 2026)
+- `PriceTierEditor` component: quick-add presets (1ks-24ks), custom tiers, remove buttons
+- Integrated into `MenuItemEditor` — edit all price tiers from the admin form
+- Quick image swap: click any thumbnail in menu list to change photos instantly via Convex
+- Enhanced `ImagePicker`: custom URL input, clear button, help text
+- Consolidated live preview page (`/admin/preview`): all 3 TV displays side-by-side with theme toggle and scale slider
+- Added Live Preview + Events to admin sidebar navigation
+- `updateDumplingTiers` migration: 6ks/12ks pricing for all dumplings (12ks = 6ks x 2 - 15 CZK)
+- Fixed ThemeEditor SSR crash (missing `browser` guard on `useAction`)
+- OpenSpec proposal: `add-admin-price-tier-editor`
+
 **v0.5.0 — Multi-Tier Pricing, Storybook, TV Polish** (Feb 12, 2026)
 - Multi-tier pricing for dumplings: salty sold by 4ks/6ks/12ks, sweet by 3ks/6ks/9ks
 - `priceTiers` schema field with proportional price calculation from per-piece rates
@@ -99,7 +110,7 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] Weekly schedule banner (week number, date range)
 - [x] Customer info section (discounts, family portions)
 - [x] Food photography with lazy loading (180px on TV)
-- [x] Multi-tier pricing for dumplings (4ks/6ks/12ks salty, 3ks/6ks/9ks sweet)
+- [x] Multi-tier pricing (flexible tiers editable from admin, quick-add presets)
 - [x] Color-coded customer info cards (kids, students, seniors)
 - [x] Seasonal Valentine's Day TV routes (separate URLs, no standard page changes)
 
@@ -112,11 +123,15 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 
 **Admin**
 - [x] Menu item CRUD with images and allergens
+- [x] Price tier editor with quick-add presets (1ks-24ks) and custom tiers
+- [x] Quick image swap (click thumbnail → instant Convex update)
+- [x] Consolidated live preview (all 3 TV displays in one view)
 - [x] Category management with sort ordering
 - [x] Theme editor with live preview and presets
 - [x] Layout switcher with per-page tabs
 - [x] Currency configuration (rates, visibility, display mode)
 - [x] Event packages, catering menus, school meal schedules
+- [x] Print menu (A4 sheet with allergens and customer info)
 - [x] Display analytics dashboard
 
 **Infrastructure**
@@ -180,7 +195,9 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 | `tests/tv-consistency.spec.ts` | Cross-page TV consistency tests |
 | `src/lib/components/tv/*.stories.svelte` | Storybook stories for TV components |
 | `.storybook/` | Storybook configuration |
+| `src/lib/components/admin/PriceTierEditor.svelte` | Price tier editor with presets |
+| `src/routes/admin/preview/+page.svelte` | Consolidated TV live preview |
 
 ---
 
-*Last updated: February 13, 2026*
+*Last updated: February 14, 2026*

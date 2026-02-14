@@ -33,10 +33,14 @@ Open [localhost:5173](http://localhost:5173)
 | `/tv-noodles-valentine` | TV | Valentine's Day — noodle soups (seasonal) |
 | `/tv-info-valentine` | TV | Valentine's Day — info & drinks (seasonal) |
 | `/order` | Customers | Cart + checkout |
-| `/admin` | Staff | Menu CRUD, categories |
+| `/admin` | Staff | Dashboard — stats, quick actions |
+| `/admin/menu` | Staff | Menu CRUD, price tiers, quick image swap |
+| `/admin/preview` | Staff | Consolidated live preview — all 3 TV displays |
+| `/admin/schedule` | Staff | Weekly menu schedule |
 | `/admin/theme` | Staff | Colors, fonts, currency config |
 | `/admin/layout` | Staff | 4 display layouts with per-page config |
 | `/admin/events` | Staff | Event packages, catering, school meals |
+| `/admin/print` | Staff | Printable A4 menu sheet |
 | `/admin/analytics` | Staff | Session tracking |
 
 ## Features
@@ -44,7 +48,7 @@ Open [localhost:5173](http://localhost:5173)
 - **Real-time** — Convex WebSocket subscriptions, ~200ms update propagation
 - **Bilingual** — Czech + English toggle, Chinese characters on items
 - **Multi-currency** — CZK (default), EUR, USD, CNY with configurable rates
-- **Multi-tier pricing** — Dumplings sold by 4ks/6ks/12ks (salty) and 3ks/6ks/9ks (sweet)
+- **Multi-tier pricing** — Flexible tiers (e.g., 6ks/12ks) editable from admin with quick-add presets
 - **4 layouts** — Standard list, dim sum grid, card grid, traditional Chinese order sheet
 - **Per-page layouts** — Different layouts for display vs ordering pages
 - **EU allergens** — Full 14-allergen system with sub-types (1a wheat, 1b rye, etc.)
@@ -53,6 +57,8 @@ Open [localhost:5173](http://localhost:5173)
 - **Vertical TV** — 3 dedicated portrait routes for LG 43" TVs (`/tv-dumplings`, `/tv-noodles`, `/tv-info`)
 - **Seasonal themes** — Valentine's Day TV routes with warm cream, fortune gold, SVG decorations
 - **TV design system** — Token-driven CSS, 180px food images, 24px minimum font, Playwright legibility tests
+- **Admin live preview** — Consolidated view of all 3 TV displays with theme toggle and zoom
+- **Quick image swap** — Click any menu item thumbnail in admin to change photos instantly
 - **Storybook** — Component development and visual verification at port 6006
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)
 
@@ -100,6 +106,12 @@ bunx convex run seed:seedMenu
 ```
 
 Seeds the real Fulala menu: steamed dumplings (Har Gow, pork & cabbage, beef & onion, chicken & cheese, custard bun, peach bun) with multi-tier pricing, noodle soups (braised beef brisket, minced pork, eggplant vegetarian, chicken & peppers, GF rice noodles), with Czech names, Chinese characters, allergen codes, and images.
+
+### Update Dumpling Tiers (One-Time Migration)
+```bash
+bunx convex run seed:updateDumplingTiers
+```
+Updates all dumplings to 6ks/12ks pricing (12ks = 6ks x 2 - 15 CZK discount). After running, manage tiers from `/admin/menu`.
 
 ---
 

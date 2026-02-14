@@ -18,22 +18,26 @@ export default defineConfig({
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+      testIgnore: ['**/admin.spec.ts', '**/tv-portrait.spec.ts'],
     },
     {
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
+      testIgnore: ['**/admin.spec.ts', '**/tv-portrait.spec.ts'],
     },
 
     // Tablet
     {
       name: 'Tablet',
       use: { ...devices['iPad (gen 7)'] },
+      testIgnore: ['**/admin.spec.ts', '**/tv-portrait.spec.ts'],
     },
 
     // Desktop
     {
       name: 'Desktop Chrome',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: ['**/admin.spec.ts', '**/tv-portrait.spec.ts'],
     },
 
     // TV (vertical 1080x1920, DPR 2 matches LG 43UR78003LK 4K panel)
@@ -43,6 +47,7 @@ export default defineConfig({
         viewport: { width: 1080, height: 1920 },
         deviceScaleFactor: 2,
       },
+      testIgnore: ['**/admin.spec.ts', '**/tv-portrait.spec.ts'],
     },
 
     // TV Portrait (real TV output: 1920x1080 CSS, DPR 2, CSS rotation creates portrait)
@@ -53,6 +58,13 @@ export default defineConfig({
         deviceScaleFactor: 2,
       },
       testMatch: '**/tv-portrait.spec.ts',
+    },
+
+    // Admin panel (Desktop only — admin sets its own viewport via test.use)
+    {
+      name: 'Admin',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: '**/admin.spec.ts',
     },
   ],
 

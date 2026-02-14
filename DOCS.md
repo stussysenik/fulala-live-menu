@@ -126,24 +126,63 @@ Full cart experience:
 
 ## How Staff Uses It
 
-### Menu Management (`/admin`)
-The admin dashboard lets staff manage everything:
+### Admin Login
+Navigate to `/admin` and enter the admin password. The admin panel is password-protected and does not require user accounts.
 
-**Menu Items**
-- Add/edit/delete items
-- Set name (Czech), nameLocal (English), nameChinese (Chinese characters)
-- Set price in CZK (auto-converts to other currencies)
-- Upload food photos (WebP format)
-- Assign allergen codes (e.g., 1a, 2, 6, 11)
-- Toggle availability (sold out / available)
-- Mark as featured (RECOMMENDED badge)
-- Set quantity display (e.g., "3ks", "6ks")
+### Dashboard (`/admin`)
+Overview of the current menu state:
+- Total menu items, available items, sold-out items
+- 24-hour change count
+- Quick action links to all admin sections
+
+### Menu Items (`/admin/menu`)
+Full CRUD for all menu items:
+
+**Item Fields**
+- Name (English), nameLocal (Czech), nameChinese (Chinese characters)
+- Description, price in CZK, quantity display (e.g., "6ks")
+- Category assignment, sort order
+- Allergen codes (e.g., 1a, 2, 6, 11)
+- Flags: Featured, Sweet, Gluten-Free, Available
+
+**Price Tier Editor**
+Each item can have multiple price tiers (e.g., 6ks at 189 Kc, 12ks at 363 Kc). The editor provides:
+- **Quick-add presets:** Buttons for common quantities (1ks, 2ks, 3ks, 6ks, 9ks, 12ks, 18ks, 24ks) — already-used quantities are hidden
+- **Custom tiers:** Add arbitrary quantity/price combinations
+- **Remove tiers:** Click the x button on any tier row
+- Tiers display as compact badges on TV screens and in the admin list
+
+**Quick Image Swap**
+Click any item's thumbnail in the menu list to open an image picker popover:
+- 13 pre-loaded food photos from `/static/images/menu/`
+- Custom URL input for external images
+- "Clear image" to remove the current photo
+- Changes save instantly via Convex — TV displays update in 1-2 seconds
+
+**Other Actions**
+- Toggle availability (Enable/Disable button)
+- Edit full item details
+- Delete with confirmation dialog
 
 **Categories**
 - Organize items into sections
 - Set display names in Czech + English
 - Control sort order
 - Toggle active/inactive
+
+### Live Preview (`/admin/preview`)
+See all 3 TV displays in a single consolidated view:
+- **Dumplings TV**, **Noodles TV**, **Info TV** — side by side as scaled iframes
+- **Theme toggle:** Switch between Standard and Valentine theme routes
+- **Scale slider:** Zoom from 15% to 50% to fit your screen
+- **Direct links:** Click the external link icon on any panel to open it full-screen
+- Changes made in `/admin/menu` appear in the preview within seconds (Convex real-time)
+
+### Schedule (`/admin/schedule`)
+Set the current menu week:
+- Week number, month, year
+- Start and end dates
+- Preview of the formatted schedule string
 
 ### Theme Editor (`/admin/theme`)
 Customize the visual appearance:
@@ -169,12 +208,20 @@ Three event types:
 - **Catering Menus** — Delivery catering with minimum orders and radius
 - **School Meals** — Weekly meal schedules (Mon-Fri) with per-meal pricing
 
+### Print Menu (`/admin/print`)
+Preview and print an A4 menu sheet:
+- Full menu with all categories, items, prices, allergens
+- Customer info section (kids, students, seniors discounts)
+- Allergen legend (all 14 EU allergens)
+- Print button triggers the browser print dialog
+
 ### Analytics (`/admin/analytics`)
 Track display sessions:
-- Session count by type (mobile vs TV)
-- Viewport sizes
-- Peak hours
-- Duration metrics
+- Active now (live count with mobile/TV split)
+- Today's sessions and weekly totals
+- Average session duration
+- Hourly distribution chart (last 7 days)
+- Recent sessions table with type, date, duration, viewport
 
 ---
 
@@ -319,4 +366,4 @@ bunx convex deploy
 
 ---
 
-*Last updated: February 13, 2026*
+*Last updated: February 14, 2026*
