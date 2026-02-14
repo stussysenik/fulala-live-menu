@@ -3,6 +3,7 @@
   import { useQuery, useMutation } from "$lib/convex";
   import { api } from "../../../../convex/_generated/api";
   import MenuItemEditor from "$lib/components/admin/MenuItemEditor.svelte";
+  import ImagePicker from "$lib/components/admin/ImagePicker.svelte";
 
   const fullMenu = browser ? useQuery(api.menu.getFullMenu, {}) : null;
   const allCategories = browser ? useQuery(api.menu.getCategories, {}) : null;
@@ -13,6 +14,7 @@
 
   let editingId: string | null = null;
   let showNew = false;
+  let imageSwapId: string | null = null;
 
   function startEdit(id: string) {
     editingId = id;
@@ -47,6 +49,15 @@
 
   async function handleToggle(id: string) {
     await toggleAvail?.({ id: id as any });
+  }
+
+  function toggleImageSwap(id: string) {
+    imageSwapId = imageSwapId === id ? null : id;
+  }
+
+  async function handleQuickImageSelect(itemId: string, e: CustomEvent<string>) {
+    imageSwapId = null;
+    await updateItem?.({ id: itemId as any, imageUrl: e.detail });
   }
 
   function findItem(id: string): any {
@@ -91,9 +102,22 @@
               />
             {:else}
               <div class="item-row" class:unavailable={!item.isAvailable}>
-                {#if item.imageUrl}
-                  <img class="item-thumb" src={item.imageUrl} alt="" />
-                {/if}
+                <div class="item-thumb-wrap">
+                  {#if item.imageUrl}
+                    <button class="thumb-btn" type="button" on:click={() => toggleImageSwap(item._id)} title="Click to change image">
+                      <img class="item-thumb" src={item.imageUrl} alt="" />
+                    </button>
+                  {:else}
+                    <button class="thumb-btn thumb-placeholder" type="button" on:click={() => toggleImageSwap(item._id)} title="Add image">
+                      +
+                    </button>
+                  {/if}
+                  {#if imageSwapId === item._id}
+                    <div class="image-swap-popover">
+                      <ImagePicker selected={item.imageUrl ?? ''} on:select={(e) => handleQuickImageSelect(item._id, e)} />
+                    </div>
+                  {/if}
+                </div>
                 <div class="item-info">
                   <div class="item-name">
                     {item.name}
@@ -102,8 +126,14 @@
                     {/if}
                   </div>
                   <div class="item-meta">
-                    {#if item.quantity}<span>{item.quantity}</span>{/if}
-                    <span>{item.price} Kč</span>
+                    {#if item.priceTiers?.length > 0}
+                      {#each item.priceTiers as tier}
+                        <span class="tier-badge">{tier.quantity}: {tier.price} Kč</span>
+                      {/each}
+                    {:else}
+                      {#if item.quantity}<span>{item.quantity}</span>{/if}
+                      <span>{item.price} Kč</span>
+                    {/if}
                     {#if item.allergenCodes?.length}
                       <span class="allergens">({item.allergenCodes.join(', ')})</span>
                     {/if}
@@ -192,12 +222,67 @@
 
   .item-row.unavailable { opacity: 0.5; }
 
+  .item-thumb-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .thumb-btn {
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .thumb-btn:hover {
+    box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.3);
+  }
+
+  .thumb-placeholder {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #E8E8E4;
+    color: #6B6B6B;
+    font-size: 1.25rem;
+  }
+
+  .thumb-placeholder:hover {
+    border-color: #C41E3A;
+    color: #C41E3A;
+  }
+
   .item-thumb {
     width: 48px;
     height: 48px;
     object-fit: cover;
     border-radius: 0.375rem;
-    flex-shrink: 0;
+    display: block;
+  }
+
+  .image-swap-popover {
+    position: absolute;
+    top: 54px;
+    left: 0;
+    z-index: 50;
+    background: white;
+    border: 1px solid #E8E8E4;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 0.5rem;
+    width: 320px;
+  }
+
+  .tier-badge {
+    padding: 1px 6px;
+    background: rgba(44, 44, 44, 0.06);
+    border-radius: 8px;
+    font-weight: 500;
   }
 
   .item-info { flex: 1; min-width: 0; }

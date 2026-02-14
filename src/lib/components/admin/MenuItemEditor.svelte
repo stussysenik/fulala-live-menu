@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import ImagePicker from './ImagePicker.svelte';
+  import PriceTierEditor from './PriceTierEditor.svelte';
 
   export let item: any = null;
   export let categories: any[] = [];
@@ -14,6 +15,7 @@
   let price = item?.price ?? 0;
   let categoryId = item?.categoryId ?? '';
   let quantity = item?.quantity ?? '';
+  let priceTiers: Array<{ quantity: string; price: number }> = item?.priceTiers ?? [];
   let allergenCodesStr = item?.allergenCodes?.join(', ') ?? '';
   let isFeatured = item?.isFeatured ?? false;
   let isSweet = item?.isSweet ?? false;
@@ -21,6 +23,10 @@
   let isAvailable = item?.isAvailable ?? true;
   let imageUrl = item?.imageUrl ?? '';
   let sortOrder = item?.sortOrder ?? 1;
+
+  function handleTiersChange(e: CustomEvent<Array<{ quantity: string; price: number }>>) {
+    priceTiers = e.detail;
+  }
 
   function handleImageSelect(e: CustomEvent<string>) {
     imageUrl = e.detail;
@@ -59,6 +65,7 @@
       isAvailable,
       imageUrl: imageUrl || undefined,
       sortOrder: Number(sortOrder),
+      priceTiers: priceTiers.length > 0 ? priceTiers : undefined,
     });
   }
 
@@ -103,6 +110,8 @@
       <input id="ed-sort" type="number" bind:value={sortOrder} min="1" />
     </div>
   </div>
+
+  <PriceTierEditor {priceTiers} on:change={handleTiersChange} />
 
   <div class="field">
     <label for="ed-cat">Category</label>

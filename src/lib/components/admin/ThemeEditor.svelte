@@ -6,6 +6,7 @@
   import { defaultTheme } from "$lib/theme/defaults";
   import type { CurrencyCode } from "$lib/currency/formats";
   import { getCurrencyName } from "$lib/currency/formats";
+  import { browser } from "$app/environment";
   import { useAction } from "$lib/convex";
   import { api } from "../../../../convex/_generated/api";
 
@@ -16,15 +17,15 @@
   // Active tab
   let activeTab: "colors" | "typography" | "display" | "currency" = "colors";
 
-  // Exchange rates action
-  const refreshRates = useAction(api.exchangeRates.refreshExchangeRates);
+  // Exchange rates action (only on browser)
+  const refreshRates = browser ? useAction(api.exchangeRates.refreshExchangeRates) : null;
   let isLoadingRates = false;
   let ratesLastUpdated: string | null = null;
 
   async function fetchLatestRates() {
     isLoadingRates = true;
     try {
-      const rates = await refreshRates();
+      const rates = await refreshRates?.();
       // Update the local theme with new rates
       updateTheme({
         currency: {

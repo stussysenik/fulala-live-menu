@@ -345,6 +345,31 @@ export const fixHarGow = mutation({
   },
 });
 
+// One-time migration: update all dumplings to 6ks/12ks pricing (12ks = 6ks*2 - 15 CZK)
+export const updateDumplingTiers = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const items = await ctx.db.query("menuItems").collect();
+    const updates: Array<{ chinese: string; tiers: Array<{ quantity: string; price: number }> }> = [
+      { chinese: "虾饺", tiers: [{ quantity: "6ks", price: 189 }, { quantity: "12ks", price: 363 }] },
+      { chinese: "猪肉蒸饺", tiers: [{ quantity: "6ks", price: 179 }, { quantity: "12ks", price: 343 }] },
+      { chinese: "牛肉蒸饺", tiers: [{ quantity: "6ks", price: 209 }, { quantity: "12ks", price: 403 }] },
+      { chinese: "鸡肉奶酪", tiers: [{ quantity: "6ks", price: 199 }, { quantity: "12ks", price: 383 }] },
+      { chinese: "玉兔奶黄包", tiers: [{ quantity: "6ks", price: 179 }, { quantity: "12ks", price: 343 }] },
+      { chinese: "寿桃豆沙包", tiers: [{ quantity: "6ks", price: 179 }, { quantity: "12ks", price: 343 }] },
+    ];
+    let count = 0;
+    for (const u of updates) {
+      const item = items.find(i => i.nameChinese === u.chinese);
+      if (item) {
+        await ctx.db.patch(item._id, { priceTiers: u.tiers, quantity: "6ks" });
+        count++;
+      }
+    }
+    return { message: `Updated ${count} dumpling tiers to 6ks/12ks pricing` };
+  },
+});
+
 // Clear all data (for testing)
 export const clearAll = mutation({
   args: {},

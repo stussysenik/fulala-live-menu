@@ -4,8 +4,10 @@
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: "home" },
     { href: "/admin/menu", label: "Menu Items", icon: "grid" },
+    { href: "/admin/preview", label: "Live Preview", icon: "monitor" },
     { href: "/admin/schedule", label: "Schedule", icon: "calendar" },
     { href: "/admin/theme", label: "Theme", icon: "palette" },
+    { href: "/admin/events", label: "Events", icon: "star" },
     { href: "/admin/print", label: "Print Menu", icon: "print" },
     { href: "/admin/analytics", label: "Analytics", icon: "chart" },
   ];
@@ -59,6 +61,16 @@
                 <line x1="16" y1="2" x2="16" y2="6" />
                 <line x1="8" y1="2" x2="8" y2="6" />
                 <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            {:else if item.icon === "monitor"}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+            {:else if item.icon === "star"}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
             {:else if item.icon === "print"}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
