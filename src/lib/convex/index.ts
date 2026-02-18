@@ -6,9 +6,10 @@ import type {
   FunctionReturnType,
   OptionalRestArgs,
 } from "convex/server";
-import { PUBLIC_CONVEX_URL } from "$env/static/public";
+import { env as publicEnv } from "$env/dynamic/public";
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || PUBLIC_CONVEX_URL;
+const CONVEX_URL =
+  import.meta.env.VITE_CONVEX_URL || publicEnv.PUBLIC_CONVEX_URL;
 
 // Convex client singleton
 let client: ConvexClient | null = null;
