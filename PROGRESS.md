@@ -81,6 +81,14 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - Fixed ThemeEditor SSR crash (missing `browser` guard on `useAction`)
 - OpenSpec proposal: `add-admin-price-tier-editor`
 
+**v0.6.1 — Image Upload Persistence + Reliability** (Feb 18, 2026)
+- Added Convex storage image pipeline for menu items (`generateImageUploadUrl`, `imageStorageId`, storage URL hydration)
+- Upgraded admin image picker with Bits UI tabs (Library / Upload / URL), upload constraints, and clearer feedback states
+- Added save/upload handshake banners in `/admin/menu` so staff sees working/success/error states immediately
+- Added compatibility fallback for older deployments (legacy mutation args, missing upload mutation) to avoid hard failures
+- Fixed blank/empty page risk by accepting both `VITE_CONVEX_URL` and `PUBLIC_CONVEX_URL` in Convex client setup
+- Added/updated Playwright coverage for upload persistence and per-item quick picker image changes
+
 **v0.5.0 — Multi-Tier Pricing, Storybook, TV Polish** (Feb 12, 2026)
 - Multi-tier pricing for dumplings: salty sold by 4ks/6ks/12ks, sweet by 3ks/6ks/9ks
 - `priceTiers` schema field with proportional price calculation from per-piece rates
@@ -125,6 +133,8 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] Menu item CRUD with images and allergens
 - [x] Price tier editor with quick-add presets (1ks-24ks) and custom tiers
 - [x] Quick image swap (click thumbnail → instant Convex update)
+- [x] Upload from device to Convex storage (persisted image URLs)
+- [x] Save/upload feedback banners (working, success, error)
 - [x] Consolidated live preview (all 3 TV displays in one view)
 - [x] Category management with sort ordering
 - [x] Theme editor with live preview and presets
@@ -138,6 +148,7 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 - [x] Vercel auto-deploy from `main` (fra1 region)
 - [x] Convex production database
 - [x] Playwright E2E tests (menu, currency, layouts, accessibility, TV portrait)
+- [x] Playwright admin coverage for upload persistence and all-item quick image change
 - [x] TV portrait design system with legibility tests (185 tests, 6 viewports)
 - [x] Storybook v10 for TV component development and visual verification
 - [x] Nix flake for reproducible dev environment
@@ -200,4 +211,4 @@ Production is live and healthy. Auto-deploys from `main` via Vercel (fra1 region
 
 ---
 
-*Last updated: February 14, 2026*
+*Last updated: February 18, 2026*

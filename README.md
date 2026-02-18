@@ -17,7 +17,8 @@ Open [localhost:5173](http://localhost:5173)
 
 - **SvelteKit 2** + Svelte 5
 - **Convex** (real-time database)
-- **Vanilla CSS** with CSS variables (theme system)
+- **Tailwind CSS 4** + scoped **SCSS**
+- **Bits UI** (accessible primitives)
 - **Vercel** (auto-deploy from `main`, region: fra1)
 - **Bun** (runtime)
 
@@ -34,7 +35,7 @@ Open [localhost:5173](http://localhost:5173)
 | `/tv-info-valentine` | TV | Valentine's Day — info & drinks (seasonal) |
 | `/order` | Customers | Cart + checkout |
 | `/admin` | Staff | Dashboard — stats, quick actions |
-| `/admin/menu` | Staff | Menu CRUD, price tiers, quick image swap |
+| `/admin/menu` | Staff | Menu CRUD, price tiers, quick image swap, upload-to-storage |
 | `/admin/preview` | Staff | Consolidated live preview — all 3 TV displays |
 | `/admin/schedule` | Staff | Weekly menu schedule |
 | `/admin/theme` | Staff | Colors, fonts, currency config |
@@ -59,6 +60,7 @@ Open [localhost:5173](http://localhost:5173)
 - **TV design system** — Token-driven CSS, 180px food images, 24px minimum font, Playwright legibility tests
 - **Admin live preview** — Consolidated view of all 3 TV displays with theme toggle and zoom
 - **Quick image swap** — Click any menu item thumbnail in admin to change photos instantly
+- **Image upload storage** — Upload from device to Convex storage with live save feedback
 - **Storybook** — Component development and visual verification at port 6006
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)
 
@@ -96,8 +98,14 @@ fulala-live-menu/
 ## Environment
 
 ```bash
-VITE_CONVEX_URL=https://cheery-setter-27.convex.cloud
+# Production / hosted
+VITE_CONVEX_URL=https://agile-ostrich-373.convex.cloud
+
+# Local `npx convex dev` also works through SvelteKit public env
+PUBLIC_CONVEX_URL=http://127.0.0.1:3210
 ```
+
+If you see a blank/empty page, verify one of the Convex URL variables above is set.
 
 ## Seed Data
 

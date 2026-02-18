@@ -155,8 +155,10 @@ Each item can have multiple price tiers (e.g., 6ks at 189 Kc, 12ks at 363 Kc). T
 **Quick Image Swap**
 Click any item's thumbnail in the menu list to open an image picker popover:
 - 13 pre-loaded food photos from `/static/images/menu/`
+- **Upload tab:** upload image files directly to Convex storage
 - Custom URL input for external images
 - "Clear image" to remove the current photo
+- Save handshake feedback in admin (`Uploading image to Convex storage...`, then success/error banner)
 - Changes save instantly via Convex — TV displays update in 1-2 seconds
 
 **Other Actions**
@@ -348,7 +350,8 @@ bunx convex deploy
 ### Environment Variables
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VITE_CONVEX_URL` | Yes | Convex deployment URL |
+| `VITE_CONVEX_URL` | Recommended | Convex deployment URL for client runtime |
+| `PUBLIC_CONVEX_URL` | Optional | SvelteKit public fallback (works with local `npx convex dev`) |
 | `GOOGLE_SHEETS_API_KEY` | No | Google Sheets sync |
 | `GOOGLE_SHEETS_ID` | No | Spreadsheet ID |
 
@@ -358,7 +361,7 @@ bunx convex deploy
 
 | Problem | Fix |
 |---------|-----|
-| Menu items not loading | Check Convex connection — `VITE_CONVEX_URL` must be set |
+| Menu items not loading / blank page | Set `VITE_CONVEX_URL` (or `PUBLIC_CONVEX_URL` for local Convex) and restart dev server |
 | Empty categories | Run `bunx convex run seed:seedMenu` to seed data |
 | CSS preload warning | Harmless browser optimization notice — ignore |
 | Theme changes not applying | Check `/admin/theme` save button — changes need explicit save |
@@ -366,4 +369,4 @@ bunx convex deploy
 
 ---
 
-*Last updated: February 14, 2026*
+*Last updated: February 18, 2026*
