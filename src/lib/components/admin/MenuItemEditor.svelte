@@ -5,6 +5,7 @@
 
   export let item: any = null;
   export let categories: any[] = [];
+  export let uploadImage: ((file: File) => Promise<{ storageId?: string; url: string }>) | null = null;
 
   const dispatch = createEventDispatcher();
 
@@ -22,14 +23,23 @@
   let isGlutenFree = item?.isGlutenFree ?? false;
   let isAvailable = item?.isAvailable ?? true;
   let imageUrl = item?.imageUrl ?? '';
+  let imageStorageId = item?.imageStorageId ?? '';
   let sortOrder = item?.sortOrder ?? 1;
 
   function handleTiersChange(e: CustomEvent<Array<{ quantity: string; price: number }>>) {
     priceTiers = e.detail;
   }
 
-  function handleImageSelect(e: CustomEvent<string>) {
-    imageUrl = e.detail;
+  function handleImageSelect(
+    e: CustomEvent<{
+      imageUrl: string;
+      imageStorageId?: string;
+      clearImage?: boolean;
+      clearImageStorage?: boolean;
+    }>
+  ) {
+    imageUrl = e.detail.imageUrl;
+    imageStorageId = e.detail.imageStorageId ?? '';
   }
 
   function parseAllergenCodes(str: string): string[] {
@@ -49,6 +59,10 @@
     const codes = parseAllergenCodes(allergenCodesStr);
     const numbers = parseAllergenNumbers(codes);
 
+    const hadExistingImage = Boolean(item?.imageUrl || item?.imageStorageId);
+    const clearImage = hadExistingImage && !imageUrl && !imageStorageId;
+    const clearImageStorage = !imageStorageId;
+
     dispatch('save', {
       name,
       nameLocal: nameLocal || undefined,
@@ -64,6 +78,9 @@
       isGlutenFree,
       isAvailable,
       imageUrl: imageUrl || undefined,
+      imageStorageId: imageStorageId || undefined,
+      clearImage,
+      clearImageStorage,
       sortOrder: Number(sortOrder),
       priceTiers: priceTiers.length > 0 ? priceTiers : undefined,
     });
@@ -134,7 +151,12 @@
     <label class="checkbox"><input type="checkbox" bind:checked={isAvailable} /> Available</label>
   </div>
 
-  <ImagePicker selected={imageUrl} on:select={handleImageSelect} />
+  <ImagePicker
+    selected={imageUrl}
+    selectedStorageId={imageStorageId || null}
+    {uploadImage}
+    on:select={handleImageSelect}
+  />
 
   <div class="actions">
     <button type="button" class="btn-secondary" on:click={cancel}>Cancel</button>

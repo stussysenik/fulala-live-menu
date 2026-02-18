@@ -26,6 +26,9 @@
     isLoadingRates = true;
     try {
       const rates = await refreshRates?.();
+      if (!rates) {
+        throw new Error("Rates endpoint unavailable.");
+      }
       // Update the local theme with new rates
       updateTheme({
         currency: {

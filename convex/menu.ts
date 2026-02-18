@@ -1,5 +1,42 @@
-import { query, mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+import type { QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
+
+type MenuItemDoc = Doc<"menuItems">;
+
+async function resolveImageUrl(
+  ctx: QueryCtx,
+  item: MenuItemDoc,
+): Promise<MenuItemDoc> {
+  if (!item.imageStorageId) {
+    return item;
+  }
+
+  const storageUrl = await ctx.storage.getUrl(item.imageStorageId);
+  if (!storageUrl) {
+    return item;
+  }
+
+  return {
+    ...item,
+    imageUrl: storageUrl,
+  };
+}
+
+async function resolveImageUrls(
+  ctx: QueryCtx,
+  items: MenuItemDoc[],
+): Promise<MenuItemDoc[]> {
+  return Promise.all(items.map((item) => resolveImageUrl(ctx, item)));
+}
+
+export const generateImageUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
 
 // Get all active categories sorted by sortOrder
 export const getCategories = query({
@@ -17,7 +54,8 @@ export const getCategories = query({
 export const getMenuItems = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("menuItems").collect();
+    const items = await ctx.db.query("menuItems").collect();
+    return await resolveImageUrls(ctx, items);
   },
 });
 
@@ -25,10 +63,11 @@ export const getMenuItems = query({
 export const getMenuItemsByCategory = query({
   args: { categoryId: v.id("categories") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const items = await ctx.db
       .query("menuItems")
       .withIndex("by_category", (q) => q.eq("categoryId", args.categoryId))
       .collect();
+    return await resolveImageUrls(ctx, items);
   },
 });
 
@@ -41,7 +80,10 @@ export const getFullMenu = query({
       .withIndex("by_sort")
       .collect();
 
-    const menuItems = await ctx.db.query("menuItems").collect();
+    const menuItems = await resolveImageUrls(
+      ctx,
+      await ctx.db.query("menuItems").collect(),
+    );
 
     return categories
       .filter((c) => c.isActive)
@@ -79,7 +121,7 @@ export const updateCategory = mutation({
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
     const filteredUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, v]) => v !== undefined)
+      Object.entries(updates).filter(([_, v]) => v !== undefined),
     );
     await ctx.db.patch(id, filteredUpdates);
   },
@@ -95,15 +137,20 @@ export const createMenuItem = mutation({
     isAvailable: v.boolean(),
     sortOrder: v.number(),
     imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.id("_storage")),
     nameLocal: v.optional(v.string()),
     nameChinese: v.optional(v.string()),
     allergenNumbers: v.optional(v.array(v.number())),
     allergenCodes: v.optional(v.array(v.string())),
     quantity: v.optional(v.string()),
-    priceTiers: v.optional(v.array(v.object({
-      quantity: v.string(),
-      price: v.number(),
-    }))),
+    priceTiers: v.optional(
+      v.array(
+        v.object({
+          quantity: v.string(),
+          price: v.number(),
+        }),
+      ),
+    ),
     isSweet: v.optional(v.boolean()),
     isFeatured: v.optional(v.boolean()),
     isGlutenFree: v.optional(v.boolean()),
@@ -120,7 +167,12 @@ export const createMenuItem = mutation({
     // Archive the creation
     await ctx.db.insert("menuArchive", {
       menuItemId: id,
-      snapshot: { ...args, addedAt: now, lastModifiedAt: now, modificationCount: 0 },
+      snapshot: {
+        ...args,
+        addedAt: now,
+        lastModifiedAt: now,
+        modificationCount: 0,
+      },
       changeType: "created",
       changedAt: now,
     });
@@ -140,27 +192,39 @@ export const updateMenuItem = mutation({
     isAvailable: v.optional(v.boolean()),
     sortOrder: v.optional(v.number()),
     imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.id("_storage")),
     nameLocal: v.optional(v.string()),
     nameChinese: v.optional(v.string()),
     allergenNumbers: v.optional(v.array(v.number())),
     allergenCodes: v.optional(v.array(v.string())),
     quantity: v.optional(v.string()),
-    priceTiers: v.optional(v.array(v.object({
-      quantity: v.string(),
-      price: v.number(),
-    }))),
+    priceTiers: v.optional(
+      v.array(
+        v.object({
+          quantity: v.string(),
+          price: v.number(),
+        }),
+      ),
+    ),
     isSweet: v.optional(v.boolean()),
     isFeatured: v.optional(v.boolean()),
     isGlutenFree: v.optional(v.boolean()),
+    clearImage: v.optional(v.boolean()),
+    clearImageStorage: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args;
+    const {
+      id,
+      clearImage = false,
+      clearImageStorage = false,
+      ...updates
+    } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Menu item not found");
 
     const now = Date.now();
     const filteredUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([_, v]) => v !== undefined)
+      Object.entries(updates).filter(([_, v]) => v !== undefined),
     );
 
     const newData = {
@@ -169,7 +233,24 @@ export const updateMenuItem = mutation({
       modificationCount: existing.modificationCount + 1,
     };
 
-    await ctx.db.patch(id, newData);
+    if (clearImage || clearImageStorage) {
+      const { _id, _creationTime, ...existingDoc } = existing;
+      const replacement = {
+        ...existingDoc,
+        ...newData,
+      };
+
+      if (clearImage || clearImageStorage) {
+        delete replacement.imageStorageId;
+      }
+      if (clearImage) {
+        delete replacement.imageUrl;
+      }
+
+      await ctx.db.replace(id, replacement);
+    } else {
+      await ctx.db.patch(id, newData);
+    }
 
     // Archive the update
     const updatedItem = await ctx.db.get(id);

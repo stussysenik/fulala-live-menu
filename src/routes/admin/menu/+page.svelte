@@ -5,16 +5,137 @@
   import MenuItemEditor from "$lib/components/admin/MenuItemEditor.svelte";
   import ImagePicker from "$lib/components/admin/ImagePicker.svelte";
 
+  type ImageSelectDetail = {
+    imageUrl: string;
+    imageStorageId?: string;
+    clearImage?: boolean;
+    clearImageStorage?: boolean;
+  };
+
   const fullMenu = browser ? useQuery(api.menu.getFullMenu, {}) : null;
   const allCategories = browser ? useQuery(api.menu.getCategories, {}) : null;
   const createItem = browser ? useMutation(api.menu.createMenuItem) : null;
   const updateItem = browser ? useMutation(api.menu.updateMenuItem) : null;
   const deleteItem = browser ? useMutation(api.menu.deleteMenuItem) : null;
   const toggleAvail = browser ? useMutation(api.menu.toggleAvailability) : null;
+  const generateImageUploadUrl = browser ? useMutation(api.menu.generateImageUploadUrl) : null;
 
   let editingId: string | null = null;
   let showNew = false;
   let imageSwapId: string | null = null;
+  let statusTone: "idle" | "working" | "success" | "error" = "idle";
+  let statusMessage = "";
+  let statusTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  function setStatus(
+    tone: "working" | "success" | "error",
+    message: string,
+    autoClear = tone !== "working",
+  ) {
+    statusTone = tone;
+    statusMessage = message;
+    if (statusTimeout) {
+      clearTimeout(statusTimeout);
+      statusTimeout = null;
+    }
+    if (autoClear) {
+      statusTimeout = setTimeout(() => {
+        statusTone = "idle";
+        statusMessage = "";
+      }, 2500);
+    }
+  }
+
+  function getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  function isMissingUploadFunctionError(error: unknown): boolean {
+    const message = getErrorMessage(error);
+    return message.includes("Could not find public function")
+      && message.includes("generateImageUploadUrl");
+  }
+
+  function isLegacyMutationError(error: unknown): boolean {
+    const message = getErrorMessage(error);
+    return message.includes("Object contains extra field")
+      || message.includes("ArgumentValidationError");
+  }
+
+  async function fileToDataUrl(file: File): Promise<string> {
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(new Error("Unable to read selected file."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function updateItemWithFallback(payload: Record<string, unknown>) {
+    if (!updateItem) return;
+    try {
+      await updateItem(payload as any);
+    } catch (error) {
+      if (!isLegacyMutationError(error)) {
+        throw error;
+      }
+      const { imageStorageId, clearImage, clearImageStorage, ...legacyPayload } = payload;
+      await updateItem(legacyPayload as any);
+    }
+  }
+
+  async function createItemWithFallback(payload: Record<string, unknown>) {
+    if (!createItem) return;
+    try {
+      await createItem(payload as any);
+    } catch (error) {
+      if (!isLegacyMutationError(error)) {
+        throw error;
+      }
+      const { imageStorageId, clearImage, clearImageStorage, ...legacyPayload } = payload;
+      await createItem(legacyPayload as any);
+    }
+  }
+
+  async function uploadImageToConvex(file: File) {
+    if (!generateImageUploadUrl) {
+      throw new Error("Upload unavailable in this environment.");
+    }
+
+    try {
+      setStatus("working", "Uploading image to Convex storage...", false);
+      const uploadUrl = await generateImageUploadUrl({});
+      const result = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!result.ok) {
+        throw new Error("Upload request failed.");
+      }
+
+      const uploadData = await result.json() as { storageId?: string };
+      if (!uploadData.storageId) {
+        throw new Error("Upload succeeded but no storage id returned.");
+      }
+
+      setStatus("success", "Image uploaded. Save to apply.");
+      return {
+        storageId: uploadData.storageId,
+        url: URL.createObjectURL(file),
+      };
+    } catch (error) {
+      if (isMissingUploadFunctionError(error)) {
+        const dataUrl = await fileToDataUrl(file);
+        setStatus("success", "Storage endpoint missing; used direct image fallback.");
+        return { url: dataUrl };
+      }
+      const message = getErrorMessage(error);
+      setStatus("error", message);
+      throw error;
+    }
+  }
 
   function startEdit(id: string) {
     editingId = id;
@@ -33,55 +154,97 @@
 
   async function handleSave(e: CustomEvent<any>) {
     const data = e.detail;
-    if (editingId) {
-      await updateItem?.({ id: editingId as any, ...data });
-    } else {
-      await createItem?.(data);
+    try {
+      setStatus("working", "Saving menu item...", false);
+      const basePayload = {
+        ...data,
+        imageUrl: data.imageStorageId ? undefined : data.imageUrl,
+      };
+
+      if (editingId) {
+        await updateItemWithFallback({ id: editingId as any, ...basePayload });
+      } else {
+        const { clearImage, clearImageStorage, ...createPayload } = basePayload;
+        await createItemWithFallback(createPayload);
+      }
+      setStatus("success", "Saved. Live displays are synced.");
+      cancelEdit();
+    } catch (error) {
+      setStatus("error", getErrorMessage(error) || "Failed to save menu item.");
     }
-    cancelEdit();
   }
 
   async function handleDelete(id: string) {
     if (confirm('Delete this menu item?')) {
-      await deleteItem?.({ id: id as any });
+      try {
+        setStatus("working", "Deleting menu item...", false);
+        await deleteItem?.({ id: id as any });
+        setStatus("success", "Item deleted.");
+      } catch (error) {
+        setStatus(
+          "error",
+          error instanceof Error ? error.message : "Failed to delete item.",
+        );
+      }
     }
   }
 
   async function handleToggle(id: string) {
-    await toggleAvail?.({ id: id as any });
+    try {
+      await toggleAvail?.({ id: id as any });
+      setStatus("success", "Availability updated.");
+    } catch (error) {
+      setStatus(
+        "error",
+        error instanceof Error ? error.message : "Failed to update availability.",
+      );
+    }
   }
 
   function toggleImageSwap(id: string) {
     imageSwapId = imageSwapId === id ? null : id;
   }
 
-  async function handleQuickImageSelect(itemId: string, e: CustomEvent<string>) {
-    imageSwapId = null;
-    await updateItem?.({ id: itemId as any, imageUrl: e.detail });
-  }
-
-  function findItem(id: string): any {
-    if (!$fullMenu) return null;
-    for (const cat of $fullMenu) {
-      const found = cat.items.find((i: any) => i._id === id);
-      if (found) return found;
+  async function handleQuickImageSelect(
+    itemId: string,
+    e: CustomEvent<ImageSelectDetail>,
+  ) {
+    try {
+      const detail = e.detail;
+      await updateItemWithFallback({
+        id: itemId as any,
+        imageUrl: detail.imageStorageId ? undefined : (detail.imageUrl || undefined),
+        imageStorageId: detail.imageStorageId as any,
+        clearImage: detail.clearImage ?? false,
+        clearImageStorage: detail.clearImageStorage ?? !detail.imageStorageId,
+      });
+      imageSwapId = null;
+      setStatus("success", "Image saved and synced live.");
+    } catch (error) {
+      setStatus("error", getErrorMessage(error) || "Failed to save image.");
     }
-    return null;
   }
 </script>
 
-<div class="menu-admin">
-  <header class="page-header">
-    <div>
+<div class="menu-admin space-y-4">
+  <header class="page-header rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+    <div class="space-y-1">
       <h1>Menu Items</h1>
-      <p class="subtitle">Manage your menu items, photos, and allergens</p>
+      <p class="subtitle">Manage menu content, upload images, and sync live screens instantly.</p>
     </div>
     <button class="btn-primary" on:click={startNew}>+ Add Item</button>
   </header>
 
+  {#if statusMessage}
+    <div class="status-banner" data-tone={statusTone} role="status" aria-live="polite" data-testid="admin-save-feedback">
+      {statusMessage}
+    </div>
+  {/if}
+
   {#if showNew && $allCategories}
     <MenuItemEditor
       categories={$allCategories}
+      uploadImage={uploadImageToConvex}
       on:save={handleSave}
       on:cancel={cancelEdit}
     />
@@ -97,6 +260,7 @@
               <MenuItemEditor
                 {item}
                 categories={$allCategories}
+                uploadImage={uploadImageToConvex}
                 on:save={handleSave}
                 on:cancel={cancelEdit}
               />
@@ -114,7 +278,12 @@
                   {/if}
                   {#if imageSwapId === item._id}
                     <div class="image-swap-popover">
-                      <ImagePicker selected={item.imageUrl ?? ''} on:select={(e) => handleQuickImageSelect(item._id, e)} />
+                      <ImagePicker
+                        selected={item.imageUrl ?? ''}
+                        selectedStorageId={item.imageStorageId ?? null}
+                        uploadImage={uploadImageToConvex}
+                        on:select={(e) => handleQuickImageSelect(item._id, e)}
+                      />
                     </div>
                   {/if}
                 </div>
@@ -126,7 +295,7 @@
                     {/if}
                   </div>
                   <div class="item-meta">
-                    {#if item.priceTiers?.length > 0}
+                    {#if item.priceTiers && item.priceTiers.length > 0}
                       {#each item.priceTiers as tier}
                         <span class="tier-badge">{tier.quantity}: {tier.price} Kč</span>
                       {/each}
@@ -160,14 +329,14 @@
   {/if}
 </div>
 
-<style>
+<style lang="scss">
   .menu-admin { max-width: 900px; }
 
   .page-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
   }
 
   .page-header h1 {
@@ -178,6 +347,34 @@
   }
 
   .subtitle { font-size: 0.875rem; color: #6B6B6B; }
+
+  .status-banner {
+    border-radius: 0.625rem;
+    border: 1px solid #e7e5e4;
+    background: #f9fafb;
+    color: #44403c;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.625rem 0.75rem;
+  }
+
+  .status-banner[data-tone="working"] {
+    border-color: #fcd34d;
+    background: #fffbeb;
+    color: #92400e;
+  }
+
+  .status-banner[data-tone="success"] {
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: #166534;
+  }
+
+  .status-banner[data-tone="error"] {
+    border-color: #fda4af;
+    background: #fff1f2;
+    color: #be123c;
+  }
 
   .btn-primary {
     padding: 0.5rem 1rem;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '../app.css';
 	import '$lib/styles/tokens.css';
 
 	// Self-hosted fonts — eliminates Google Fonts waterfall (300-800ms savings)

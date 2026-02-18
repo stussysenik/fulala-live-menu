@@ -74,6 +74,7 @@ export default defineSchema({
     lastModifiedAt: v.number(),
     modificationCount: v.number(),
     imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.id("_storage")),
     allergens: v.optional(v.array(v.string())),
 
     // Fulala: Bilingual names
