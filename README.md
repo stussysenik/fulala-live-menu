@@ -63,6 +63,7 @@ Open [localhost:5173](http://localhost:5173)
 - **Image upload storage** — Upload from device to Convex storage with live save feedback
 - **Storybook** — Component development and visual verification at port 6006
 - **Customer ordering** — Session-based cart with modifiers (noodle type, spice, etc.)
+- **Mobile-optimized** — Stacked name/price layout, smaller images (100px), compact 2-column allergen legend on phones (≤480px)
 
 ## Architecture
 

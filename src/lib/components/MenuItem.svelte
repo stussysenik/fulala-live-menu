@@ -331,4 +331,16 @@
 		letter-spacing: 0.05em;
 		margin-top: var(--space-1);
 	}
+
+	@media (max-width: 480px) {
+		.item-header {
+			flex-direction: column;
+			gap: 0.25rem;
+		}
+
+		.price-block {
+			align-self: flex-start;
+			margin-top: 0;
+		}
+	}
 </style>

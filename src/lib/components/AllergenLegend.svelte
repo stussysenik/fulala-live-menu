@@ -50,7 +50,29 @@
 
   @media (max-width: 480px) {
     .legend-grid {
-      grid-template-columns: 1fr;
+      gap: 0.375rem 0.75rem;
+    }
+
+    .legend-item {
+      gap: 0.375rem;
+    }
+
+    .legend-subtype {
+      padding-left: 0.5rem;
+    }
+
+    .legend-name-primary {
+      font-size: 0.75rem;
+    }
+
+    .legend-name-secondary {
+      font-size: 0.6875rem;
+    }
+
+    .legend-number {
+      min-width: 1.75em;
+      height: 1.75em;
+      font-size: 0.6875rem;
     }
   }
 

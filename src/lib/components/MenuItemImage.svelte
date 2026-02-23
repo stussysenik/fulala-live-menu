@@ -148,4 +148,11 @@
   .image-container[data-size="large"] {
     border-radius: var(--radius-lg, 0.75rem);
   }
+
+  @media (max-width: 480px) {
+    .image-container {
+      width: 100px;
+      height: 100px;
+    }
+  }
 </style>
