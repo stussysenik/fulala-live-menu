@@ -1,8 +1,21 @@
+<div align="center">
+
 # FULALA Live Menu
 
-Real-time restaurant menu display for [Fulala](https://fulala.cz). Powers `menu.fulala.cz` standalone and embeds inside `fulala.cz/menu`. Updates instantly when staff changes anything — prices, availability, weekly rotation.
+### Real-time restaurant menu display
 
-**Live:** [menu.fulala.cz](https://menu.fulala.cz)
+![SvelteKit](https://img.shields.io/badge/SvelteKit-2-FF3E00?style=flat-square&logo=svelte&logoColor=white)
+![Convex](https://img.shields.io/badge/Convex-Realtime-EE5522?style=flat-square)
+![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=flat-square&logo=vercel)
+
+[Live Menu](https://fulala-live-menu.vercel.app)
+
+</div>
+
+---
+
+Real-time restaurant menu display for [Fulala](https://fulala.cz). Powers `menu.fulala.cz` standalone and embeds inside `fulala.cz/menu`. Updates instantly when staff changes anything — prices, availability, weekly rotation.
 
 ## Quick Start
 
@@ -100,7 +113,7 @@ fulala-live-menu/
 
 ```bash
 # Production / hosted
-VITE_CONVEX_URL=https://agile-ostrich-373.convex.cloud
+VITE_CONVEX_URL=https://cheery-setter-27.convex.cloud
 
 # Local `npx convex dev` also works through SvelteKit public env
 PUBLIC_CONVEX_URL=http://127.0.0.1:3210
