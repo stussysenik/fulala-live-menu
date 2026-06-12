@@ -32,6 +32,7 @@
       editHref: "/admin/schedule",
       editLabel: "Edit schedule",
       toggles: ["showImages", "showChinese"] as const,
+      composable: true, // renders from a published section config
     },
     {
       slug: "home",
@@ -110,6 +111,11 @@
             Open page ↗
           </a>
           <a class="action" href={p.editHref}>{p.editLabel}</a>
+          {#if "composable" in p && p.composable}
+            <a class="action" href={`/admin/displays/compose/${p.slug}`}>
+              Compose sections
+            </a>
+          {/if}
         </div>
       </section>
     {/each}
