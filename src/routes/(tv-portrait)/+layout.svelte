@@ -3,8 +3,19 @@
 	import TvPortraitHeader from '$lib/components/tv/TvPortraitHeader.svelte';
 	import TvPortraitFooter from '$lib/components/tv/TvPortraitFooter.svelte';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
+	import { page } from '$app/stores';
+	import { useQuery } from '$lib/convex';
+	import { api } from '../../../convex/_generated/api';
 
 	let currentTime = '';
+
+	// Display master switch (admin "Display on" toggle). When a screen is
+	// switched off in /admin/displays it shows a calm branded standby instead
+	// of menu content — the TV stays on the same URL, no remote needed.
+	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
+	$: slug = $page.url.pathname.replace(/^\//, '');
+	$: displayActive = ($pageSettingsQuery?.[slug] as { isActive?: boolean } | undefined)?.isActive ?? true;
 
 	onMount(() => {
 		const updateTime = () => {
@@ -32,11 +43,18 @@
 -->
 <div class="tv-rotation-wrapper">
 	<div class="tv-portrait-page">
-		<TvPortraitHeader {currentTime} />
-		<main class="tv-portrait-content">
-			<slot />
-		</main>
-		<TvPortraitFooter />
+		{#if displayActive}
+			<TvPortraitHeader {currentTime} />
+			<main class="tv-portrait-content">
+				<slot />
+			</main>
+			<TvPortraitFooter />
+		{:else}
+			<div class="tv-standby">
+				<img src="/images/fulala-logo.jpg" alt="Fulala" class="tv-standby-logo" />
+				<div class="tv-standby-name">FULALA.CZ</div>
+			</div>
+		{/if}
 	</div>
 </div>
 
@@ -77,5 +95,30 @@
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+	}
+
+	.tv-standby {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 32px;
+	}
+
+	.tv-standby-logo {
+		width: 220px;
+		height: 220px;
+		object-fit: contain;
+		border-radius: 50%;
+		opacity: 0.9;
+	}
+
+	.tv-standby-name {
+		font-family: var(--font-headline, 'Cormorant Garamond', serif);
+		font-size: 56px;
+		font-weight: 700;
+		color: var(--color-text-muted, #6B6B6B);
+		letter-spacing: 0.06em;
 	}
 </style>

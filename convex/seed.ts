@@ -635,3 +635,34 @@ export const seedPrintWindowCategories = mutation({
     return result;
   },
 });
+
+// Fill-in photos for the print-window items from the existing photo library.
+// Only items WITHOUT an image are touched, so a curated photo uploaded later
+// is never overwritten — and removing an image falls back to the branded
+// placeholder tile (text-only look comes from the per-page Images toggle).
+export const assignPrintWindowImages = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Golden Milk / Red Bean ARE the custard / red-bean buns under their
+    // print-menu names; wontons get the closest steamer shot as a fill-in.
+    const assignments: Record<string, string> = {
+      "Golden Milk": "/images/menu/0697_MQ.webp",
+      "Red Bean": "/images/menu/0795_MQ.webp",
+      "Cantonese Wontons": "/images/menu/0779_MQ.webp",
+    };
+    const items = await ctx.db.query("menuItems").collect();
+    const result: Record<string, string> = {};
+    for (const [name, imageUrl] of Object.entries(assignments)) {
+      const item = items.find((i) => i.name === name);
+      if (!item) {
+        result[name] = "item not found";
+      } else if (item.imageUrl || item.imageStorageId) {
+        result[name] = "already has an image, skipped";
+      } else {
+        await ctx.db.patch(item._id, { imageUrl, lastModifiedAt: Date.now() });
+        result[name] = `assigned ${imageUrl}`;
+      }
+    }
+    return result;
+  },
+});

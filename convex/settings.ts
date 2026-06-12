@@ -381,6 +381,7 @@ export interface PageSettings {
   showImages?: boolean; // hide/show item photos on this page (default: show)
   showChinese?: boolean; // hide/show Chinese characters (default: show)
   showAllergens?: boolean; // hide/show allergen badges (default: show)
+  isActive?: boolean; // display master switch: false = standby screen (default: on)
 }
 
 const PAGE_SETTINGS_KEY = "page-settings";
@@ -407,6 +408,7 @@ export const updatePageSetting = mutation({
       showImages: v.optional(v.boolean()),
       showChinese: v.optional(v.boolean()),
       showAllergens: v.optional(v.boolean()),
+      isActive: v.optional(v.boolean()),
     }),
   },
   handler: async (ctx, args) => {
