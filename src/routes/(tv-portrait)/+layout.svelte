@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { useQuery } from '$lib/convex';
 	import { api } from '../../../convex/_generated/api';
+	import { activeHolidays } from '$lib/domain/holidays';
 
 	let currentTime = '';
 
@@ -16,6 +17,14 @@
 	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
 	$: slug = $page.url.pathname.replace(/^\//, '');
 	$: displayActive = ($pageSettingsQuery?.[slug] as { isActive?: boolean } | undefined)?.isActive ?? true;
+
+	// Holiday decor: only when the owner explicitly enabled this holiday in
+	// the dashboard (holiday-prefs memory). Decoration is deliberately tiny —
+	// the holiday emoji in the header and one accent-color swap.
+	const holidayPrefsQuery = browser ? useQuery(api.settings.getHolidayPrefs, {}) : null;
+	$: holiday =
+		activeHolidays(new Date()).find((h) => ($holidayPrefsQuery ?? {})[h.key] === 'enabled') ??
+		null;
 
 	onMount(() => {
 		const updateTime = () => {
@@ -42,9 +51,12 @@
 	If the TV is mounted the other way, change rotate(90deg) to rotate(-90deg).
 -->
 <div class="tv-rotation-wrapper">
-	<div class="tv-portrait-page">
+	<div
+		class="tv-portrait-page"
+		style:--color-accent={holiday?.accentColor || undefined}
+	>
 		{#if displayActive}
-			<TvPortraitHeader {currentTime} />
+			<TvPortraitHeader {currentTime} holidayEmoji={holiday?.emoji ?? ''} />
 			<main class="tv-portrait-content">
 				<slot />
 			</main>

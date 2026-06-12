@@ -441,6 +441,73 @@ export const updatePageSetting = mutation({
   },
 });
 
+// ---------------------------------------------------------------------------
+// Holiday decor preferences
+//
+// The holiday engine (src/lib/domain/holidays.ts) only computes what's
+// active; whether a holiday actually decorates the displays is an explicit
+// per-holiday decision made once in the dashboard and remembered here:
+//   key "holiday-prefs" -> { [holidayKey]: "enabled" | "dismissed" }
+// No decision = the dashboard introduces the holiday and asks. Displays
+// never decorate without an "enabled" record.
+// ---------------------------------------------------------------------------
+
+const HOLIDAY_PREFS_KEY = "holiday-prefs";
+
+export type HolidayPref = "enabled" | "dismissed";
+
+export const getHolidayPrefs = query({
+  args: {},
+  handler: async (ctx): Promise<Record<string, HolidayPref>> => {
+    const settings = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", HOLIDAY_PREFS_KEY))
+      .first();
+    if (!settings) return {};
+    return (settings.value as Record<string, HolidayPref>) ?? {};
+  },
+});
+
+export const setHolidayPref = mutation({
+  args: {
+    holidayKey: v.string(),
+    status: v.union(v.literal("enabled"), v.literal("dismissed")),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", HOLIDAY_PREFS_KEY))
+      .first();
+    const current: Record<string, HolidayPref> = existing
+      ? ((existing.value as Record<string, HolidayPref>) ?? {})
+      : {};
+    const merged = { ...current, [args.holidayKey]: args.status };
+    if (existing) {
+      await ctx.db.patch(existing._id, { value: merged, updatedAt: Date.now() });
+      return existing._id;
+    }
+    return await ctx.db.insert("siteSettings", {
+      key: HOLIDAY_PREFS_KEY,
+      value: merged,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+// Forget all holiday decisions — every holiday gets introduced again.
+export const resetHolidayPrefs = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const existing = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", HOLIDAY_PREFS_KEY))
+      .first();
+    if (existing) {
+      await ctx.db.patch(existing._id, { value: {}, updatedAt: Date.now() });
+    }
+  },
+});
+
 // Reset to default theme
 export const resetTheme = mutation({
   args: {},

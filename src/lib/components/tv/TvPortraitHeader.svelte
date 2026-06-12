@@ -4,6 +4,8 @@
 	import { api } from '../../../../convex/_generated/api';
 
 	export let currentTime: string = '';
+	/** Holiday decor: extra emoji after the brand while a holiday is enabled. */
+	export let holidayEmoji: string = '';
 
 	const schedule = browser ? useQuery(api.settings.getMenuSchedule, {}) : null;
 
@@ -19,7 +21,10 @@
 <header class="tv-header">
 	<div class="tv-header-top">
 		<div class="tv-brand">
-			<h1 class="tv-brand-name">FULALA.CZ <span class="tv-tiger">🐯</span></h1>
+			<h1 class="tv-brand-name">
+				FULALA.CZ <span class="tv-tiger">🐯</span>{#if holidayEmoji}
+					<span class="tv-holiday-emoji">{holidayEmoji}</span>{/if}
+			</h1>
 		</div>
 		{#if currentTime}
 			<time class="tv-clock">{currentTime}</time>

@@ -1,10 +1,39 @@
 <script lang="ts">
   import { browser } from "$app/environment";
-  import { useQuery } from "$lib/convex";
+  import { useQuery, useMutation } from "$lib/convex";
   import { api } from "../../../convex/_generated/api";
+  import {
+    activeHolidays,
+    upcomingHolidays,
+    type Holiday,
+    type UpcomingHoliday,
+  } from "$lib/domain/holidays";
 
   // Get menu stats (only on browser)
   const menuStats = browser ? useQuery(api.archive.getMenuStats, {}) : null;
+
+  // --- Holiday decor: introduce, never assume --------------------------------
+  // The engine knows what's active/coming; the dashboard asks ONCE per
+  // holiday and the answer is remembered (siteSettings holiday-prefs).
+  // Displays only decorate after an explicit "Celebrate".
+  const holidayPrefs = browser ? useQuery(api.settings.getHolidayPrefs, {}) : null;
+  const setHolidayPref = browser ? useMutation(api.settings.setHolidayPref) : null;
+
+  const now = new Date();
+  const active = activeHolidays(now);
+  const upcoming = upcomingHolidays(now, 14);
+
+  // First holiday (active first, then soonest upcoming) with no decision yet.
+  $: prefs = $holidayPrefs ?? {};
+  $: candidates = [...active, ...upcoming] as Array<Holiday & Partial<UpcomingHoliday>>;
+  $: introduction = $holidayPrefs === undefined
+    ? null
+    : (candidates.find((h) => !prefs[h.key]) ?? null);
+  $: celebratingNow = active.filter((h) => prefs[h.key] === "enabled");
+
+  async function decide(holidayKey: string, status: "enabled" | "dismissed") {
+    await setHolidayPref?.({ holidayKey, status });
+  }
 </script>
 
 <div class="dashboard">
@@ -12,6 +41,47 @@
     <h1>Dashboard</h1>
     <p class="subtitle">Overview of your restaurant menu system</p>
   </header>
+
+  {#if introduction}
+    <section class="holiday-card" style:--holiday-accent={introduction.accentColor ?? "#E83636"}>
+      <span class="holiday-emoji">{introduction.emoji}</span>
+      <div class="holiday-body">
+        <h2>
+          {introduction.nameLocal ?? introduction.name}
+          {#if introduction.nameLocal}<span class="holiday-name-en">/ {introduction.name}</span>{/if}
+        </h2>
+        <p>
+          {#if "inDays" in introduction && introduction.inDays}
+            Coming up in {introduction.inDays} day{introduction.inDays === 1 ? "" : "s"}
+            ({introduction.startsOn}).
+          {:else}
+            Today!
+          {/if}
+          Want the displays to celebrate? Adds the emoji to the TV header and a
+          subtle accent color while it lasts — nothing else changes.
+        </p>
+        <div class="holiday-actions">
+          <button type="button" class="holiday-yes" on:click={() => decide(introduction.key, "enabled")}>
+            Celebrate on displays
+          </button>
+          <button type="button" class="holiday-no" on:click={() => decide(introduction.key, "dismissed")}>
+            Not this one
+          </button>
+        </div>
+      </div>
+    </section>
+  {/if}
+
+  {#if celebratingNow.length > 0}
+    <p class="holiday-active-note">
+      {#each celebratingNow as h (h.key)}
+        <span>{h.emoji} Celebrating {h.nameLocal ?? h.name} on the displays.</span>
+        <button type="button" class="holiday-stop" on:click={() => decide(h.key, "dismissed")}>
+          Turn off
+        </button>
+      {/each}
+    </p>
+  {/if}
 
   <div class="stats-grid">
     <div class="stat-card">
@@ -162,6 +232,92 @@
 </div>
 
 <style>
+  /* Holiday introduction — one calm card, never a takeover. */
+  .holiday-card {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    border: 1px solid #e8e8e4;
+    border-left: 5px solid var(--holiday-accent, #e83636);
+    border-radius: 12px;
+    background: #fff;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .holiday-emoji {
+    font-size: 2.25rem;
+    line-height: 1;
+  }
+
+  .holiday-body h2 {
+    font-size: 1.05rem;
+    font-weight: 650;
+    color: #2c2c2c;
+    margin-bottom: 0.25rem;
+  }
+
+  .holiday-name-en {
+    font-weight: 450;
+    color: #6b6b6b;
+  }
+
+  .holiday-body p {
+    font-size: 0.875rem;
+    color: #6b6b6b;
+    margin-bottom: 0.75rem;
+    max-width: 56ch;
+  }
+
+  .holiday-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .holiday-yes {
+    border: none;
+    border-radius: 8px;
+    background: var(--holiday-accent, #e83636);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+
+  .holiday-no {
+    border: 1px solid #e8e8e4;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b6b6b;
+    font-size: 0.8125rem;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+
+  .holiday-active-note {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    color: #2c2c2c;
+    margin-bottom: 1.25rem;
+  }
+
+  .holiday-stop {
+    border: none;
+    background: none;
+    color: #2563eb;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .holiday-stop:hover {
+    text-decoration: underline;
+  }
+
   .dashboard {
     max-width: 1200px;
   }
