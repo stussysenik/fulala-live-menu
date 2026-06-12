@@ -523,3 +523,115 @@ export const seedInfoCategories = mutation({
     return result;
   },
 });
+
+// Seed the remaining print-window categories ("Print - Window Outside" June
+// 2026 sheets): Baos & Buns, Rice, Wontons. Same idempotent pattern as
+// seedInfoCategories — existing categories are skipped, so re-running is
+// safe. Czech/Chinese names are omitted where the print sheets don't give
+// them; renderers fall back to the English name.
+export const seedPrintWindowCategories = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const existing = await ctx.db.query("categories").collect();
+    const result: Record<string, string> = {};
+
+    const seedCategory = async (
+      category: {
+        name: string;
+        displayName: string;
+        displayNameLocal?: string;
+        sortOrder: number;
+      },
+      items: Array<{
+        name: string;
+        nameLocal?: string;
+        nameChinese?: string;
+        description?: string;
+        price: number;
+        quantity?: string;
+      }>,
+    ) => {
+      if (existing.some((c) => c.name === category.name)) {
+        result[category.name] = "already exists, skipped";
+        return;
+      }
+      const categoryId = await ctx.db.insert("categories", {
+        ...category,
+        isActive: true,
+      });
+      let sortOrder = 1;
+      for (const item of items) {
+        await ctx.db.insert("menuItems", {
+          ...item,
+          categoryId,
+          isAvailable: true,
+          sortOrder: sortOrder++,
+          addedAt: now,
+          lastModifiedAt: now,
+          modificationCount: 0,
+        });
+      }
+      result[category.name] = `created with ${items.length} items`;
+    };
+
+    await seedCategory(
+      {
+        name: "baos-buns",
+        displayName: "BAOS & BUNS",
+        displayNameLocal: "BAO BUCHTY",
+        sortOrder: 5,
+      },
+      [
+        {
+          name: "Golden Milk",
+          description: "Milk, eggs",
+          price: 89,
+          quantity: "3ks",
+        },
+        {
+          name: "Red Bean",
+          description: "Red bean",
+          price: 89,
+          quantity: "3ks",
+        },
+      ],
+    );
+
+    await seedCategory(
+      {
+        name: "rice",
+        displayName: "RICE",
+        displayNameLocal: "RÝŽE",
+        sortOrder: 6,
+      },
+      [
+        {
+          name: "Taiwanese Rice",
+          description: "Beef, onions",
+          price: 269,
+          quantity: "1x bowl",
+        },
+      ],
+    );
+
+    await seedCategory(
+      {
+        name: "wontons",
+        displayName: "WONTONS",
+        displayNameLocal: "WONTONY",
+        sortOrder: 7,
+      },
+      [
+        {
+          name: "Cantonese Wontons",
+          description: "Meat",
+          price: 89,
+          quantity: "3ks",
+        },
+      ],
+    );
+
+    return result;
+  },
+});
