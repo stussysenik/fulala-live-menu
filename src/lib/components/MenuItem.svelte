@@ -13,6 +13,12 @@
 
 	export let item: Doc<'menuItems'>;
 
+	// Per-page display overrides (combined with the global theme toggle).
+	// Default to `true` so pages without saved settings render as before.
+	export let showImages: boolean = true;
+	export let showChinese: boolean = true;
+	export let showAllergens: boolean = true;
+
 	// Get theme from context
 	const themeStore = getContext<Writable<ThemeConfig>>('theme');
 	$: theme = $themeStore ?? defaultTheme;
@@ -49,8 +55,8 @@
 	// Determine price alignment style
 	$: useDots = theme.display.priceAlignment === 'dots';
 
-	// Check if we should show images
-	$: showImage = theme.display.showImages && item.imageUrl;
+	// Check if we should show images (global theme toggle AND per-page setting)
+	$: showImage = showImages && theme.display.showImages && item.imageUrl;
 
 	// i18n: primary name based on language
 	$: primaryName = $lang === 'cs' && item.nameLocal ? item.nameLocal : item.name;
@@ -94,7 +100,7 @@
 						<ChangeIndicator />
 					{/if}
 				</h3>
-				{#if item.nameChinese}
+				{#if showChinese && item.nameChinese}
 					<span class="name-chinese">{item.nameChinese}</span>
 				{/if}
 			</div>
@@ -110,9 +116,9 @@
 				{secondaryName}
 			</p>
 		{/if}
-		{#if (item.allergenCodes && item.allergenCodes.length > 0) || item.isFeatured || item.isSweet || item.isGlutenFree}
+		{#if (showAllergens && item.allergenCodes && item.allergenCodes.length > 0) || item.isFeatured || item.isSweet || item.isGlutenFree}
 			<div class="item-bottom-row">
-				{#if item.allergenCodes && item.allergenCodes.length > 0}
+				{#if showAllergens && item.allergenCodes && item.allergenCodes.length > 0}
 					<span class="allergen-codes">
 						{#each item.allergenCodes as code}
 							<AllergenBadge {code} />

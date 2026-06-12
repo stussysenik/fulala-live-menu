@@ -5,6 +5,13 @@
 
 	const customerInfo = browser ? useQuery(api.settings.getCustomerInfo, {}) : null;
 
+	// Per-page display settings for this screen (slug: tv-info).
+	// showImages gates the drink photos; showChinese gates Chinese drink names.
+	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
+	$: pageSettings = $pageSettingsQuery?.['tv-info'] ?? {};
+	$: showImages = pageSettings.showImages ?? true;
+	$: showChinese = pageSettings.showChinese ?? true;
+
 	interface InfoSection {
 		title: string;
 		titleLocal?: string;
@@ -120,12 +127,14 @@
 		<div class="tv-drinks-grid">
 			{#each drinks as drink}
 				<div class="tv-drink-card">
-					<div class="tv-drink-image">
-						<img src={drink.image} alt={drink.nameCS} loading="eager" />
-					</div>
+					{#if showImages}
+						<div class="tv-drink-image">
+							<img src={drink.image} alt={drink.nameCS} loading="eager" />
+						</div>
+					{/if}
 					<div class="tv-drink-name">
 						{drink.nameCS}
-						{#if drink.nameCN}
+						{#if showChinese && drink.nameCN}
 							<span class="tv-drink-cn">{drink.nameCN}</span>
 						{/if}
 					</div>

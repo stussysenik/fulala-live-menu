@@ -365,6 +365,80 @@ export const updateAnimationsEnabled = mutation({
   },
 });
 
+// ---------------------------------------------------------------------------
+// Per-page display settings
+//
+// Each public/TV page (identified by its route slug, e.g. "tv-dumplings") can
+// carry its own lightweight overrides without touching the global theme or the
+// menu items themselves. This is what powers "hide the images on this one
+// screen" and similar per-display tweaks the staff make on a rolling basis.
+//
+// Stored as a single siteSettings row (key="page-settings") holding a map of
+// slug -> PageSettings, so reads are one document and writes are atomic patches.
+// ---------------------------------------------------------------------------
+
+export interface PageSettings {
+  showImages?: boolean; // hide/show item photos on this page (default: show)
+  showChinese?: boolean; // hide/show Chinese characters (default: show)
+  showAllergens?: boolean; // hide/show allergen badges (default: show)
+}
+
+const PAGE_SETTINGS_KEY = "page-settings";
+
+// Get the full slug -> settings map (empty object if never configured).
+export const getPageSettings = query({
+  args: {},
+  handler: async (ctx): Promise<Record<string, PageSettings>> => {
+    const settings = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", PAGE_SETTINGS_KEY))
+      .first();
+    if (!settings) return {};
+    return (settings.value as Record<string, PageSettings>) ?? {};
+  },
+});
+
+// Patch one page's settings, merging into any existing values for that slug.
+// Only the provided fields are changed; everything else is preserved.
+export const updatePageSetting = mutation({
+  args: {
+    slug: v.string(),
+    patch: v.object({
+      showImages: v.optional(v.boolean()),
+      showChinese: v.optional(v.boolean()),
+      showAllergens: v.optional(v.boolean()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", PAGE_SETTINGS_KEY))
+      .first();
+
+    const current: Record<string, PageSettings> = existing
+      ? ((existing.value as Record<string, PageSettings>) ?? {})
+      : {};
+
+    const merged: Record<string, PageSettings> = {
+      ...current,
+      [args.slug]: { ...(current[args.slug] ?? {}), ...args.patch },
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        value: merged,
+        updatedAt: Date.now(),
+      });
+      return existing._id;
+    }
+    return await ctx.db.insert("siteSettings", {
+      key: PAGE_SETTINGS_KEY,
+      value: merged,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
 // Reset to default theme
 export const resetTheme = mutation({
   args: {},

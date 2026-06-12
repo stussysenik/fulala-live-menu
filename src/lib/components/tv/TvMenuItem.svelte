@@ -4,6 +4,12 @@
 
 	export let item: Doc<'menuItems'>;
 
+	// Per-page display overrides (set from the page's saved settings).
+	// Default to `true` so a page with no saved settings behaves exactly as before.
+	export let showImages: boolean = true;
+	export let showChinese: boolean = true;
+	export let showAllergens: boolean = true;
+
 	// Always show both languages (bilingual display)
 	// Skip secondary if it's identical to primary
 	$: primaryName = item.nameLocal || item.name;
@@ -16,7 +22,7 @@
 </script>
 
 <article class="tv-item" data-available={item.isAvailable}>
-	{#if item.imageUrl}
+	{#if showImages && item.imageUrl}
 		<div class="tv-item-image">
 			<img src={item.imageUrl} alt={item.name} loading="eager" decoding="async" />
 		</div>
@@ -26,7 +32,7 @@
 		<div class="tv-item-top">
 			<div class="tv-item-names">
 				<h3 class="tv-item-name">{primaryName}</h3>
-				{#if item.nameChinese}
+				{#if showChinese && item.nameChinese}
 					<span class="tv-item-chinese">{item.nameChinese}</span>
 				{/if}
 				{#if secondaryName}
@@ -51,9 +57,9 @@
 			</div>
 		</div>
 
-		{#if (item.allergenCodes && item.allergenCodes.length > 0) || item.isFeatured || item.isSweet || item.isGlutenFree}
+		{#if (showAllergens && item.allergenCodes && item.allergenCodes.length > 0) || item.isFeatured || item.isSweet || item.isGlutenFree}
 			<div class="tv-item-meta">
-				{#if item.allergenCodes && item.allergenCodes.length > 0}
+				{#if showAllergens && item.allergenCodes && item.allergenCodes.length > 0}
 					<span class="tv-allergen-codes">
 						{#each item.allergenCodes as code}
 							<AllergenBadge {code} />

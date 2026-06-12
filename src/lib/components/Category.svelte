@@ -7,6 +7,11 @@
 	export let category: Doc<'categories'>;
 	export let items: Doc<'menuItems'>[];
 
+	// Per-page display overrides, passed down to each item (default: show everything)
+	export let showImages: boolean = true;
+	export let showChinese: boolean = true;
+	export let showAllergens: boolean = true;
+
 	$: displayTitle = $lang === 'cs' && category.displayNameLocal
 		? category.displayNameLocal
 		: category.displayName;
@@ -54,12 +59,12 @@
 		<ul class="items" role="list">
 			{#each availableItems as item (item._id)}
 				<li>
-					<MenuItem {item} />
+					<MenuItem {item} {showImages} {showChinese} {showAllergens} />
 				</li>
 			{/each}
 			{#each unavailableItems as item (item._id)}
 				<li>
-					<MenuItem {item} />
+					<MenuItem {item} {showImages} {showChinese} {showAllergens} />
 				</li>
 			{/each}
 		</ul>

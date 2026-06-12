@@ -1,18 +1,44 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import { env as publicEnv } from "$env/dynamic/public";
 
-  const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "home" },
-    { href: "/admin/menu", label: "Menu Items", icon: "grid" },
-    { href: "/admin/preview", label: "Live Preview", icon: "monitor" },
-    { href: "/admin/schedule", label: "Schedule", icon: "calendar" },
-    { href: "/admin/theme", label: "Theme", icon: "palette" },
-    { href: "/admin/events", label: "Events", icon: "star" },
-    { href: "/admin/print", label: "Print Menu", icon: "print" },
-    { href: "/admin/analytics", label: "Analytics", icon: "chart" },
+  // Utilitarian IA: grouped by job-to-be-done.
+  // Manage = day-to-day content, Configure = how it looks, Tools = read-only utilities.
+  const navGroups = [
+    {
+      label: "Manage",
+      items: [
+        { href: "/admin", label: "Dashboard", icon: "home" },
+        { href: "/admin/menu", label: "Menu Items", icon: "grid" },
+        { href: "/admin/displays", label: "Displays", icon: "tv" },
+      ],
+    },
+    {
+      label: "Configure",
+      items: [
+        { href: "/admin/layout", label: "Layout", icon: "layout" },
+        { href: "/admin/theme", label: "Theme", icon: "palette" },
+        { href: "/admin/schedule", label: "Schedule", icon: "calendar" },
+        { href: "/admin/events", label: "Events", icon: "star" },
+      ],
+    },
+    {
+      label: "Tools",
+      items: [
+        { href: "/admin/preview", label: "Live Preview", icon: "monitor" },
+        { href: "/admin/print", label: "Print Menu", icon: "print" },
+        { href: "/admin/analytics", label: "Analytics", icon: "chart" },
+      ],
+    },
   ];
 
   $: currentPath = $page.url.pathname;
+
+  // Environment safety banner: derived deterministically from the Convex URL
+  // the client writes to. Amber = dev sandbox, red = production.
+  const convexUrl: string =
+    import.meta.env.VITE_CONVEX_URL || publicEnv.PUBLIC_CONVEX_URL || "";
+  const isSandbox = convexUrl.includes("focused-giraffe-228");
 </script>
 
 <div class="admin-layout">
@@ -22,8 +48,20 @@
       <span class="admin-badge">Admin</span>
     </div>
 
+    <div
+      class="env-banner"
+      class:env-sandbox={isSandbox}
+      class:env-production={!isSandbox}
+      title={convexUrl}
+    >
+      {isSandbox ? "SANDBOX" : "PRODUCTION"}
+    </div>
+
     <nav class="nav">
-      {#each navItems as item}
+      {#each navGroups as group}
+        <div class="nav-group">
+          <span class="nav-group-label">{group.label}</span>
+          {#each group.items as item}
         <a
           href={item.href}
           class="nav-item"
@@ -78,10 +116,23 @@
                 <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
                 <rect x="6" y="14" width="12" height="8" />
               </svg>
+            {:else if item.icon === "tv"}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="13" rx="2" ry="2" />
+                <polyline points="17 2 12 7 7 2" />
+              </svg>
+            {:else if item.icon === "layout"}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg>
             {/if}
           </span>
           <span class="nav-label">{item.label}</span>
         </a>
+          {/each}
+        </div>
       {/each}
     </nav>
 
@@ -153,12 +204,51 @@
     letter-spacing: 0.05em;
   }
 
+  .env-banner {
+    margin: var(--space-2) var(--space-3) 0;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+    cursor: help;
+  }
+
+  .env-sandbox {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+
+  .env-production {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+    border: 1px solid rgba(220, 38, 38, 0.4);
+  }
+
   .nav {
     flex: 1;
     padding: var(--space-3);
     display: flex;
     flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .nav-group {
+    display: flex;
+    flex-direction: column;
     gap: var(--space-1);
+  }
+
+  .nav-group-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-muted, var(--text-muted));
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 var(--space-3);
+    margin-bottom: 2px;
   }
 
   .nav-item {
@@ -248,6 +338,15 @@
       flex-direction: row;
       overflow-x: auto;
       padding: var(--space-2);
+    }
+
+    .nav-group {
+      flex-direction: row;
+      gap: var(--space-1);
+    }
+
+    .nav-group-label {
+      display: none;
     }
 
     .nav-item {

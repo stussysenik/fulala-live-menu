@@ -5,6 +5,11 @@
 	export let category: Doc<'categories'>;
 	export let items: Doc<'menuItems'>[];
 
+	// Per-page display overrides, passed down to each item (default: show everything)
+	export let showImages: boolean = true;
+	export let showChinese: boolean = true;
+	export let showAllergens: boolean = true;
+
 	// Show both languages for category title
 	$: titleCS = category.displayNameLocal || category.displayName;
 	$: titleEN = category.displayNameLocal ? category.displayName : '';
@@ -17,7 +22,7 @@
 	<section class="tv-category">
 		<div class="tv-items">
 			{#each availableItems as item (item._id)}
-				<TvMenuItem {item} />
+				<TvMenuItem {item} {showImages} {showChinese} {showAllergens} />
 			{/each}
 		</div>
 	</section>

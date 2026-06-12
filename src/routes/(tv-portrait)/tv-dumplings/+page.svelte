@@ -7,6 +7,14 @@
 	const menuQuery = browser ? useQuery(api.menu.getFullMenu) : null;
 	$: menu = $menuQuery ?? [];
 	$: category = menu.find((c: any) => c.name === 'steamed-dumplings');
+
+	// Per-page display settings for this screen (slug: tv-dumplings).
+	// Every flag defaults to true so an unconfigured page renders as before.
+	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
+	$: pageSettings = $pageSettingsQuery?.['tv-dumplings'] ?? {};
+	$: showImages = pageSettings.showImages ?? true;
+	$: showChinese = pageSettings.showChinese ?? true;
+	$: showAllergens = pageSettings.showAllergens ?? true;
 </script>
 
 <svelte:head>
@@ -15,7 +23,7 @@
 
 <div class="tv-dumplings-page">
 	{#if category}
-		<TvCategory {category} items={category.items} />
+		<TvCategory {category} items={category.items} {showImages} {showChinese} {showAllergens} />
 	{:else}
 		<div class="tv-loading">Načítání menu...</div>
 	{/if}

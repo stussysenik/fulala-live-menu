@@ -17,6 +17,14 @@
 	const scheduleQuery = browser ? useQuery(api.settings.getMenuSchedule, {}) : null;
 	$: schedule = $scheduleQuery;
 
+	// Per-page display settings for the digital menu (slug: home).
+	// Every flag defaults to true so an unconfigured page renders as before.
+	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
+	$: pageSettings = $pageSettingsQuery?.['home'] ?? {};
+	$: showImages = pageSettings.showImages ?? true;
+	$: showChinese = pageSettings.showChinese ?? true;
+	$: showAllergens = pageSettings.showAllergens ?? true;
+
 	// Dynamic tab title with schedule dates
 	function formatTabTitle(sched: any, currentLang: string): string {
 		if (!sched) return 'FULALA.CZ | Menu';
@@ -73,7 +81,7 @@
 		<div class="menu-flow">
 			{#each menu as category (category._id)}
 				<div class="menu-section">
-					<Category {category} items={category.items} />
+					<Category {category} items={category.items} {showImages} {showChinese} {showAllergens} />
 				</div>
 			{/each}
 		</div>
