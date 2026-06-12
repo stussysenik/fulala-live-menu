@@ -71,6 +71,33 @@ export const getMenuItemsByCategory = query({
   },
 });
 
+// Get one active category (looked up by stable name, e.g. "drinks") with its
+// items sorted. Display sections reference categories by name rather than _id
+// so section configs stay portable between the dev and prod deployments.
+export const getCategoryWithItems = query({
+  args: { name: v.string() },
+  handler: async (ctx, args) => {
+    const categories = await ctx.db
+      .query("categories")
+      .withIndex("by_sort")
+      .collect();
+    const category = categories.find((c) => c.name === args.name && c.isActive);
+    if (!category) return null;
+
+    const items = await ctx.db
+      .query("menuItems")
+      .withIndex("by_category", (q) => q.eq("categoryId", category._id))
+      .collect();
+
+    return {
+      ...category,
+      items: (await resolveImageUrls(ctx, items)).sort(
+        (a, b) => a.sortOrder - b.sortOrder,
+      ),
+    };
+  },
+});
+
 // Get full menu (categories with items)
 export const getFullMenu = query({
   args: {},

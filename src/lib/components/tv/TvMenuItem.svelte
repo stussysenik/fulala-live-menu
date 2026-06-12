@@ -1,5 +1,8 @@
 <script lang="ts">
 	import AllergenBadge from '../AllergenBadge.svelte';
+	import BilingualName from '../atoms/BilingualName.svelte';
+	import ItemPhoto from '../atoms/ItemPhoto.svelte';
+	import PriceTag from '../atoms/PriceTag.svelte';
 	import type { Doc } from '../../../../convex/_generated/dataModel';
 
 	export let item: Doc<'menuItems'>;
@@ -9,52 +12,25 @@
 	export let showImages: boolean = true;
 	export let showChinese: boolean = true;
 	export let showAllergens: boolean = true;
-
-	// Always show both languages (bilingual display)
-	// Skip secondary if it's identical to primary
-	$: primaryName = item.nameLocal || item.name;
-	$: secondaryName = item.nameLocal && item.nameLocal !== item.name ? item.name : '';
-
-	// Format price in CZK
-	function formatPrice(price: number): string {
-		return `${price} Kč`;
-	}
 </script>
 
 <article class="tv-item" data-available={item.isAvailable}>
 	{#if showImages && item.imageUrl}
-		<div class="tv-item-image">
-			<img src={item.imageUrl} alt={item.name} loading="eager" decoding="async" />
-		</div>
+		<ItemPhoto src={item.imageUrl} alt={item.name} />
 	{/if}
 
 	<div class="tv-item-body">
 		<div class="tv-item-top">
 			<div class="tv-item-names">
-				<h3 class="tv-item-name">{primaryName}</h3>
-				{#if showChinese && item.nameChinese}
-					<span class="tv-item-chinese">{item.nameChinese}</span>
-				{/if}
-				{#if secondaryName}
-					<p class="tv-item-secondary">{secondaryName}</p>
-				{/if}
+				<BilingualName
+					name={item.name}
+					nameLocal={item.nameLocal}
+					nameChinese={item.nameChinese}
+					{showChinese}
+				/>
 			</div>
 
-			<div class="tv-item-price-col" class:tv-item-tiers={item.priceTiers && item.priceTiers.length > 0}>
-				{#if item.priceTiers && item.priceTiers.length > 0}
-					{#each item.priceTiers as tier}
-						<div class="tv-tier-row">
-							<span class="tv-item-quantity">{tier.quantity}</span>
-							<span class="tv-item-price">{formatPrice(tier.price)}</span>
-						</div>
-					{/each}
-				{:else}
-					{#if item.quantity}
-						<span class="tv-item-quantity">{item.quantity}</span>
-					{/if}
-					<span class="tv-item-price">{formatPrice(item.price)}</span>
-				{/if}
-			</div>
+			<PriceTag price={item.price} priceTiers={item.priceTiers} quantity={item.quantity} />
 		</div>
 
 		{#if (showAllergens && item.allergenCodes && item.allergenCodes.length > 0) || item.isFeatured || item.isSweet || item.isGlutenFree}
@@ -103,22 +79,6 @@
 		opacity: 0.4;
 	}
 
-	.tv-item-image {
-		width: var(--tv-image-size, 120px);
-		height: var(--tv-image-size, 120px);
-		min-width: var(--tv-image-size, 120px);
-		min-height: var(--tv-image-size, 120px);
-		border-radius: var(--tv-image-radius, 12px);
-		overflow: hidden;
-		flex-shrink: 0;
-	}
-
-	.tv-item-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
 	.tv-item-body {
 		flex: 1;
 		min-width: 0;
@@ -140,78 +100,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
-	}
-
-	.tv-item-name {
-		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-item-name-size, 40px);
-		font-weight: 600;
-		color: var(--color-text, #2C2C2C);
-		line-height: 1.25;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.tv-item-chinese {
-		font-size: var(--tv-chinese-size, 32px);
-		color: var(--color-text-muted, #6B6B6B);
-		font-weight: 400;
-		line-height: 1.2;
-	}
-
-	.tv-item-secondary {
-		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-item-name-secondary, 28px);
-		font-weight: 400;
-		color: var(--color-text-muted, #6B6B6B);
-		line-height: 1.2;
-	}
-
-	.tv-item-price-col {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		flex-shrink: 0;
-		gap: 2px;
-	}
-
-	.tv-item-quantity {
-		font-family: var(--font-body, 'Inter', sans-serif);
-		font-size: var(--tv-quantity-size, 26px);
-		color: var(--color-text-muted, #6B6B6B);
-	}
-
-	.tv-item-price {
-		font-family: var(--font-price, 'DM Mono', monospace);
-		font-size: var(--tv-price-size, 48px);
-		font-weight: 600;
-		color: var(--color-price, #16a34a);
-		font-variant-numeric: tabular-nums;
-		white-space: nowrap;
-		line-height: 1;
-	}
-
-	.tv-item-tiers {
-		gap: 6px;
-	}
-
-	.tv-tier-row {
-		display: flex;
-		align-items: baseline;
-		gap: 8px;
-		white-space: nowrap;
-	}
-
-	.tv-tier-row .tv-item-quantity {
-		font-size: var(--tv-tier-quantity-size, 24px);
-		min-width: 4ch;
-		text-align: right;
-	}
-
-	.tv-tier-row .tv-item-price {
-		font-size: var(--tv-tier-price-size, 32px);
 	}
 
 	.tv-item-meta {
