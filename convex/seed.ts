@@ -403,3 +403,123 @@ export const clearAll = mutation({
     return { message: "All data cleared" };
   },
 });
+
+// Seed the `extras` and `drinks` categories that the section composer reads
+// (ExtrasList / CategoryPhotoGrid resolve categories by stable name, so the
+// same published config works on any deployment once these exist).
+//
+// Idempotent per category: skips any category that already exists, so running
+// it on a deployment that has real extras/drinks data is a no-op. Items carry
+// nameLocal (Czech) / name (English) / nameChinese exactly as the sections
+// render them: "nameLocal / name" with optional Chinese under the photo.
+//
+// Prices follow the June print window menu (Pork is 69 Kč — the hardcoded
+// tv-info array had drifted to 79).
+export const seedInfoCategories = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const existing = await ctx.db.query("categories").collect();
+    const result: Record<string, string> = {};
+
+    const seedCategory = async (
+      category: {
+        name: string;
+        displayName: string;
+        displayNameLocal: string;
+        sortOrder: number;
+      },
+      items: Array<{
+        name: string;
+        nameLocal: string;
+        nameChinese?: string;
+        price: number;
+        imageUrl?: string;
+      }>,
+    ) => {
+      if (existing.some((c) => c.name === category.name)) {
+        result[category.name] = "already exists, skipped";
+        return;
+      }
+      const categoryId = await ctx.db.insert("categories", {
+        ...category,
+        isActive: true,
+      });
+      let sortOrder = 1;
+      for (const item of items) {
+        await ctx.db.insert("menuItems", {
+          ...item,
+          categoryId,
+          isAvailable: true,
+          sortOrder: sortOrder++,
+          addedAt: now,
+          lastModifiedAt: now,
+          modificationCount: 0,
+        });
+      }
+      result[category.name] = `created with ${items.length} items`;
+    };
+
+    await seedCategory(
+      {
+        name: "extras",
+        displayName: "EXTRAS",
+        displayNameLocal: "EXTRA",
+        sortOrder: 3,
+      },
+      [
+        { nameLocal: "+ Vařené vejce", name: "Boiled Egg", price: 29 },
+        { nameLocal: "+ Na měkko", name: "Over-Easy Egg", price: 29 },
+        { nameLocal: "+ Nudle", name: "Extra Noodles", price: 49 },
+        { nameLocal: "+ Kuřecí", name: "Chicken", price: 79 },
+        { nameLocal: "+ Vepřové", name: "Pork", price: 69 },
+        { nameLocal: "+ Hovězí", name: "Beef", price: 99 },
+      ],
+    );
+
+    await seedCategory(
+      {
+        name: "drinks",
+        displayName: "DRINKS",
+        displayNameLocal: "NÁPOJE",
+        sortOrder: 4,
+      },
+      [
+        {
+          nameLocal: "Wang Lao Ji",
+          name: "Herbal Tea",
+          nameChinese: "王老吉",
+          price: 85,
+          imageUrl: "/images/drinks/wanglaoji.webp",
+        },
+        {
+          nameLocal: "Domácí limonáda",
+          name: "Lemonade",
+          price: 89,
+          imageUrl: "/images/drinks/lemonade.webp",
+        },
+        {
+          nameLocal: "Tsingtao",
+          name: "Beer",
+          nameChinese: "青岛啤酒",
+          price: 79,
+          imageUrl: "/images/drinks/tsingtao.webp",
+        },
+        {
+          nameLocal: "Káva",
+          name: "Coffee",
+          price: 65,
+          imageUrl: "/images/drinks/coffee.webp",
+        },
+        {
+          nameLocal: "Kofola",
+          name: "Soft Drink",
+          price: 65,
+          imageUrl: "/images/drinks/kofola.webp",
+        },
+      ],
+    );
+
+    return result;
+  },
+});

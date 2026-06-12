@@ -11,6 +11,7 @@
 import type * as analytics from "../analytics.js";
 import type * as archive from "../archive.js";
 import type * as crons from "../crons.js";
+import type * as displaySections from "../displaySections.js";
 import type * as events from "../events.js";
 import type * as exchangeRates from "../exchangeRates.js";
 import type * as layouts from "../layouts.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   archive: typeof archive;
   crons: typeof crons;
+  displaySections: typeof displaySections;
   events: typeof events;
   exchangeRates: typeof exchangeRates;
   layouts: typeof layouts;

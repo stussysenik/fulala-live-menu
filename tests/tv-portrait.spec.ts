@@ -115,7 +115,7 @@ for (const route of TV_ROUTES) {
 
 test('tv-info: drink name text meets WCAG AA contrast', async ({ page }) => {
 	await page.goto('/tv-info');
-	await page.waitForSelector('.tv-drink-name', { timeout: 10000 });
+	await page.waitForSelector('.tv-photo-name', { timeout: 10000 });
 	await page.waitForTimeout(2000);
 
 	const result = await page.evaluate(() => {
@@ -140,7 +140,7 @@ test('tv-info: drink name text meets WCAG AA contrast', async ({ page }) => {
 			return (lighter + 0.05) / (darker + 0.05);
 		}
 
-		const el = document.querySelector('.tv-drink-name');
+		const el = document.querySelector('.tv-photo-name');
 		if (!el) return { ratio: 21, passes: true };
 		const style = getComputedStyle(el);
 		const fg = style.color;
@@ -235,9 +235,9 @@ test('tv-info: does NOT contain featured section', async ({ page }) => {
 
 test('tv-info: has drinks section', async ({ page }) => {
 	await page.goto('/tv-info');
-	await page.waitForSelector('.tv-drinks', { timeout: 10000 });
+	await page.waitForSelector('.tv-photo-grid', { timeout: 10000 });
 
-	const drinksSection = page.locator('.tv-drinks');
+	const drinksSection = page.locator('.tv-photo-grid');
 	await expect(drinksSection).toBeVisible();
 });
 

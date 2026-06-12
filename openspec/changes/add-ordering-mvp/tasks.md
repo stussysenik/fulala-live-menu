@@ -2,13 +2,13 @@
 
 ## 0. Pre-work
 
-- [ ] 0.1 Commit pending `add-admin-display-controls` work (code + spec) so this change starts from a clean tree
-- [ ] 0.2 Create `src/lib/domain/` with `pricing.ts`, `orderStateMachine.ts`, `optionValidation.ts` (pure TS + vitest unit tests; no Convex imports)
+- [x] 0.1 Commit pending `add-admin-display-controls` work (code + spec) so this change starts from a clean tree
+- [x] 0.2 Create `src/lib/domain/` with `pricing.ts`, `orderStateMachine.ts`, `optionValidation.ts` (pure TS + vitest unit tests; no Convex imports)
 
 ## 1. Menu options correctness
 
 - [ ] 1.1 Schema: per-item option config — `menuItems.optionGroups` (group key, allowed values, required flag) superseding loose `modifiers`/`drinkOptions` reads; keep legacy fields readable
-- [ ] 1.2 `optionValidation.ts`: selection-vs-config validation (unknown group, unknown value, missing required)
+- [x] 1.2 `optionValidation.ts`: selection-vs-config validation (unknown group, unknown value, missing required)
 - [ ] 1.3 `convex/orders.ts`: validate selections in `addItemToOrder`; reject submission with missing required options
 - [ ] 1.4 `ItemModifierEditor.svelte`: required/optional toggle per group, values editor, live validation preview
 - [ ] 1.5 `ModifierSelector.svelte`: render required groups first, block add-to-cart until required groups picked

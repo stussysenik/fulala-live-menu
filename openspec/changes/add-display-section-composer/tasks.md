@@ -2,24 +2,24 @@
 
 ## 1. Atoms & section components
 
-- [ ] 1.1 Extract atoms from existing TV components: `ItemPhoto`, `PriceTag`, `BilingualName`, `SectionTitle` (`src/lib/components/atoms/`); existing `Tv*` components consume them with zero visual change (Storybook stories per atom)
-- [ ] 1.2 Section components (`src/lib/components/sections/`): `InfoCards`, `ExtrasList` (reads `extras` category), `CategoryPhotoGrid` (categoryId, columns, photoSize, showPrices, showChinese, maxItems; placeholder tile for missing photos), `TextBanner`
-- [ ] 1.3 `SectionRenderer.svelte` + typed registry; unknown section types render nothing and log
+- [x] 1.1 Extract atoms from existing TV components: `ItemPhoto`, `PriceTag`, `BilingualName`, `SectionTitle` (`src/lib/components/atoms/`); existing `Tv*` components consume them with zero visual change (Storybook stories per atom)
+- [x] 1.2 Section components (`src/lib/components/sections/`): `InfoCards`, `ExtrasList` (reads `extras` category), `CategoryPhotoGrid` (categoryId, columns, photoSize, showPrices, showChinese, maxItems; placeholder tile for missing photos), `TextBanner`
+- [x] 1.3 `SectionRenderer.svelte` + typed registry; unknown section types render nothing and log
 
 ## 2. Config backend
 
-- [ ] 2.1 Section config storage per page slug (draft + published) with per-type props validators; save mutation rejects malformed configs
-- [ ] 2.2 Default config constant reproducing today's tv-info exactly (absence of config = current behavior)
-- [ ] 2.3 Publish appends to version history (`add-displays-control-center` pipeline, or fallback direct mode that still appends versions)
+- [x] 2.1 Section config storage per page slug (draft + published) with per-type props validators; save mutation rejects malformed configs
+- [x] 2.2 Default config constant reproducing today's tv-info exactly (absence of config = current behavior)
+- [x] 2.3 Publish appends to version history (`add-displays-control-center` pipeline, or fallback direct mode that still appends versions)
 
 ## 3. tv-info rebuild
 
-- [ ] 3.1 `tv-info` renders from published section config via `SectionRenderer`; delete hardcoded extras/drinks arrays in the same PR as the default config
+- [x] 3.1 `tv-info` renders from published section config via `SectionRenderer`; delete hardcoded extras/drinks arrays in the same PR as the default config
 - [ ] 3.2 Side-by-side visual comparison (dev render vs current prod screenshot) — no unintended regressions before promotion
 
 ## 4. Drinks as data
 
-- [ ] 4.1 Confirm drinks lineup/prices with owner (proposal: Wang Lao Ji 85, Lemonade 89, Tsingtao 79, Coffee 65, Kofola 65)
+- [x] 4.1 Confirm drinks lineup/prices with owner (proposal: Wang Lao Ji 85, Lemonade 89, Tsingtao 79, Coffee 65, Kofola 65)
 - [ ] 4.2 Seed `drinks` category + items with photos on dev; promote to prod with sign-off (fixes drinks being invisible to ordering/analytics)
 
 ## 5. Admin composer

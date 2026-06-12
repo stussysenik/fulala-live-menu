@@ -314,8 +314,8 @@ test('tv-info: has drinks section', async ({ page }) => {
 	await page.goto('/tv-info');
 	await waitForData(page);
 
-	await expect(page.locator('.tv-drinks')).toBeVisible();
-	const cards = await page.locator('.tv-drink-card').count();
+	await expect(page.locator('.tv-photo-grid')).toBeVisible();
+	const cards = await page.locator('.tv-photo-card').count();
 	expect(cards).toBe(5);
 });
 
@@ -324,7 +324,7 @@ test('tv-info: drink prices displayed with Kč notation', async ({ page }) => {
 	await waitForData(page);
 
 	const prices = await page.evaluate(() => {
-		return Array.from(document.querySelectorAll('.tv-drink-price'))
+		return Array.from(document.querySelectorAll('.tv-photo-price'))
 			.map(el => el.textContent?.trim() ?? '');
 	});
 
