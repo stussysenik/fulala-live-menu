@@ -262,6 +262,19 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_key", ["key"]),
 
+  // Append-only black box for display pages: one row per publish.
+  // Shape shared with add-displays-control-center (slug, settings, version,
+  // publishedAt, note); `kind` distinguishes payload flavors additively
+  // ("sections" = section composition, future: "page-settings").
+  displayVersions: defineTable({
+    slug: v.string(),
+    settings: v.any(),
+    version: v.number(),
+    publishedAt: v.number(),
+    note: v.optional(v.string()),
+    kind: v.optional(v.string()),
+  }).index("by_slug", ["slug", "version"]),
+
   themePresets: defineTable({
     name: v.string(),
     theme: v.any(),
