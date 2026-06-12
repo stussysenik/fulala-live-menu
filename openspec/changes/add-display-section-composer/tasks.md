@@ -24,9 +24,9 @@
 
 ## 5. Admin composer
 
-- [ ] 5.1 Composer panel in `/admin/displays` per page: section list with up/down reorder, visibility toggle, add/remove, type swap
-- [ ] 5.2 Per-section props editor (driven by the same validators) with live preview; photo-grid editor warns which items lack photos
-- [ ] 5.3 Version history entry per publish; restore re-publishes an old composition
+- [x] 5.1 Composer panel in `/admin/displays` per page: section list with up/down reorder, visibility toggle, add/remove, type swap
+- [x] 5.2 Per-section props editor (driven by the same validators) with live preview; photo-grid editor warns which items lack photos
+- [x] 5.3 Version history entry per publish; restore re-publishes an old composition
 
 ## 6. Verification
 

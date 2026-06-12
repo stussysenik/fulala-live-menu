@@ -1,5 +1,10 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  validateSelections,
+  legacyToOptionGroups,
+  type OptionSelections,
+} from "../src/lib/domain/optionValidation";
 
 // Order item validator
 const orderItemValidator = v.object({
@@ -13,9 +18,54 @@ const orderItemValidator = v.object({
     spiceLevel: v.optional(v.string()),
     brothType: v.optional(v.string()),
     fryingDegree: v.optional(v.string()),
+    sugarLevel: v.optional(v.string()),
     addOns: v.optional(v.array(v.string())),
   })),
 });
+
+type SelectedModifiers = {
+  noodleType?: string;
+  temperature?: string;
+  spiceLevel?: string;
+  brothType?: string;
+  fryingDegree?: string;
+  sugarLevel?: string;
+  addOns?: string[];
+};
+
+// The stored order line uses fixed modifier keys; validation speaks in
+// group-keyed selections. Dropping undefined entries keeps "not selected"
+// distinct from "selected nothing".
+function toSelections(modifiers: SelectedModifiers | undefined): OptionSelections {
+  const selections: OptionSelections = {};
+  for (const [key, value] of Object.entries(modifiers ?? {})) {
+    if (value !== undefined) selections[key] = value;
+  }
+  return selections;
+}
+
+// Authoritative option check — the same domain function the modifier sheet
+// runs client-side. Throws a readable error so the UI can surface it.
+async function assertValidSelections(
+  ctx: { db: any },
+  menuItemId: string,
+  selectedModifiers: SelectedModifiers | undefined,
+  context: string,
+) {
+  const menuItem = await ctx.db.get(menuItemId);
+  if (!menuItem) throw new Error(`${context}: menu item not found`);
+  const issues = validateSelections(
+    legacyToOptionGroups(menuItem),
+    toSelections(selectedModifiers),
+  );
+  if (issues.length > 0) {
+    throw new Error(
+      `${context}: invalid options for "${menuItem.name}" — ${issues
+        .map((i) => i.message)
+        .join("; ")}`,
+    );
+  }
+}
 
 // Get order by session ID
 export const getOrder = query({
@@ -89,6 +139,15 @@ export const addItemToOrder = mutation({
     item: orderItemValidator,
   },
   handler: async (ctx, args) => {
+    // Truth at the boundary: an order line with options the kitchen can't
+    // honor never gets stored.
+    await assertValidSelections(
+      ctx,
+      args.item.menuItemId,
+      args.item.selectedModifiers,
+      "addItemToOrder",
+    );
+
     // Find or create active order for this session
     const orders = await ctx.db
       .query("customerOrders")
@@ -260,6 +319,17 @@ export const submitOrder = mutation({
     const order = orders.find((o) => o.status === "active");
     if (!order) throw new Error("No active order found");
     if (order.items.length === 0) throw new Error("Cannot submit empty order");
+
+    // Re-validate every line at submission: option configs may have changed
+    // (or required groups been added) since the item went into the cart.
+    for (const item of order.items) {
+      await assertValidSelections(
+        ctx,
+        item.menuItemId,
+        item.selectedModifiers,
+        "submitOrder",
+      );
+    }
 
     await ctx.db.patch(order._id, {
       status: "submitted",

@@ -7,11 +7,11 @@
 
 ## 1. Menu options correctness
 
-- [ ] 1.1 Schema: per-item option config — `menuItems.optionGroups` (group key, allowed values, required flag) superseding loose `modifiers`/`drinkOptions` reads; keep legacy fields readable
+- [x] 1.1 Schema: per-item option config — `menuItems.optionGroups` (group key, allowed values, required flag) superseding loose `modifiers`/`drinkOptions` reads; keep legacy fields readable
 - [x] 1.2 `optionValidation.ts`: selection-vs-config validation (unknown group, unknown value, missing required)
-- [ ] 1.3 `convex/orders.ts`: validate selections in `addItemToOrder`; reject submission with missing required options
-- [ ] 1.4 `ItemModifierEditor.svelte`: required/optional toggle per group, values editor, live validation preview
-- [ ] 1.5 `ModifierSelector.svelte`: render required groups first, block add-to-cart until required groups picked
+- [x] 1.3 `convex/orders.ts`: validate selections in `addItemToOrder`; reject submission with missing required options
+- [x] 1.4 `ItemModifierEditor.svelte`: required/optional toggle per group, values editor, live validation preview
+- [x] 1.5 `ModifierSelector.svelte`: render required groups first, block add-to-cart until required groups picked
 - [ ] 1.6 Audit all 23 prod items' option configs with owner; seed correct configs (dev first, promote with sign-off)
 
 ## 2. QR self-checkout

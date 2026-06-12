@@ -120,6 +120,18 @@ export default defineSchema({
     // Dietary tags for quick identification
     dietaryTags: v.optional(v.array(dietaryTagValidator)),
 
+    // Authoritative per-item option config (ordering MVP). Supersedes the
+    // loose `modifiers`/`drinkOptions` reads: when present, this is the only
+    // config order validation consults; legacy fields below stay readable
+    // and convert to optional groups until items are migrated.
+    optionGroups: v.optional(v.array(v.object({
+      key: v.string(),            // 'noodleType', 'spiceLevel', 'addOns', ...
+      label: v.optional(v.string()),
+      values: v.array(v.string()),
+      required: v.boolean(),      // customer must pick before add-to-cart
+      multi: v.optional(v.boolean()), // allow several picks (add-ons)
+    }))),
+
     // Drink options (Phase 3)
     drinkOptions: v.optional(v.object({
       temperatures: v.array(v.union(v.literal("hot"), v.literal("iced"))),
@@ -182,6 +194,7 @@ export default defineSchema({
         spiceLevel: v.optional(v.string()),
         brothType: v.optional(v.string()),
         fryingDegree: v.optional(v.string()),
+        sugarLevel: v.optional(v.string()),
         addOns: v.optional(v.array(v.string())),
       })),
     })),

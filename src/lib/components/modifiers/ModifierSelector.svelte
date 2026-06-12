@@ -1,8 +1,19 @@
 <script lang="ts">
+	/**
+	 * Modifier sheet — renders the item's option groups (required groups
+	 * first) and blocks add-to-cart until every required group is picked.
+	 * Validation runs the same domain function the order mutations run, so
+	 * "the button enabled" and "the server accepts" can never disagree.
+	 */
 	import { createEventDispatcher } from 'svelte';
 	import type { Doc } from '../../../../convex/_generated/dataModel';
 	import PriceDisplay from '../PriceDisplay.svelte';
 	import DietaryTags from '../DietaryTags.svelte';
+	import {
+		validateSelections,
+		legacyToOptionGroups,
+		type OptionSelections,
+	} from '$lib/domain/optionValidation';
 
 	export let item: Doc<'menuItems'>;
 	export let isOpen: boolean = false;
@@ -18,25 +29,53 @@
 				spiceLevel?: string;
 				brothType?: string;
 				fryingDegree?: string;
+				sugarLevel?: string;
 				addOns?: string[];
 			};
 		};
 	}>();
 
-	// Selected values
 	let quantity = 1;
-	let selectedModifiers: {
-		noodleType?: string;
-		temperature?: string;
-		spiceLevel?: string;
-		brothType?: string;
-		fryingDegree?: string;
-		addOns: string[];
-	} = {
-		addOns: [],
-	};
+	// Group key → picked value(s); the shape validateSelections speaks.
+	let selections: OptionSelections = {};
 
-	// Modifier configurations with icons
+	// Required groups render first — a customer scrolling top-to-bottom hits
+	// the blocking choices before the optional ones.
+	$: groups = [...legacyToOptionGroups(item)].sort(
+		(a, b) => Number(b.required) - Number(a.required)
+	);
+
+	$: issues = validateSelections(groups, selections);
+	$: missingGroups = issues
+		.filter((i) => i.code === 'missing-required')
+		.map((i) => {
+			const group = groups.find((g) => g.key === i.groupKey);
+			return group?.label ?? labelForGroup(i.groupKey);
+		});
+	$: canAdd = issues.length === 0;
+
+	function pickSingle(key: string, value: string) {
+		// Clicking the selected value again deselects (matters for optional groups).
+		selections = { ...selections, [key]: selections[key] === value ? '' : value };
+	}
+
+	function toggleMulti(key: string, value: string) {
+		const current = Array.isArray(selections[key]) ? (selections[key] as string[]) : [];
+		selections = {
+			...selections,
+			[key]: current.includes(value)
+				? current.filter((v) => v !== value)
+				: [...current, value],
+		};
+	}
+
+	function isPicked(key: string, value: string): boolean {
+		const sel = selections[key];
+		return Array.isArray(sel) ? sel.includes(value) : sel === value;
+	}
+
+	// Display metadata for known group keys — icons and bilingual labels.
+	// Unknown (custom) group keys fall back to plain text.
 	const modifierConfig = {
 		temperature: {
 			label: 'Temperature',
@@ -87,51 +126,77 @@
 		},
 	};
 
-	// Get available modifiers from item
-	$: availableModifiers = item.modifiers
-		? Object.entries(item.modifiers)
-				.filter(([_, values]) => values && values.length > 0)
-				.map(([key, values]) => ({
-					key: key as keyof typeof modifierConfig,
-					values: values as string[],
-					config: modifierConfig[key as keyof typeof modifierConfig],
-				}))
-		: [];
+	const GROUP_LABELS: Record<string, string> = {
+		temperature: 'Temperature',
+		noodleType: 'Noodle Type',
+		fryingDegree: 'Crispiness',
+		brothType: 'Broth Type',
+		spiceLevel: 'Spice Level',
+		sugarLevel: 'Sugar Level',
+		addOns: 'Add-ons',
+	};
 
-	// Drink options
-	$: drinkOptions = item.drinkOptions;
-	$: drinkAddOns = drinkOptions?.addOns ?? [];
+	function labelForGroup(key: string): string {
+		return (
+			GROUP_LABELS[key] ??
+			key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())
+		);
+	}
+
+	function optionMeta(groupKey: string, value: string): { icon?: string; label: string } {
+		const known = modifierConfig[groupKey as keyof typeof modifierConfig];
+		const option = known?.options.find((o) => o.value === value);
+		if (option) return option;
+		if (groupKey === 'temperature') {
+			return value === 'iced'
+				? { icon: '❄️', label: 'Iced' }
+				: { icon: undefined, label: value };
+		}
+		return { label: value };
+	}
+
+	// Priced add-ons still come from the legacy drinkOptions list (the only
+	// place option prices live today).
+	$: drinkAddOns = item.drinkOptions?.addOns ?? [];
+
+	function addOnPrice(name: string): number {
+		return drinkAddOns.find((a) => a.name === name)?.price ?? 0;
+	}
 
 	function handleClose() {
 		dispatch('close');
 	}
 
+	// Map group-keyed selections back to the fixed-key shape order lines
+	// store. Custom group keys beyond these would need the order schema to
+	// grow with them — today's menu only uses the known keys.
 	function handleAddToOrder() {
+		if (!canAdd) return;
+		const single = (key: string): string | undefined => {
+			const sel = selections[key];
+			return typeof sel === 'string' && sel !== '' ? sel : undefined;
+		};
+		const addOns = Array.isArray(selections.addOns) ? (selections.addOns as string[]) : [];
+
 		dispatch('addToOrder', {
 			item,
 			quantity,
 			selectedModifiers: {
-				...selectedModifiers,
-				addOns: selectedModifiers.addOns.length > 0 ? selectedModifiers.addOns : undefined,
+				noodleType: single('noodleType'),
+				temperature: single('temperature'),
+				spiceLevel: single('spiceLevel'),
+				brothType: single('brothType'),
+				fryingDegree: single('fryingDegree'),
+				sugarLevel: single('sugarLevel'),
+				addOns: addOns.length > 0 ? addOns : undefined,
 			},
 		});
-		// Reset selections
 		quantity = 1;
-		selectedModifiers = { addOns: [] };
+		selections = {};
 	}
 
-	function toggleAddOn(name: string) {
-		if (selectedModifiers.addOns.includes(name)) {
-			selectedModifiers.addOns = selectedModifiers.addOns.filter((a) => a !== name);
-		} else {
-			selectedModifiers.addOns = [...selectedModifiers.addOns, name];
-		}
-	}
-
-	// Calculate total price
-	$: addOnTotal = drinkAddOns
-		.filter((addOn) => selectedModifiers.addOns.includes(addOn.name))
-		.reduce((sum, addOn) => sum + addOn.price, 0);
+	$: addOnTotal = (Array.isArray(selections.addOns) ? (selections.addOns as string[]) : [])
+		.reduce((sum, name) => sum + addOnPrice(name), 0);
 
 	$: totalPrice = (item.price + addOnTotal) * quantity;
 </script>
@@ -156,83 +221,36 @@
 			</header>
 
 			<div class="modal-body">
-				{#if availableModifiers.length > 0}
-					{#each availableModifiers as modifier}
-						<div class="modifier-section">
-							<h3>{modifier.config.label}</h3>
-							<div class="modifier-options">
-								{#each modifier.values as value}
-									{@const option = modifier.config.options.find((o) => o.value === value)}
-									{#if option}
-										<button
-											class="modifier-option"
-											class:selected={selectedModifiers[modifier.key] === value}
-											on:click={() => (selectedModifiers[modifier.key] = value)}
-										>
-											<span class="option-icon">{option.icon}</span>
-											<span class="option-label">{option.label}</span>
-										</button>
+				{#each groups as group (group.key)}
+					<div class="modifier-section">
+						<h3>
+							{group.label ?? labelForGroup(group.key)}
+							{#if group.required}
+								<span class="required-badge">required</span>
+							{/if}
+						</h3>
+						<div class="modifier-options">
+							{#each group.values as value}
+								{@const meta = optionMeta(group.key, value)}
+								{@const price = group.key === 'addOns' ? addOnPrice(value) : 0}
+								<button
+									class="modifier-option"
+									class:selected={isPicked(group.key, value)}
+									on:click={() =>
+										group.multi ? toggleMulti(group.key, value) : pickSingle(group.key, value)}
+								>
+									{#if meta.icon}
+										<span class="option-icon">{meta.icon}</span>
 									{/if}
-								{/each}
-							</div>
+									<span class="option-label">{meta.label}</span>
+									{#if price > 0}
+										<span class="option-price">+<PriceDisplay {price} /></span>
+									{/if}
+								</button>
+							{/each}
 						</div>
-					{/each}
-				{/if}
-
-				{#if drinkOptions}
-					{#if drinkOptions.temperatures.length > 0}
-						<div class="modifier-section">
-							<h3>Temperature</h3>
-							<div class="modifier-options">
-								{#each drinkOptions.temperatures as temp}
-									<button
-										class="modifier-option"
-										class:selected={selectedModifiers.temperature === temp}
-										on:click={() => (selectedModifiers.temperature = temp)}
-									>
-										<span class="option-icon">{temp === 'hot' ? '🔥' : '❄️'}</span>
-										<span class="option-label">{temp === 'hot' ? 'Hot' : 'Iced'}</span>
-									</button>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					{#if drinkOptions.sugarLevels && drinkOptions.sugarLevels.length > 0}
-						<div class="modifier-section">
-							<h3>Sugar Level</h3>
-							<div class="modifier-options">
-								{#each drinkOptions.sugarLevels as level}
-									<button
-										class="modifier-option sugar"
-										class:selected={selectedModifiers.addOns.includes(`sugar-${level}`)}
-										on:click={() => toggleAddOn(`sugar-${level}`)}
-									>
-										<span class="option-label">{level}</span>
-									</button>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					{#if drinkAddOns.length > 0}
-						<div class="modifier-section">
-							<h3>Add-ons</h3>
-							<div class="modifier-options">
-								{#each drinkAddOns as addOn}
-									<button
-										class="modifier-option addon"
-										class:selected={selectedModifiers.addOns.includes(addOn.name)}
-										on:click={() => toggleAddOn(addOn.name)}
-									>
-										<span class="option-label">{addOn.name}</span>
-										<span class="option-price">+<PriceDisplay price={addOn.price} /></span>
-									</button>
-								{/each}
-							</div>
-						</div>
-					{/if}
-				{/if}
+					</div>
+				{/each}
 			</div>
 
 			<footer class="modal-footer">
@@ -248,8 +266,14 @@
 					<button class="qty-btn" on:click={() => (quantity += 1)}>+</button>
 				</div>
 
-				<button class="add-btn" on:click={handleAddToOrder}>
-					<span>Add to Order</span>
+				<button class="add-btn" disabled={!canAdd} on:click={handleAddToOrder}>
+					<span>
+						{#if canAdd}
+							Add to Order
+						{:else}
+							Choose {missingGroups.join(', ')}
+						{/if}
+					</span>
 					<span class="price-total">
 						<PriceDisplay price={totalPrice} />
 					</span>
@@ -354,6 +378,23 @@
 		margin: 0 0 var(--space-2, 0.5rem);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	.required-badge {
+		font-size: var(--text-xs, 0.75rem);
+		font-weight: 600;
+		color: var(--color-accent, #c45a3b);
+		background: rgba(196, 90, 59, 0.1);
+		border-radius: 999px;
+		padding: 1px 8px;
+		margin-left: var(--space-2, 0.5rem);
+		text-transform: none;
+		letter-spacing: 0;
+	}
+
+	.add-btn:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
 	}
 
 	.modifier-options {

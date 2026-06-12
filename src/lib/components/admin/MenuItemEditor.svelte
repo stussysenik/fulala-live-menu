@@ -2,6 +2,8 @@
   import { createEventDispatcher } from 'svelte';
   import ImagePicker from './ImagePicker.svelte';
   import PriceTierEditor from './PriceTierEditor.svelte';
+  import OptionGroupsEditor from './OptionGroupsEditor.svelte';
+  import type { OptionGroupConfig } from '$lib/domain/optionValidation';
 
   export let item: any = null;
   export let categories: any[] = [];
@@ -25,9 +27,14 @@
   let imageUrl = item?.imageUrl ?? '';
   let imageStorageId = item?.imageStorageId ?? '';
   let sortOrder = item?.sortOrder ?? 1;
+  let optionGroups: OptionGroupConfig[] = item?.optionGroups ?? [];
 
   function handleTiersChange(e: CustomEvent<Array<{ quantity: string; price: number }>>) {
     priceTiers = e.detail;
+  }
+
+  function handleOptionGroupsChange(e: CustomEvent<OptionGroupConfig[]>) {
+    optionGroups = e.detail;
   }
 
   function handleImageSelect(
@@ -83,6 +90,7 @@
       clearImageStorage,
       sortOrder: Number(sortOrder),
       priceTiers: priceTiers.length > 0 ? priceTiers : undefined,
+      optionGroups: optionGroups.length > 0 ? optionGroups : undefined,
     });
   }
 
@@ -129,6 +137,8 @@
   </div>
 
   <PriceTierEditor {priceTiers} on:change={handleTiersChange} />
+
+  <OptionGroupsEditor {optionGroups} {item} on:change={handleOptionGroupsChange} />
 
   <div class="field">
     <label for="ed-cat">Category</label>

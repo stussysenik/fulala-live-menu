@@ -181,6 +181,17 @@ export const createMenuItem = mutation({
     isSweet: v.optional(v.boolean()),
     isFeatured: v.optional(v.boolean()),
     isGlutenFree: v.optional(v.boolean()),
+    optionGroups: v.optional(
+      v.array(
+        v.object({
+          key: v.string(),
+          label: v.optional(v.string()),
+          values: v.array(v.string()),
+          required: v.boolean(),
+          multi: v.optional(v.boolean()),
+        }),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -236,6 +247,17 @@ export const updateMenuItem = mutation({
     isSweet: v.optional(v.boolean()),
     isFeatured: v.optional(v.boolean()),
     isGlutenFree: v.optional(v.boolean()),
+    optionGroups: v.optional(
+      v.array(
+        v.object({
+          key: v.string(),
+          label: v.optional(v.string()),
+          values: v.array(v.string()),
+          required: v.boolean(),
+          multi: v.optional(v.boolean()),
+        }),
+      ),
+    ),
     clearImage: v.optional(v.boolean()),
     clearImageStorage: v.optional(v.boolean()),
   },

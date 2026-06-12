@@ -6,6 +6,7 @@
 
 	import LayoutRenderer from '$lib/components/layouts/LayoutRenderer.svelte';
 	import ModifierSelector from '$lib/components/modifiers/ModifierSelector.svelte';
+	import { legacyToOptionGroups } from '$lib/domain/optionValidation';
 	import OrderCart from '$lib/components/order/OrderCart.svelte';
 	import OrderReceipt from '$lib/components/order/OrderReceipt.svelte';
 
@@ -42,11 +43,11 @@
 	function handleItemSelect(event: CustomEvent<{ item: Doc<'menuItems'>; quantity?: number }>) {
 		const { item } = event.detail;
 
-		// Check if item has modifiers that need selection
-		const hasModifiers =
-			(item.modifiers &&
-				Object.values(item.modifiers).some((v) => v && (v as string[]).length > 0)) ||
-			item.drinkOptions;
+		// Open the sheet whenever the item offers ANY option groups — explicit
+		// optionGroups or legacy modifiers/drinkOptions. Same conversion the
+		// sheet and the server validation use, so an item with a required
+		// group can never silently skip the sheet.
+		const hasModifiers = legacyToOptionGroups(item).length > 0;
 
 		if (hasModifiers) {
 			selectedItem = item;
