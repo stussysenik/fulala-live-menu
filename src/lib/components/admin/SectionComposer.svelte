@@ -14,10 +14,13 @@
    * publishes.
    */
   import { browser } from "$app/environment";
+  import { flip } from "svelte/animate";
+  import { fade } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
   import { useQuery, useMutation } from "$lib/convex";
   import { api } from "../../../../convex/_generated/api";
   import type { Id } from "../../../../convex/_generated/dataModel";
-  import SectionRenderer from "../sections/SectionRenderer.svelte";
+  import { SECTION_REGISTRY } from "../sections/registry";
   import {
     SECTION_TYPE_SPECS,
     SECTION_TYPES,
@@ -123,6 +126,76 @@
     touch();
   }
 
+  // Duplicate inserts right after the original (Canva's quick-verb set).
+  function duplicateSection(index: number) {
+    if (!draft) return;
+    const original = draft.sections[index];
+    draft.sections.splice(index + 1, 0, {
+      ...structuredClone(original),
+      id: uniqueId(original.type),
+    });
+    touch();
+  }
+
+  // --- Canvas selection (Elementor-style) -------------------------------------
+  // Clicking a section in the preview selects it; the matching editor card
+  // highlights and scrolls into view. Deterministic by design: the canvas is
+  // the ordered section list, never free-form coordinates.
+  let selectedId: string | null = null;
+
+  function select(id: string) {
+    selectedId = selectedId === id ? null : id;
+    if (selectedId && browser) {
+      document
+        .getElementById(`sc-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  // --- Drag to reorder ---------------------------------------------------------
+  // Dedicated handles (the list rows keep their inputs clickable); the same
+  // handle is a keyboard control — focus it and Arrow Up/Down moves the
+  // section, the react-aria reorder pattern. Row movement animates via FLIP
+  // (pure transform, GPU-bound — the main thread stays free for queries).
+  let dragIndex: number | null = null;
+  let dropIndex: number | null = null;
+
+  function handleDragStart(index: number, e: DragEvent) {
+    dragIndex = index;
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(index));
+    }
+  }
+
+  function handleDragOver(index: number, e: DragEvent) {
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+    dropIndex = index;
+  }
+
+  function handleDrop(index: number, e: DragEvent) {
+    e.preventDefault();
+    if (draft && dragIndex !== null && dragIndex !== index) {
+      const [moved] = draft.sections.splice(dragIndex, 1);
+      draft.sections.splice(index, 0, moved);
+      touch();
+    }
+    dragIndex = null;
+    dropIndex = null;
+  }
+
+  function handleDragEnd() {
+    dragIndex = null;
+    dropIndex = null;
+  }
+
+  function handleKeyReorder(index: number, e: KeyboardEvent) {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    move(index, e.key === "ArrowUp" ? -1 : 1);
+  }
+
   // Swapping type keeps the slot but resets props — a photo grid's columns
   // mean nothing to a text banner.
   function swapType(section: SectionInstance, type: string) {
@@ -194,6 +267,31 @@
     }
   }
 
+  // Draft autosave (Webflow-style): edits persist on their own after a
+  // short pause; the indicator stays passive. Publishing is still the only
+  // thing that touches the TV. Invalid drafts are never autosaved — the
+  // validator gates the write, so the stored draft is always loadable.
+  let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
+  let autosaveState: "idle" | "pending" | "saved" = "idle";
+
+  function scheduleAutosave() {
+    autosaveState = "pending";
+    if (autosaveTimer) clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(async () => {
+      if (!draft || !dirty || errors.length > 0 || busy) return;
+      try {
+        const snapshot = JSON.stringify(draft);
+        await saveDraftMutation?.({ slug, config: draft });
+        savedSnapshot = snapshot;
+        autosaveState = "saved";
+      } catch {
+        autosaveState = "idle"; // manual save surfaces the error
+      }
+    }, 900);
+  }
+
+  $: if (initialized && dirty && errors.length === 0) scheduleAutosave();
+
   async function publish() {
     if (!draft || errors.length > 0) return;
     busy = true;
@@ -252,7 +350,13 @@
 
 <div class="composer">
   {#if !initialized}
-    <p class="loading">Loading draft…</p>
+    <!-- Ghost skeleton: the editor's shape appears instantly; content fills
+         in as Convex resolves. Shimmer animates transform only (GPU). -->
+    <div class="ghost" aria-label="Loading draft" aria-busy="true">
+      {#each [0, 1, 2] as i (i)}
+        <div class="ghost-card" style:--ghost-delay={`${i * 120}ms`}></div>
+      {/each}
+    </div>
   {:else if draft}
     <div class="mobile-tabs" role="tablist">
       <button
@@ -292,9 +396,31 @@
 
         {#each draft.sections as section, index (section.id)}
           {@const spec = SECTION_TYPE_SPECS[section.type]}
-          <section class="section-card" class:hidden-section={!section.visible}>
+          <section
+            id={`sc-${section.id}`}
+            class="section-card"
+            class:hidden-section={!section.visible}
+            class:selected-card={selectedId === section.id}
+            class:dragging={dragIndex === index}
+            class:drop-target={dropIndex === index && dragIndex !== null && dragIndex !== index}
+            animate:flip={{ duration: 220, easing: cubicOut }}
+            on:dragover={(e) => handleDragOver(index, e)}
+            on:drop={(e) => handleDrop(index, e)}
+            on:click={() => (selectedId = section.id)}
+          >
             <div class="section-head">
               <div class="section-title">
+                <button
+                  type="button"
+                  class="drag-handle"
+                  draggable="true"
+                  aria-roledescription="sortable section"
+                  aria-label={`Reorder ${spec?.label ?? section.type} — press Arrow Up or Arrow Down to move`}
+                  title="Drag to reorder (or Arrow Up/Down)"
+                  on:dragstart={(e) => handleDragStart(index, e)}
+                  on:dragend={handleDragEnd}
+                  on:keydown={(e) => handleKeyReorder(index, e)}>⠿</button
+                >
                 <span class="order-controls">
                   <button
                     type="button"
@@ -422,8 +548,12 @@
             disabled={busy || errors.length > 0}
             on:click={publish}>Publish to TV</button
           >
-          {#if dirty}
-            <span class="dirty-badge">unsaved changes</span>
+          {#if errors.length > 0 && dirty}
+            <span class="dirty-badge">fix errors to save</span>
+          {:else if dirty}
+            <span class="autosave-hint">Saving…</span>
+          {:else if autosaveState === "saved"}
+            <span class="autosave-hint autosave-done">Saved ✓</span>
           {/if}
         </div>
         {#if statusMessage}
@@ -461,14 +591,77 @@
         </section>
       </div>
 
-      <!-- ===== Right: live preview (real SectionRenderer, scaled) ===== -->
+      <!-- ===== Right: the canvas — real section components, scaled, with
+           click-to-select. Per-section keying means a reorder only moves DOM
+           nodes (FLIP transform); components are not recreated, so their
+           Convex subscriptions survive and nothing flashes. ===== -->
       <div class="preview-pane">
-        <h2>Preview <span class="preview-hint">(draft, live data)</span></h2>
-        <div class="preview-frame">
+        <h2>Preview <span class="preview-hint">(draft, live data — click a section to edit)</span></h2>
+        <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+        <div class="preview-frame" on:click={() => (selectedId = null)}>
           <div class="preview-screen">
-            {#key JSON.stringify(draft.sections)}
-              <SectionRenderer sections={draft.sections} />
-            {/key}
+            {#each draft.sections.filter((s) => s.visible) as section (section.id)}
+              {@const realIndex = draft.sections.indexOf(section)}
+              <div
+                class="canvas-section"
+                class:canvas-selected={selectedId === section.id}
+                role="button"
+                tabindex="0"
+                aria-label={`Select ${SECTION_TYPE_SPECS[section.type]?.label ?? section.type} section`}
+                animate:flip={{ duration: 220, easing: cubicOut }}
+                on:click|stopPropagation={() => select(section.id)}
+                on:keydown={(e) => e.key === "Enter" && select(section.id)}
+              >
+                {#if selectedId === section.id}
+                  <!-- Above the section; flips inside for the first one so it
+                       never clips outside the frame (Canva placement rule). -->
+                  <div
+                    class="canvas-toolbar"
+                    class:canvas-toolbar-inside={section === draft.sections.find((s) => s.visible)}
+                    transition:fade={{ duration: 120 }}
+                  >
+                    <span class="canvas-toolbar-label">
+                      {SECTION_TYPE_SPECS[section.type]?.label ?? section.type}
+                    </span>
+                    <button
+                      type="button"
+                      title="Move up"
+                      disabled={realIndex === 0}
+                      on:click|stopPropagation={() => move(realIndex, -1)}>↑</button
+                    >
+                    <button
+                      type="button"
+                      title="Move down"
+                      disabled={realIndex === draft.sections.length - 1}
+                      on:click|stopPropagation={() => move(realIndex, 1)}>↓</button
+                    >
+                    <button
+                      type="button"
+                      title="Duplicate section"
+                      on:click|stopPropagation={() => duplicateSection(realIndex)}>⧉</button
+                    >
+                    <button
+                      type="button"
+                      title="Hide section"
+                      on:click|stopPropagation={() => toggleVisible(section)}>👁</button
+                    >
+                    <button
+                      type="button"
+                      title="Remove section"
+                      on:click|stopPropagation={() => removeSection(realIndex)}>✕</button
+                    >
+                  </div>
+                {/if}
+                {#if SECTION_REGISTRY[section.type]}
+                  {#key section.id + JSON.stringify(section.props)}
+                    <svelte:component
+                      this={SECTION_REGISTRY[section.type].component}
+                      {...section.props}
+                    />
+                  {/key}
+                {/if}
+              </div>
+            {/each}
           </div>
         </div>
       </div>
@@ -476,9 +669,156 @@
   {/if}
 </div>
 
+<svelte:window
+  on:keydown={(e) => {
+    if (e.key === "Escape") selectedId = null;
+  }}
+/>
+
 <style>
   .loading {
     color: #6b6b6b;
+  }
+
+  /* --- Ghost skeleton (GPU shimmer: translated gradient, no layout work) -- */
+  .ghost {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .ghost-card {
+    height: 92px;
+    border-radius: 12px;
+    border: 1px solid #f0f0ec;
+    background: #f7f7f5;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ghost-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+    transform: translateX(-100%);
+    animation: ghost-sweep 1.4s ease-in-out infinite;
+    animation-delay: var(--ghost-delay, 0ms);
+  }
+
+  @keyframes ghost-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* --- Drag to reorder ---------------------------------------------------- */
+  .drag-handle {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: none;
+    color: #b3b3ae;
+    font-size: 0.9rem;
+    cursor: grab;
+    border-radius: 6px;
+    line-height: 1;
+    touch-action: none;
+  }
+
+  .drag-handle:hover,
+  .drag-handle:focus-visible {
+    color: #2c2c2c;
+    background: #f0f0ec;
+    outline: none;
+  }
+
+  .drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .dragging {
+    opacity: 0.4; /* ghost of the lifted card */
+  }
+
+  .drop-target {
+    box-shadow: 0 -3px 0 0 #2563eb; /* insertion line above the hovered row */
+  }
+
+  .selected-card {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+  }
+
+  /* --- Canvas selection ----------------------------------------------------- */
+  .canvas-section {
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    /* Outline via box-shadow: paints on its own layer, no layout shift. */
+    transition: box-shadow 0.15s ease-out;
+  }
+
+  .canvas-section:hover {
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35);
+  }
+
+  .canvas-selected,
+  .canvas-selected:hover {
+    box-shadow: 0 0 0 5px #2563eb;
+  }
+
+  /* Sizes are ~2.6x the visual target — the canvas is scaled to 0.38. */
+  .canvas-toolbar {
+    position: absolute;
+    top: -110px;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #2563eb;
+    border-radius: 18px;
+    padding: 12px 22px;
+    z-index: 5;
+  }
+
+  /* First visible section: toolbar sits inside the top edge instead of
+     above it, so it never clips outside the overflow-hidden frame. */
+  .canvas-toolbar-inside {
+    top: 14px;
+    right: 14px;
+  }
+
+  .canvas-toolbar-label {
+    color: #fff;
+    font-size: 34px;
+    font-weight: 650;
+    font-family: var(--font-body, "Inter", sans-serif);
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  .canvas-toolbar button {
+    width: 64px;
+    height: 64px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-size: 34px;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.12s ease-out;
+  }
+
+  .canvas-toolbar button:hover {
+    transform: scale(1.08);
+  }
+
+  .canvas-toolbar button:disabled {
+    opacity: 0.35;
+    cursor: default;
+    transform: none;
   }
 
   .workspace {
@@ -763,6 +1103,15 @@
     font-size: 0.8125rem;
     flex: 1;
     min-width: 160px;
+  }
+
+  .autosave-hint {
+    font-size: 0.75rem;
+    color: #6b6b6b;
+  }
+
+  .autosave-done {
+    color: #16a34a;
   }
 
   .dirty-badge {
