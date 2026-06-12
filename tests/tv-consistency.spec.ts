@@ -133,12 +133,17 @@ test('menu pages: price font sizes are uniform within each page', async ({ page 
 	}
 });
 
-test('tv-dumplings: each item shows 3 price tiers', async ({ page }) => {
+test('tv-dumplings: every item shows its price tiers', async ({ page }) => {
 	await page.goto('/tv-dumplings');
 	await waitForMenuData(page);
 
-	const tierRows = await page.locator('.tv-tier-row').count();
-	expect(tierRows, 'should have 18 tier rows (6 items × 3 tiers)').toBe(18);
+	const items = await page.locator('.tv-item').count();
+	expect(items, 'should have menu items').toBeGreaterThan(0);
+
+	// Dumplings are priced per portion via priceTiers; every card must render
+	// at least one tier row regardless of how many tiers the current menu has.
+	const itemsWithTiers = await page.locator('.tv-item:has(.tv-tier-row)').count();
+	expect(itemsWithTiers, 'every dumpling item should render price tier rows').toBe(items);
 });
 
 test('menu pages: item name font sizes are consistent', async ({ page }) => {
