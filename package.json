@@ -7,6 +7,7 @@
     "dev:backend": "convex dev",
     "dev:all": "concurrently \"convex dev\" \"vite dev\"",
     "validate:env": "node scripts/validate-env.cjs",
+    "backup:prod": "CONVEX_DEPLOYMENT=prod:cheery-setter-27 convex export --path backups/prod-$(date +%F-%H%M).zip",
     "build": "npm run validate:env && vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
