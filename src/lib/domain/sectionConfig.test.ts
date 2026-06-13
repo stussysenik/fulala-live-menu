@@ -127,6 +127,16 @@ describe('defaults', () => {
 		expect(drinks.props.columns).toBe(0); // single evenly-spread row, as today
 	});
 
+	it('tv-dumplings / tv-noodles defaults are a single menu-category for their category', () => {
+		const dumplings = DEFAULT_SECTION_CONFIGS['tv-dumplings']!.sections;
+		expect(dumplings.map((s) => s.type)).toEqual(['menu-category']);
+		expect(dumplings[0]!.props.categoryName).toBe('steamed-dumplings');
+
+		const noodles = DEFAULT_SECTION_CONFIGS['tv-noodles']!.sections;
+		expect(noodles.map((s) => s.type)).toEqual(['menu-category']);
+		expect(noodles[0]!.props.categoryName).toBe('noodle-soups');
+	});
+
 	it('registry type list and field specs cover each other', () => {
 		expect(SECTION_TYPES.length).toBeGreaterThanOrEqual(4);
 		for (const type of SECTION_TYPES) {

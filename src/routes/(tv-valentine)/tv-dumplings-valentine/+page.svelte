@@ -1,12 +1,31 @@
 <script lang="ts">
+	/**
+	 * Valentine theme = skin only. This page reads the SAME published config
+	 * as its base slug (tv-dumplings) and renders through the same
+	 * SectionRenderer — edit content once in the builder, both themes update.
+	 * The route group's +layout.svelte supplies the Valentine styling; this
+	 * page only adds decorative overlays.
+	 */
 	import { browser } from '$app/environment';
 	import { useQuery } from '$lib/convex';
 	import { api } from '../../../../convex/_generated/api';
-	import TvCategory from '$lib/components/tv/TvCategory.svelte';
+	import SectionRenderer from '$lib/components/sections/SectionRenderer.svelte';
+	import { DEFAULT_SECTION_CONFIGS } from '$lib/domain/sectionConfig';
 
-	const menuQuery = browser ? useQuery(api.menu.getFullMenu) : null;
-	$: menu = $menuQuery ?? [];
-	$: category = menu.find((c: any) => c.name === 'steamed-dumplings');
+	const SLUG = 'tv-dumplings';
+
+	const configQuery = browser
+		? useQuery(api.displaySections.getPublishedConfig, { slug: SLUG })
+		: null;
+	$: sections = ($configQuery ?? DEFAULT_SECTION_CONFIGS[SLUG]).sections;
+
+	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
+	$: pageSettings = $pageSettingsQuery?.[SLUG] ?? {};
+	$: overrides = {
+		showImages: pageSettings.showImages ?? true,
+		showChinese: pageSettings.showChinese ?? true,
+		showAllergens: pageSettings.showAllergens ?? true,
+	};
 </script>
 
 <svelte:head>
@@ -14,11 +33,7 @@
 </svelte:head>
 
 <div class="tv-dumplings-valentine">
-	{#if category}
-		<TvCategory {category} items={category.items} />
-	{:else}
-		<div class="tv-loading">Načítání menu...</div>
-	{/if}
+	<SectionRenderer {sections} {overrides} />
 
 	<!-- Decorative: pair of hearts with steam wisps -->
 	<div class="v-decor-hearts" aria-hidden="true">
@@ -45,15 +60,6 @@
 		flex-direction: column;
 		min-height: 0;
 		position: relative;
-	}
-
-	.tv-loading {
-		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: var(--tv-item-name-size, 40px);
-		color: var(--color-text-muted, #6B6B6B);
 	}
 
 	.v-decor-hearts {

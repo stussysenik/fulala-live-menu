@@ -21,6 +21,7 @@
       editHref: "/admin/menu",
       editLabel: "Edit dumpling items",
       toggles: ["showImages", "showChinese", "showAllergens"] as const,
+      composable: true, // renders from a published section config
     },
     {
       slug: "tv-noodles",
@@ -30,6 +31,7 @@
       editHref: "/admin/menu",
       editLabel: "Edit noodle items",
       toggles: ["showImages", "showChinese", "showAllergens"] as const,
+      composable: true, // renders from a published section config
     },
     {
       slug: "tv-info",

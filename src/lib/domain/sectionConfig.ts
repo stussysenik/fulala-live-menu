@@ -40,6 +40,13 @@ export interface SectionTypeSpec {
 }
 
 export const SECTION_TYPE_SPECS: Record<string, SectionTypeSpec> = {
+	'menu-category': {
+		label: 'Menu category',
+		description: 'Full category list — photo, bilingual + Chinese name, price, allergens',
+		fields: [
+			{ key: 'categoryName', label: 'Category', kind: 'category', default: 'steamed-dumplings' },
+		],
+	},
 	'info-cards': {
 		label: 'Info cards',
 		description: 'Customer info cards (discounts) from site settings',
@@ -174,6 +181,26 @@ export function validateSectionConfig(config: unknown): string[] {
  * first composed page — "info cards, extras, drinks grid".
  */
 export const DEFAULT_SECTION_CONFIGS: Record<string, DisplaySectionConfig> = {
+	'tv-dumplings': {
+		sections: [
+			{
+				id: 'dumplings',
+				type: 'menu-category',
+				props: { categoryName: 'steamed-dumplings' },
+				visible: true,
+			},
+		],
+	},
+	'tv-noodles': {
+		sections: [
+			{
+				id: 'noodles',
+				type: 'menu-category',
+				props: { categoryName: 'noodle-soups' },
+				visible: true,
+			},
+		],
+	},
 	'tv-info': {
 		sections: [
 			{ id: 'info-cards', type: 'info-cards', props: {}, visible: true },

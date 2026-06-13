@@ -17,6 +17,7 @@ import {
 import CategoryPhotoGrid from './CategoryPhotoGrid.svelte';
 import ExtrasList from './ExtrasList.svelte';
 import InfoCards from './InfoCards.svelte';
+import MenuCategory from './MenuCategory.svelte';
 import TextBanner from './TextBanner.svelte';
 
 export type { SectionPropField, SectionTypeSpec };
@@ -27,6 +28,7 @@ export type SectionTypeDef = SectionTypeSpec & { component: Component<any> };
 
 const COMPONENTS: Record<string, Component<any>> = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	'menu-category': MenuCategory as unknown as Component<any>,
 	'info-cards': InfoCards as unknown as Component<any>,
 	'extras-list': ExtrasList as unknown as Component<any>,
 	'category-photo-grid': CategoryPhotoGrid as unknown as Component<any>,

@@ -1,20 +1,35 @@
 <script lang="ts">
+	/**
+	 * tv-noodles — composable display page.
+	 *
+	 * Layer rule: pages are just config. Reads the published section
+	 * composition from Convex and hands it to SectionRenderer; the sections
+	 * fetch their own data. Until something is published for this slug, the
+	 * built-in default ([menu-category: noodle-soups]) reproduces the page
+	 * exactly as it was hardcoded — publishing is opt-in, never forced.
+	 */
 	import { browser } from '$app/environment';
 	import { useQuery } from '$lib/convex';
 	import { api } from '../../../../convex/_generated/api';
-	import TvCategory from '$lib/components/tv/TvCategory.svelte';
+	import SectionRenderer from '$lib/components/sections/SectionRenderer.svelte';
+	import { DEFAULT_SECTION_CONFIGS } from '$lib/domain/sectionConfig';
 
-	const menuQuery = browser ? useQuery(api.menu.getFullMenu) : null;
-	$: menu = $menuQuery ?? [];
-	$: category = menu.find((c: any) => c.name === 'noodle-soups');
+	const SLUG = 'tv-noodles';
 
-	// Per-page display settings for this screen (slug: tv-noodles).
-	// Every flag defaults to true so an unconfigured page renders as before.
+	const configQuery = browser
+		? useQuery(api.displaySections.getPublishedConfig, { slug: SLUG })
+		: null;
+	$: sections = ($configQuery ?? DEFAULT_SECTION_CONFIGS[SLUG]).sections;
+
+	// Per-page display settings for this screen. Spread as overrides so they
+	// win over section props — the staff kill switch beats the composition.
 	const pageSettingsQuery = browser ? useQuery(api.settings.getPageSettings) : null;
-	$: pageSettings = $pageSettingsQuery?.['tv-noodles'] ?? {};
-	$: showImages = pageSettings.showImages ?? true;
-	$: showChinese = pageSettings.showChinese ?? true;
-	$: showAllergens = pageSettings.showAllergens ?? true;
+	$: pageSettings = $pageSettingsQuery?.[SLUG] ?? {};
+	$: overrides = {
+		showImages: pageSettings.showImages ?? true,
+		showChinese: pageSettings.showChinese ?? true,
+		showAllergens: pageSettings.showAllergens ?? true,
+	};
 </script>
 
 <svelte:head>
@@ -22,11 +37,7 @@
 </svelte:head>
 
 <div class="tv-noodles-page">
-	{#if category}
-		<TvCategory {category} items={category.items} {showImages} {showChinese} {showAllergens} />
-	{:else}
-		<div class="tv-loading">Načítání menu...</div>
-	{/if}
+	<SectionRenderer {sections} {overrides} />
 </div>
 
 <style>
@@ -36,14 +47,5 @@
 		flex-direction: column;
 		min-height: 0;
 		--tv-item-shrink: 1;
-	}
-
-	.tv-loading {
-		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: var(--tv-item-name-size, 40px);
-		color: var(--color-text-muted, #6B6B6B);
 	}
 </style>

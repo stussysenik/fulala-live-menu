@@ -18,3 +18,38 @@ Plan: ~/.claude/plans/zesty-tumbling-biscuit.md (approved 2026-06-13)
 ## Review
 
 (to be filled after completion)
+
+---
+
+# Universal Display Builder
+
+Spec: `docs/superpowers/specs/2026-06-13-universal-display-builder-design.md`
+Rule: build + verify in dev (FlowDeck / browser). No prod deploys.
+
+## Phase 1 — Universal composability (foundation) ✅ DONE
+- [x] Add `menu-category` section type to `src/lib/domain/sectionConfig.ts` (spec + fields)
+- [x] Add `DEFAULT_SECTION_CONFIGS` for `tv-dumplings`, `tv-noodles`
+- [x] Create `src/lib/components/sections/MenuCategory.svelte` (wraps `TvCategory`, reads `getCategoryWithItems`)
+- [x] Register `menu-category` in `src/lib/components/sections/registry.ts`
+- [x] Convert `tv-dumplings/+page.svelte` to SectionRenderer + published config + default fallback
+- [x] Convert `tv-noodles/+page.svelte` likewise
+- [x] Point dumplings/noodles Valentine variants at the same base-slug config (theme = skin only)
+      (tv-info-valentine deferred: bespoke hand-styled markup; needs theme-aware sections — Phase 4)
+- [x] Mark tv-dumplings + tv-noodles `composable` in `/admin/displays/+page.svelte` (home → Phase 5)
+- [x] Verify: 12/12 vitest pass; svelte-check 0 errors; all 3 TVs + valentine + composer screenshotted, render identical
+
+## Phase 2 — Palette + section images
+- [ ] `kind: 'image'` + `ImageRef` + validation; `convex/files.getImageUrl`; ImagePicker in inspector
+- [ ] New section types: Hero/Image, Heading, Spacer/Divider
+
+## Phase 3 — Inline photo ownership
+- [ ] `editable` context in SectionRenderer; click-to-swap menu-item photos → `updateMenuItem`
+
+## Phase 4 — Builder polish (WYSIWYG)
+- [ ] Palette panel, selection states, device-framed preview, theme toggle, empty states
+
+## Phase 5 — Home menu
+- [ ] Sectionize `/`
+
+## Phase 6 — Variants + menu state (PENDING REVIEW)
+- [ ] Catering / school / holiday surfaces; unified menu-state resolution + state panel
