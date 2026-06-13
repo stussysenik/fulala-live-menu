@@ -365,6 +365,45 @@ export const updateAnimationsEnabled = mutation({
   },
 });
 
+// Ordering kill switch. The /order page is deployed dark: until staff flip
+// this on from /admin, customers see a "coming soon" screen and no order
+// mutations are reachable from the UI. Defaults to FALSE (unlike animations)
+// because an unconfigured deployment must never accept orders.
+export const getOrderingEnabled = query({
+  args: {},
+  handler: async (ctx) => {
+    const settings = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "ordering-enabled"))
+      .first();
+    if (!settings) return false;
+    return settings.value as boolean;
+  },
+});
+
+export const updateOrderingEnabled = mutation({
+  args: { enabled: v.boolean() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("siteSettings")
+      .withIndex("by_key", (q) => q.eq("key", "ordering-enabled"))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        value: args.enabled,
+        updatedAt: Date.now(),
+      });
+    } else {
+      await ctx.db.insert("siteSettings", {
+        key: "ordering-enabled",
+        value: args.enabled,
+        updatedAt: Date.now(),
+      });
+    }
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Per-page display settings
 //

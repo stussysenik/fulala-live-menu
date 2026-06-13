@@ -34,6 +34,16 @@
   async function decide(holidayKey: string, status: "enabled" | "dismissed") {
     await setHolidayPref?.({ holidayKey, status });
   }
+
+  // --- Ordering kill switch ---------------------------------------------------
+  // /order ships dark; this is the one place staff turn it on. Mirrors the
+  // holiday pattern: the server value is authoritative, undefined = off.
+  const orderingEnabled = browser ? useQuery(api.settings.getOrderingEnabled, {}) : null;
+  const setOrderingEnabled = browser ? useMutation(api.settings.updateOrderingEnabled) : null;
+
+  async function toggleOrdering() {
+    await setOrderingEnabled?.({ enabled: !($orderingEnabled === true) });
+  }
 </script>
 
 <div class="dashboard">
@@ -82,6 +92,29 @@
       {/each}
     </p>
   {/if}
+
+  <section class="ordering-card">
+    <div class="ordering-copy">
+      <h2>Self-ordering (/order)</h2>
+      <p>
+        {#if $orderingEnabled === true}
+          Customers can place orders from their phones right now.
+        {:else}
+          The order page shows “Objednávky brzy / Ordering coming soon”.
+        {/if}
+      </p>
+    </div>
+    <button
+      type="button"
+      class="ordering-toggle"
+      class:on={$orderingEnabled === true}
+      role="switch"
+      aria-checked={$orderingEnabled === true}
+      on:click={toggleOrdering}
+    >
+      {$orderingEnabled === true ? "On" : "Off"}
+    </button>
+  </section>
 
   <div class="stats-grid">
     <div class="stat-card">
@@ -293,6 +326,51 @@
     font-size: 0.8125rem;
     padding: 7px 14px;
     cursor: pointer;
+  }
+
+  /* Ordering kill switch — one calm row, same vocabulary as the holiday card. */
+  .ordering-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid #e8e8e4;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ordering-copy h2 {
+    font-size: 1.05rem;
+    font-weight: 650;
+    color: #2c2c2c;
+    margin-bottom: 0.25rem;
+  }
+
+  .ordering-copy p {
+    font-size: 0.875rem;
+    color: #6b6b6b;
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .ordering-toggle {
+    border: 1px solid #e8e8e4;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b6b6b;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 7px 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .ordering-toggle.on {
+    border-color: transparent;
+    background: #2d5016;
+    color: #fff;
   }
 
   .holiday-active-note {

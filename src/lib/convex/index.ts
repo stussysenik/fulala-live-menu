@@ -51,9 +51,23 @@ export function useQuery<Query extends FunctionReference<"query">>(
   const client = getConvexClientFromContext();
 
   return readable<FunctionReturnType<Query> | undefined>(undefined, (set) => {
-    const unsubscribe = client.onUpdate(query, args[0] ?? {}, (result) => {
-      set(result as FunctionReturnType<Query>);
-    });
+    const unsubscribe = client.onUpdate(
+      query,
+      args[0] ?? {},
+      (result) => {
+        set(result as FunctionReturnType<Query>);
+      },
+      // Without this handler a single failing subscription (e.g. the frontend
+      // calling a function the deployment doesn't have yet) tears down the
+      // whole websocket in a reconnect loop, taking every other query on the
+      // page down with it — the TVs then hang on the loading screen. With it,
+      // the bad query stays `undefined` (callers fall back to defaults) and
+      // the rest of the page keeps its live data.
+      (error) => {
+        console.error(`Convex query failed: ${query}`, error);
+        set(undefined as FunctionReturnType<Query>);
+      },
+    );
 
     return () => {
       unsubscribe();

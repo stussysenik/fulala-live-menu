@@ -24,6 +24,12 @@
 		cartTotal,
 	} from '$lib/stores/order';
 
+	// Ordering kill switch: the page ships dark. `undefined` (still loading,
+	// or the query failing) must read as OFF — orders may only flow once the
+	// flag has affirmatively arrived as `true` from the server.
+	const orderingEnabledQuery = browser ? useQuery(api.settings.getOrderingEnabled) : null;
+	$: orderingEnabled = $orderingEnabledQuery === true;
+
 	// Convex mutations
 	const addItemMutation = browser ? useMutation(api.orders.addItemToOrder) : null;
 	const submitOrderMutation = browser ? useMutation(api.orders.submitOrder) : null;
@@ -191,6 +197,21 @@
 	<meta name="description" content="Order your favorite dishes from Fulala" />
 </svelte:head>
 
+{#if !orderingEnabled}
+	<div class="order-page coming-soon">
+		<header class="order-header">
+			<div class="header-content">
+				<a href="/" class="logo">FULALA</a>
+				<span class="order-badge">Self Order</span>
+			</div>
+		</header>
+		<main class="coming-soon-content">
+			<p class="coming-soon-title">Objednávky brzy</p>
+			<p class="coming-soon-subtitle">Ordering coming soon</p>
+			<a href="/" class="coming-soon-link">Prohlédnout menu / View the menu</a>
+		</main>
+	</div>
+{:else}
 <div class="order-page">
 	<header class="order-header">
 		<div class="header-content">
@@ -276,8 +297,40 @@
 		on:newOrder={handleNewOrder}
 	/>
 </div>
+{/if}
 
 <style>
+	.coming-soon-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2, 0.5rem);
+		padding: var(--space-4, 1rem);
+		text-align: center;
+	}
+
+	.coming-soon-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: var(--color-text, #1a1a1a);
+		margin: 0;
+	}
+
+	.coming-soon-subtitle {
+		font-size: 1rem;
+		color: var(--color-text-muted, #6b6b6b);
+		margin: 0;
+	}
+
+	.coming-soon-link {
+		margin-top: var(--space-4, 1rem);
+		color: var(--color-accent, #e83636);
+		text-decoration: underline;
+		font-size: 0.95rem;
+	}
+
 	.order-page {
 		min-height: 100vh;
 		background: var(--color-bg, #faf9f7);
