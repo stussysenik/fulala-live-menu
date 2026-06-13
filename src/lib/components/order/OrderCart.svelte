@@ -11,8 +11,15 @@
 		formatModifiers,
 	} from '$lib/stores/order';
 	import PriceDisplay from '../PriceDisplay.svelte';
+	import { splitBill } from '$lib/domain/billSplit';
 
 	export let isOpen: boolean = false;
+
+	// Split the bill between friends: whole-crown shares, remainder visibly
+	// on the first people. Person chips over arithmetic — show, don't explain.
+	let splitCount = 1;
+	$: shares = splitBill($cartTotal, splitCount);
+	const FRIEND_EMOJI = ['🧑', '👩', '🧔', '👱', '👵', '🧒', '👨‍🦱', '👩‍🦰', '🧓', '👦', '👧', '🧑‍🦳'];
 
 	const dispatch = createEventDispatcher<{
 		close: void;
@@ -108,6 +115,35 @@
 						<span>Total</span>
 						<span class="total-price"><PriceDisplay price={$cartTotal} /></span>
 					</div>
+
+					<div class="split-row">
+						<span class="split-label">Split with friends</span>
+						<div class="split-stepper">
+							<button
+								class="qty-btn"
+								disabled={splitCount <= 1}
+								on:click={() => (splitCount = Math.max(1, splitCount - 1))}
+								aria-label="Fewer people">-</button
+							>
+							<span class="qty-value">{splitCount === 1 ? '—' : splitCount}</span>
+							<button
+								class="qty-btn"
+								disabled={splitCount >= 12}
+								on:click={() => (splitCount = Math.min(12, splitCount + 1))}
+								aria-label="More people">+</button
+							>
+						</div>
+					</div>
+					{#if splitCount >= 2}
+						<div class="split-shares" aria-label="Per-person amounts">
+							{#each shares as share, i (i)}
+								<div class="split-person">
+									<span class="split-face">{FRIEND_EMOJI[i % FRIEND_EMOJI.length]}</span>
+									<span class="split-amount">{share} Kč</span>
+								</div>
+							{/each}
+						</div>
+					{/if}
 				</div>
 
 				<footer class="cart-footer">
@@ -343,6 +379,62 @@
 		padding: var(--space-4, 1rem);
 		border-top: 1px solid var(--color-border, #e5e5e5);
 		background: rgba(0, 0, 0, 0.02);
+	}
+
+	/* Bill split — person chips, not arithmetic. */
+	.split-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: var(--space-3, 0.75rem);
+		padding-top: var(--space-3, 0.75rem);
+		border-top: 1px dashed var(--color-border, #e5e5e5);
+	}
+
+	.split-label {
+		font-size: var(--text-sm, 0.875rem);
+		font-weight: 600;
+		color: var(--color-text, #1a1a1a);
+	}
+
+	.split-stepper {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2, 0.5rem);
+		background: rgba(0, 0, 0, 0.05);
+		border-radius: var(--radius-md, 8px);
+		padding: 2px;
+	}
+
+	.split-shares {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2, 0.5rem);
+		margin-top: var(--space-3, 0.75rem);
+	}
+
+	.split-person {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+		background: var(--color-surface, #fff);
+		border: 1px solid var(--color-border, #e5e5e5);
+		border-radius: var(--radius-md, 8px);
+		padding: 6px 10px;
+		min-width: 56px;
+	}
+
+	.split-face {
+		font-size: 1.25rem;
+		line-height: 1;
+	}
+
+	.split-amount {
+		font-family: var(--font-price, 'DM Mono', monospace);
+		font-size: var(--text-xs, 0.75rem);
+		font-weight: 600;
+		color: var(--color-text, #1a1a1a);
 	}
 
 	.summary-row {
