@@ -19,6 +19,7 @@
   import { api } from "../../../../convex/_generated/api";
   import type { Id } from "../../../../convex/_generated/dataModel";
   import ImagePicker from "./ImagePicker.svelte";
+  import { menuItemReadiness, readinessSummary } from "$lib/domain/menuItem";
 
   export let categoryName: string;
   export let uploadImage:
@@ -213,6 +214,12 @@
             </button>
           </div>
 
+          {#if !menuItemReadiness(item).ready}
+            <p class="draft-flag" data-testid="item-draft-flag">
+              Draft · hidden from screens — {readinessSummary(item)}
+            </p>
+          {/if}
+
           {#if imageOpen === item._id}
             <div class="image-panel">
               <ImagePicker
@@ -334,6 +341,14 @@
   .row-off .price-input {
     color: var(--muted);
     text-decoration: line-through;
+  }
+
+  .draft-flag {
+    margin: 0.25rem 0 0.125rem 50px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--accent, #C41E3A);
+    letter-spacing: 0.01em;
   }
 
   .row-main {

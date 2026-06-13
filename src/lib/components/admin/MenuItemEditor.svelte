@@ -4,6 +4,7 @@
   import PriceTierEditor from './PriceTierEditor.svelte';
   import OptionGroupsEditor from './OptionGroupsEditor.svelte';
   import type { OptionGroupConfig } from '$lib/domain/optionValidation';
+  import { displayName, secondaryName, menuItemReadiness, readinessSummary } from '$lib/domain/menuItem';
 
   export let item: any = null;
   export let categories: any[] = [];
@@ -28,6 +29,15 @@
   let imageStorageId = item?.imageStorageId ?? '';
   let sortOrder = item?.sortOrder ?? 1;
   let optionGroups: OptionGroupConfig[] = item?.optionGroups ?? [];
+
+  // Live mirror of what the screens will see, so the editor can show the exact
+  // on-screen title and whether the item is allowed to publish. This is the
+  // fix for "I edited the name but the TV didn't change" — the headline the
+  // staff sees here resolves through the same rule the TV uses.
+  $: preview = { name, nameLocal, price: Number(price), priceTiers, categoryId };
+  $: screenTitle = displayName(preview);
+  $: screenSecondary = secondaryName(preview);
+  $: readiness = menuItemReadiness(preview);
 
   function handleTiersChange(e: CustomEvent<Array<{ quantity: string; price: number }>>) {
     priceTiers = e.detail;
@@ -100,20 +110,35 @@
 </script>
 
 <form class="editor" on:submit|preventDefault={save}>
+  <!-- Truth strip: exactly what a customer screen will headline, and whether
+       this item is allowed onto the screens at all. Introduce, don't assume. -->
+  <div class="screen-preview" data-ready={readiness.ready} data-testid="editor-screen-preview">
+    <div class="screen-preview-text">
+      <span class="screen-preview-label">On screen as</span>
+      <span class="screen-preview-title">{screenTitle || '— add a name —'}</span>
+      {#if screenSecondary}<span class="screen-preview-secondary">{screenSecondary}</span>{/if}
+    </div>
+    {#if readiness.ready}
+      <span class="screen-pill ready">Ready · shows on screens</span>
+    {:else}
+      <span class="screen-pill draft">Draft · hidden — {readinessSummary(preview)}</span>
+    {/if}
+  </div>
+
+  <div class="field">
+    <label for="ed-local">Name (Czech) — shown as the title</label>
+    <input id="ed-local" type="text" bind:value={nameLocal} placeholder="e.g. Vepřové knedlíčky" />
+  </div>
+
   <div class="form-row">
     <div class="field">
-      <label for="ed-name">Name (EN)</label>
-      <input id="ed-name" type="text" bind:value={name} required />
+      <label for="ed-name">Name (English) — secondary line</label>
+      <input id="ed-name" type="text" bind:value={name} />
     </div>
     <div class="field">
       <label for="ed-chinese">Chinese</label>
       <input id="ed-chinese" type="text" bind:value={nameChinese} placeholder="中文名" />
     </div>
-  </div>
-
-  <div class="field">
-    <label for="ed-local">Name (CZ)</label>
-    <input id="ed-local" type="text" bind:value={nameLocal} />
   </div>
 
   <div class="field">
@@ -180,6 +205,68 @@
     background: white;
     border: 1px solid #E8E8E4;
     border-radius: 0.75rem;
+  }
+
+  .screen-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 0.875rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background: #FAFAF8;
+    border: 1px solid #E8E8E4;
+    border-left: 3px solid #C41E3A;
+  }
+
+  .screen-preview[data-ready='true'] {
+    border-left-color: #2d5016;
+  }
+
+  .screen-preview-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .screen-preview-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6B6B6B;
+  }
+
+  .screen-preview-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: #2C2C2C;
+    line-height: 1.2;
+  }
+
+  .screen-preview-secondary {
+    font-size: 0.8125rem;
+    color: #6B6B6B;
+  }
+
+  .screen-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .screen-pill.ready {
+    color: #2d5016;
+    background: color-mix(in srgb, #2d5016 12%, transparent);
+  }
+
+  .screen-pill.draft {
+    color: #C41E3A;
+    background: color-mix(in srgb, #C41E3A 10%, transparent);
   }
 
   .form-row {

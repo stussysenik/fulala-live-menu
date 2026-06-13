@@ -14,6 +14,7 @@
 	import { api } from '../../../../convex/_generated/api';
 	import ItemPhoto from '../atoms/ItemPhoto.svelte';
 	import SectionTitle from '../atoms/SectionTitle.svelte';
+	import { isReadyForDisplay, displayName, secondaryName } from '$lib/domain/menuItem';
 
 	/** Stable category name to read (portable across deployments). */
 	export let categoryName: string;
@@ -36,8 +37,10 @@
 		? useQuery(api.menu.getCategoryWithItems, { name: categoryName })
 		: null;
 
+	// Hard rail: incomplete drafts never reach the grid. Then the existing
+	// availability and max-items rules apply on top.
 	$: items = ($category?.items ?? [])
-		.filter((i) => i.isAvailable)
+		.filter((i) => isReadyForDisplay(i) && i.isAvailable)
 		.slice(0, maxItems > 0 ? maxItems : undefined);
 </script>
 
@@ -55,10 +58,10 @@
 			{#each items as item (item._id)}
 				<div class="tv-photo-card">
 					{#if showImages}
-						<ItemPhoto src={item.imageUrl} alt={item.nameLocal || item.name} />
+						<ItemPhoto src={item.imageUrl} alt={displayName(item)} />
 					{/if}
 					<div class="tv-photo-name">
-						{item.nameLocal || item.name}
+						{displayName(item)}
 						{#if showChinese && item.nameChinese}
 							<span class="tv-photo-cn">{item.nameChinese}</span>
 						{/if}

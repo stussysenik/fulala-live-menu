@@ -13,6 +13,7 @@
 	import { useQuery } from '$lib/convex';
 	import { api } from '../../../../convex/_generated/api';
 	import TvCategory from '$lib/components/tv/TvCategory.svelte';
+	import { readyForDisplay } from '$lib/domain/menuItem';
 
 	/** Stable category name to read (portable across deployments). */
 	export let categoryName: string;
@@ -24,12 +25,16 @@
 	const category = browser
 		? useQuery(api.menu.getCategoryWithItems, { name: categoryName })
 		: null;
+
+	// Hard rail: only finished items reach a customer screen. Half-built drafts
+	// (no name, no price) stay in the admin until staff complete them.
+	$: items = readyForDisplay($category?.items ?? []);
 </script>
 
-{#if $category}
+{#if $category && items.length > 0}
 	<TvCategory
 		category={$category}
-		items={$category.items}
+		{items}
 		{showImages}
 		{showChinese}
 		{showAllergens}

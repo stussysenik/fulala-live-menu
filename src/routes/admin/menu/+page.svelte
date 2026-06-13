@@ -4,6 +4,7 @@
   import { api } from "../../../../convex/_generated/api";
   import MenuItemEditor from "$lib/components/admin/MenuItemEditor.svelte";
   import ImagePicker from "$lib/components/admin/ImagePicker.svelte";
+  import { displayName, secondaryName, menuItemReadiness, readinessSummary } from "$lib/domain/menuItem";
 
   type ImageSelectDetail = {
     imageUrl: string;
@@ -288,12 +289,21 @@
                   {/if}
                 </div>
                 <div class="item-info">
+                  <!-- Headline the SAME name the TV shows (Czech-first), with the
+                       English name stacked underneath — exactly how the screens
+                       render it — so the admin list and the TV match by eye. -->
                   <div class="item-name">
-                    {item.name}
+                    {displayName(item) || '— add a name —'}
                     {#if item.nameChinese}
                       <span class="chinese">{item.nameChinese}</span>
                     {/if}
                   </div>
+                  {#if secondaryName(item)}
+                    <div class="item-name-en">{secondaryName(item)}</div>
+                  {/if}
+                  {#if !menuItemReadiness(item).ready}
+                    <div class="draft-flag">Draft · hidden from screens — {readinessSummary(item)}</div>
+                  {/if}
                   <div class="item-meta">
                     {#if item.priceTiers && item.priceTiers.length > 0}
                       {#each item.priceTiers as tier}
@@ -494,6 +504,20 @@
     font-weight: 400;
     color: #6B6B6B;
     margin-left: 0.375rem;
+  }
+
+  .item-name-en {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: #6B6B6B;
+    margin-top: 0.0625rem;
+  }
+
+  .draft-flag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #C41E3A;
+    margin-top: 0.1875rem;
   }
 
   .item-meta {

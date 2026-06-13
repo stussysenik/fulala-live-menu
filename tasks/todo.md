@@ -15,6 +15,42 @@ Plan: ~/.claude/plans/zesty-tumbling-biscuit.md (approved 2026-06-13)
 - [ ] Phase 6: Compose /tv-info — swap discounts→extras+drinks (with owner's visual review;
       live physical screen, don't publish unreviewed)
 
+## Phase 7 — Menu sync hardening + production-ready gate (provisioning)
+
+Two real defects, customer-facing:
+1. **Name edits didn't reach /tv** — admin's prominent field is "Name (EN)"→`name`,
+   but the TV headline is `nameLocal || name`. Editing EN never moves a CZ-headlined
+   title. Feature tags toggled visibly → "tags updated, names didn't."
+2. **Incomplete items leak to customers** — new items are created with `price: 0`,
+   so a half-built draft shows on the TVs/home as "Nová položka — 0 Kč."
+
+Fix on the FRONTEND display layer only (prod backend deploys are forbidden per the
+June 13 incident — backend gating would need a deploy and risks desync). A shared
+pure domain module is the single source of truth, unit-tested.
+
+```mermaid
+flowchart TD
+    A[menuItems in Convex] --> B{isReadyForDisplay?}
+    B -->|name + price + category| C[Customer surfaces: TV / home]
+    B -->|missing field| D[Hidden — hard-railed]
+    A --> E[Admin surfaces: composer / menu / events]
+    E --> F[Show ALL + readiness badge + missing fields]
+    G[Admin edits name] --> H[displayName = nameLocal then name]
+    H --> I["On screen as: …" live preview in editor]
+```
+
+- [x] `src/lib/domain/menuItem.ts` — `displayName`, `secondaryName`, `hasValidPrice`,
+      `menuItemReadiness`, `isReadyForDisplay`, `readinessSummary` (pure, doc-commented)
+- [x] `src/lib/domain/menuItem.test.ts` — vitest, 20 tests: precedence + gate + edges
+- [x] Gate customer surfaces: MenuCategory, CategoryPhotoGrid, ExtrasList, Menu, home `+page`, LayoutRenderer
+- [x] Admin transparency: MenuItemEditor ("On screen as" preview + readiness pill + relabeled fields);
+      SectionItemsEditor + /admin/menu list now headline displayName (Czech) with English STACKED under
+      + per-item "Draft — hidden from screens" badge — admin list now mirrors the TV by eye
+- [x] Verify: vitest 20/20; svelte-check 0 errors; verified live in browser against REAL PROD data —
+      shrimp name edit synced to TV, admin list mirrors TV, incomplete items hard-railed, console clean
+- [x] Database sync: repointed local `.env.local` to production (cheery-setter-27) — single source of
+      truth; backed up prod first (backups/prod-2026-06-13-0645.zip). `.env.local` is gitignored.
+
 ## Review
 
 (to be filled after completion)

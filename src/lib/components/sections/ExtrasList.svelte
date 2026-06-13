@@ -11,6 +11,7 @@
 	import { browser } from '$app/environment';
 	import { useQuery } from '$lib/convex';
 	import { api } from '../../../../convex/_generated/api';
+	import { isReadyForDisplay, displayName, secondaryName } from '$lib/domain/menuItem';
 
 	/** Heading shown above the list. */
 	export let title: string = 'EXTRA';
@@ -21,7 +22,8 @@
 		? useQuery(api.menu.getCategoryWithItems, { name: categoryName })
 		: null;
 
-	$: items = ($category?.items ?? []).filter((i) => i.isAvailable);
+	// Hard rail first (no half-built drafts), then the availability rule.
+	$: items = ($category?.items ?? []).filter((i) => isReadyForDisplay(i) && i.isAvailable);
 </script>
 
 {#if items.length > 0}
@@ -31,9 +33,9 @@
 			{#each items as item (item._id)}
 				<div class="tv-extras-item">
 					<span class="tv-extras-name">
-						{item.nameLocal || item.name}
-						{#if item.nameLocal && item.nameLocal !== item.name}
-							<span class="tv-extras-name-en">/ {item.name}</span>
+						{displayName(item)}
+						{#if secondaryName(item)}
+							<span class="tv-extras-name-en">/ {secondaryName(item)}</span>
 						{/if}
 					</span>
 					<span class="tv-extras-price">{item.price} Kč</span>

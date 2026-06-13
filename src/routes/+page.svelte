@@ -10,9 +10,12 @@
 	import AllergenLegend from '$lib/components/AllergenLegend.svelte';
 	import Category from '$lib/components/Category.svelte';
 	import { t, lang, locale } from '$lib/i18n/store';
+	import { readyForDisplay } from '$lib/domain/menuItem';
 
 	const menuQuery = browser ? useQuery(api.menu.getFullMenu) : null;
-	$: menu = $menuQuery ?? [];
+	// Hard rail: the public menu only ever shows finished items. Half-built
+	// drafts stay in the admin (which reads the same data unfiltered).
+	$: menu = ($menuQuery ?? []).map((c) => ({ ...c, items: readyForDisplay(c.items) }));
 
 	const scheduleQuery = browser ? useQuery(api.settings.getMenuSchedule, {}) : null;
 	$: schedule = $scheduleQuery;

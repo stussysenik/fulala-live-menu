@@ -4,6 +4,7 @@
 	import { useQuery } from '$lib/convex';
 	import { api } from '../../../convex/_generated/api';
 	import type { Doc, Id } from '../../../convex/_generated/dataModel';
+	import { isReadyForDisplay } from '$lib/domain/menuItem';
 
 	type CategoryDoc = Doc<'categories'>;
 	type MenuItemDoc = Doc<'menuItems'>;
@@ -13,7 +14,9 @@
 	const menuItemsQuery = browser ? useQuery(api.menu.getMenuItems) : null;
 
 	$: categories = ($categoriesQuery ?? []) as CategoryDoc[];
-	$: menuItems = ($menuItemsQuery ?? []) as MenuItemDoc[];
+	// Hard rail: a customer never sees (or orders) a half-built draft. Admin
+	// surfaces read the same data unfiltered; only this customer view gates.
+	$: menuItems = (($menuItemsQuery ?? []) as MenuItemDoc[]).filter(isReadyForDisplay);
 
 	$: categoriesWithItems = categories.map((category: CategoryDoc) => ({
 		...category,

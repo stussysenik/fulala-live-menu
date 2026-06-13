@@ -8,6 +8,7 @@
 	import TraditionalChineseGrid from './TraditionalChineseGrid.svelte';
 	import Menu from '../Menu.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { readyForDisplay } from '$lib/domain/menuItem';
 
 	// Which page type to fetch layout for
 	export let pageType: 'display' | 'order' = 'display';
@@ -23,9 +24,11 @@
 	const layoutQuery = browser ? useQuery(api.layouts.getActiveLayout, { pageType }) : null;
 	$: layoutData = $layoutQuery;
 
-	// Fetch full menu data
+	// Fetch full menu data. Hard rail: incomplete drafts are filtered out of
+	// every category before any layout renders them — no 0 Kč placeholders on
+	// a customer screen or in the order flow.
 	const menuQuery = browser ? useQuery(api.menu.getFullMenu) : null;
-	$: categories = $menuQuery ?? [];
+	$: categories = ($menuQuery ?? []).map((c) => ({ ...c, items: readyForDisplay(c.items) }));
 
 	// Determine which layout to use
 	$: layoutType = layoutOverride ?? layoutData?.layoutType ?? 'standard-list';
