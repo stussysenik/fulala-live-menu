@@ -38,12 +38,21 @@ Rule: build + verify in dev (FlowDeck / browser). No prod deploys.
 - [x] Mark tv-dumplings + tv-noodles `composable` in `/admin/displays/+page.svelte` (home → Phase 5)
 - [x] Verify: 12/12 vitest pass; svelte-check 0 errors; all 3 TVs + valentine + composer screenshotted, render identical
 
-## Phase 2 — Palette + section images
-- [ ] `kind: 'image'` + `ImageRef` + validation; `convex/files.getImageUrl`; ImagePicker in inspector
+## Phase 2 — Inline item editing + builder craft ✅ DONE (reprioritized per owner)
+- [x] `SectionItemsEditor.svelte` — edit each item's CZ/EN/Chinese text, price, availability,
+      photo (ImagePicker: Library/Upload/URL) + "+ Add item", inline, writing live to the menu
+- [x] Wire composer to `updateMenuItem` / `createMenuItem` / `generateImageUploadUrl`
+- [x] Collapsible section cards (bits-ui/melt-ui Collapsible), collapsed by default to save space
+- [x] Preview fit-to-box (scales to width AND height) — always fully visible, sticky
+- [x] Design pass: iA-Writer editorial — DM Mono labels, Cormorant names, paper/ink, red accent
+- [x] Verify: svelte-check 0 errors; composer + item editing + image picker screenshotted, console clean
+
+## Phase 2b — Rich palette + section-level images (still pending)
+- [ ] `kind: 'image'` + `ImageRef` + validation; `convex/files.getImageUrl`
 - [ ] New section types: Hero/Image, Heading, Spacer/Divider
 
-## Phase 3 — Inline photo ownership
-- [ ] `editable` context in SectionRenderer; click-to-swap menu-item photos → `updateMenuItem`
+## Phase 3 — In-preview photo ownership (still pending)
+- [ ] `editable` context in SectionRenderer; click-to-swap photos directly in the preview canvas
 
 ## Phase 4 — Builder polish (WYSIWYG)
 - [ ] Palette panel, selection states, device-framed preview, theme toggle, empty states
