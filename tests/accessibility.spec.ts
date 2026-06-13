@@ -4,16 +4,17 @@ test.describe('Accessibility', () => {
   test('page has correct document language', async ({ page }) => {
     await page.goto('/');
 
+    // Czech-first app: server renders lang="cs"; the toggle switches to en.
     const html = page.locator('html');
-    await expect(html).toHaveAttribute('lang', 'en');
+    await expect(html).toHaveAttribute('lang', /^(cs|en)$/);
   });
 
   test('page has descriptive title', async ({ page }) => {
     await page.goto('/');
 
-    const title = await page.title();
-    expect(title.length).toBeGreaterThan(0);
-    expect(title).toContain('Fulala');
+    // Title is set client-side (svelte:head) once the schedule loads.
+    await page.waitForFunction(() => document.title.length > 0, { timeout: 10000 });
+    expect(await page.title()).toContain('FULALA');
   });
 
   test('main heading is visible and descriptive', async ({ page }) => {
@@ -21,7 +22,7 @@ test.describe('Accessibility', () => {
 
     const h1 = page.getByRole('heading', { level: 1 });
     await expect(h1).toBeVisible();
-    await expect(h1).toHaveText('Fulala');
+    await expect(h1).toContainText('FULALA.CZ');
   });
 
   test('menu items have accessible labels', async ({ page }) => {
@@ -162,8 +163,8 @@ test.describe('Visual Accessibility', () => {
     const unavailableItem = page.locator('[data-available="false"]').first();
 
     if (await unavailableItem.count() > 0) {
-      // Should have "Sold Out" text as non-color indicator
-      const soldOutText = unavailableItem.getByText('Sold Out');
+      // Non-color indicator in either language (cs default / en toggle).
+      const soldOutText = unavailableItem.getByText(/Sold Out|Vyprodáno/);
       await expect(soldOutText).toBeVisible();
     }
   });
