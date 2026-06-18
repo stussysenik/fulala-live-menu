@@ -17,6 +17,41 @@
 
 Real-time restaurant menu display for [Fulala](https://fulala.cz). Powers `menu.fulala.cz` standalone and embeds inside `fulala.cz/menu`. Updates instantly when staff changes anything — prices, availability, weekly rotation.
 
+## What is this?
+
+### In 1 minute
+
+A live digital menu for the Fulala dumpling & noodle restaurant. One backend ([Convex](https://convex.dev)) feeds three audiences from the same data: **customers** on their phones (`menu.fulala.cz`), the **portrait TVs** mounted in the shop (`/tv-*`), and **staff** in an admin dashboard (`/admin/*`). When a staff member edits a price, toggles availability, or swaps a photo, every screen updates within ~200ms — no rebuild, no redeploy. Prices show in CZK/EUR, text in Czech/English, and EU allergens are labelled on every item.
+
+### In 10 minutes
+
+**Shape.** It's a [SvelteKit](https://svelte.dev) app on Vercel (region `fra1`, auto-deploys from `main`) with a Convex realtime backend (prod deployment `cheery-setter-27`). The public and TV pages are **client-rendered** (`ssr = false`): the server ships a thin shell, then the browser opens a Convex WebSocket and streams the menu live. That's why a `curl` of a TV page returns an near-empty HTML file — the content arrives over the socket.
+
+**Data flow.** Convex holds the menu (categories → items, with multi-tier pricing, allergen codes, Chinese names, and either a static image path or a Convex-storage image). Queries like `menu.getFullMenu` and `menu.getCategoryWithItems` resolve storage IDs into signed image URLs on the way out. The Svelte components are a pure projection of that data: `+page.svelte` (mobile menu) and the `tv/` components (TV displays) subscribe via `useQuery` and re-render reactively.
+
+**Three surfaces, one source of truth.**
+- **`/`** — the customer menu (phone/web), `Category` → `MenuItem`.
+- **`/tv-dumplings`, `/tv-noodles`, `/tv-info`** — portrait TV displays for in-shop LG 43" screens, plus seasonal Valentine's variants.
+- **`/admin/*`** — staff CRUD for menu, schedule, theme, layouts, events, plus image upload to Convex storage and a consolidated live TV preview.
+
+**Display rules.** Two layers decide what a screen shows: a **theme** (`settings.getTheme` — colors, fonts, and global flags like `display.showImages`) and **per-page settings** (`settings.getPageSettings` — `showImages` / `showChinese` / `showAllergens` overrides keyed by page slug, e.g. `home`). A `readyForDisplay` hard-rail also filters out half-built draft items so incomplete entries never reach a customer screen.
+
+### The longer version
+
+**Why client-rendered.** Every meaningful read is a live Convex subscription, so server-rendering the menu would just produce stale HTML that the client immediately replaces. `ssr = false` skips that wasted round-trip; the page paints an instant skeleton, then fills in over the socket. Trade-off: pages are blank to a plain HTTP fetch and to crawlers — fine here because the canonical SEO surface is `fulala.cz` itself, which embeds this.
+
+**Images, and the gotcha behind real incidents.** An item's photo is either a static asset under `static/images/...` or a file in Convex storage referenced by `imageStorageId`; queries turn the latter into a signed URL. But whether a photo *renders* is gated by **both** the active theme's `display.showImages` **and** the page-level `showImages` override for that slug. Either being `false` blanks the photos. The TV components only honor the page-level flag, so it's possible (and has happened) for the TVs to show photos while the public `/` menu hides them — because the `home` page setting was toggled off in admin while the theme still allowed images. If photos vanish on one surface but not another, check `settings.getPageSettings` for that slug first.
+
+**Internationalization & money.** UI strings live in `lib/i18n` (Czech-first, English toggle); items additionally carry Chinese characters. Currency is a "lens" — prices are stored once and converted/formatted at display time (`lib/currency`) across CZK/EUR/USD/CNY with configurable rates, defaulting to single-currency CZK.
+
+**Allergens.** Full EU 14-allergen system with sub-types (1a wheat, 1b rye, 1c barley, 1d oats…), rendered as numbered badges on items and a legend block, data-driven from `lib/allergens`.
+
+**Layouts & theming.** Admin can pick among display layouts (standard list, dim sum grid, card grid, traditional Chinese order sheet) per page, and edit a theme (colors/fonts/spacing/currency config) with live preview. Themes are stored in Convex `siteSettings` and applied as CSS custom properties at runtime by `ThemeProvider`.
+
+**Ordering.** `/order` is a session-based cart with item modifiers (noodle type, spice level, frying, broth, add-ons) and bill-splitting, shipped behind an admin kill switch.
+
+**Deploy & ops.** Push to `main` → Vercel builds (`npm run validate:env && vite build`) and deploys to `fra1`. The build refuses to start without `VITE_CONVEX_URL`. Prod Convex data can be backed up with `npm run backup:prod`. Domain config and runbook details live in `DOCS.md` / `PROGRESS.md`.
+
 ## Quick Start
 
 ```bash
